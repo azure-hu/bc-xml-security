@@ -23,31 +23,31 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public abstract class Transform
     {
-        private string _algorithm;
-        private string _baseUri = null;
+        private String _algorithm;
+        private String _baseUri = null;
         internal XmlResolver _xmlResolver = null;
-        private bool _bResolverSet = false;
+        private Boolean _bResolverSet = false;
         private SignedXml _signedXml = null;
         private Reference _reference = null;
         private Hashtable _propagatedNamespaces = null;
         private XmlElement _context = null;
 
-        internal string BaseURI
+        internal String BaseURI
         {
-            get { return _baseUri; }
-            set { _baseUri = value; }
+            get { return this._baseUri; }
+            set { this._baseUri = value; }
         }
 
         internal SignedXml SignedXml
         {
-            get { return _signedXml; }
-            set { _signedXml = value; }
+            get { return this._signedXml; }
+            set { this._signedXml = value; }
         }
 
         internal Reference Reference
         {
-            get { return _reference; }
-            set { _reference = value; }
+            get { return this._reference; }
+            set { this._reference = value; }
         }
 
         //
@@ -60,30 +60,30 @@ namespace Org.BouncyCastle.Crypto.Xml
         // public properties
         //
 
-        public string Algorithm
+        public String Algorithm
         {
-            get { return _algorithm; }
-            set { _algorithm = value; }
+            get { return this._algorithm; }
+            set { this._algorithm = value; }
         }
 
         public XmlResolver Resolver
         {
             internal get
             {
-                return _xmlResolver;
+                return this._xmlResolver;
             }
             // This property only has a public setter. The rationale for this is that we don't have a good value
             // to return when it has not been explicitely set, as we are using XmlSecureResolver by default
             set
             {
-                _xmlResolver = value;
-                _bResolverSet = true;
+                this._xmlResolver = value;
+                this._bResolverSet = true;
             }
         }
 
-        internal bool ResolverSet
+        internal Boolean ResolverSet
         {
-            get { return _bResolverSet; }
+            get { return this._bResolverSet; }
         }
 
         public abstract Type[] InputTypes
@@ -96,14 +96,16 @@ namespace Org.BouncyCastle.Crypto.Xml
             get;
         }
 
-        internal bool AcceptsType(Type inputType)
+        internal Boolean AcceptsType(Type inputType)
         {
-            if (InputTypes != null)
+            if (this.InputTypes != null)
             {
-                for (int i = 0; i < InputTypes.Length; i++)
+                for (Int32 i = 0; i < this.InputTypes.Length; i++)
                 {
-                    if (inputType == InputTypes[i] || inputType.IsSubclassOf(InputTypes[i]))
+                    if (inputType == this.InputTypes[i] || inputType.IsSubclassOf(this.InputTypes[i]))
+                    {
                         return true;
+                    }
                 }
             }
             return false;
@@ -117,20 +119,23 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
-            return GetXml(document, "Transform");
+            return this.GetXml(document, "Transform");
         }
 
-        internal XmlElement GetXml(XmlDocument document, string name)
+        internal XmlElement GetXml(XmlDocument document, String name)
         {
-            XmlElement transformElement = document.CreateElement(name, SignedXml.XmlDsigNamespaceUrl);
-            if (!string.IsNullOrEmpty(Algorithm))
-                transformElement.SetAttribute("Algorithm", Algorithm);
-            XmlNodeList children = GetInnerXml();
+            XmlElement transformElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, name, SignedXml.XmlDsigNamespaceUrl);
+            if (!String.IsNullOrEmpty(this.Algorithm))
+            {
+                transformElement.SetAttribute("Algorithm", this.Algorithm);
+            }
+
+            XmlNodeList children = this.GetInnerXml();
             if (children != null)
             {
                 foreach (XmlNode node in children)
@@ -145,20 +150,21 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         protected abstract XmlNodeList GetInnerXml();
 
-        public abstract void LoadInput(object obj);
+        public abstract void LoadInput(Object obj);
 
-        public abstract object GetOutput();
+        public abstract Object GetOutput();
 
-        public abstract object GetOutput(Type type);
+        public abstract Object GetOutput(Type type);
 
         public virtual void GetDigestedOutput(IHash hash)
         {
             // Default the buffer size to 4K.
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            var inputStream = (Stream)GetOutput(typeof(Stream));
+            Byte[] buffer = new Byte[4096];
+            Int32 bytesRead;
+            Stream inputStream = (Stream)this.GetOutput(typeof(Stream));
             hash.Reset();
-            while ((bytesRead = inputStream.Read(buffer, 0, buffer.Length)) > 0) {
+            while ((bytesRead = inputStream.Read(buffer, 0, buffer.Length)) > 0)
+            {
                 hash.BlockUpdate(buffer, 0, bytesRead);
             }
         }
@@ -167,19 +173,23 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             get
             {
-                if (_context != null)
-                    return _context;
+                if (this._context != null)
+                {
+                    return this._context;
+                }
 
-                Reference reference = Reference;
-                SignedXml signedXml = (reference == null ? SignedXml : reference.SignedXml);
+                Reference reference = this.Reference;
+                SignedXml signedXml = (reference == null ? this.SignedXml : reference.SignedXml);
                 if (signedXml == null)
+                {
                     return null;
+                }
 
                 return signedXml._context;
             }
             set
             {
-                _context = value;
+                this._context = value;
             }
         }
 
@@ -187,42 +197,50 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             get
             {
-                if (_propagatedNamespaces != null)
-                    return _propagatedNamespaces;
+                if (this._propagatedNamespaces != null)
+                {
+                    return this._propagatedNamespaces;
+                }
 
-                Reference reference = Reference;
-                SignedXml signedXml = (reference == null ? SignedXml : reference.SignedXml);
+                Reference reference = this.Reference;
+                SignedXml signedXml = (reference == null ? this.SignedXml : reference.SignedXml);
 
                 // If the reference is not a Uri reference with a DataObject target, return an empty hashtable.
                 if (reference != null &&
                     ((reference.ReferenceTargetType != ReferenceTargetType.UriReference) ||
-                     (string.IsNullOrEmpty(reference.Uri) || reference.Uri[0] != '#')))
+                     (String.IsNullOrEmpty(reference.Uri) || reference.Uri[0] != '#')))
                 {
-                    _propagatedNamespaces = new Hashtable(0);
-                    return _propagatedNamespaces;
+                    this._propagatedNamespaces = new Hashtable(0);
+                    return this._propagatedNamespaces;
                 }
 
                 CanonicalXmlNodeList namespaces = null;
                 if (reference != null)
+                {
                     namespaces = reference._namespaces;
+                }
                 else if (signedXml?._context != null)
+                {
                     namespaces = Utils.GetPropagatedAttributes(signedXml._context);
+                }
 
                 // if no namespaces have been propagated, return an empty hashtable.
                 if (namespaces == null)
                 {
-                    _propagatedNamespaces = new Hashtable(0);
-                    return _propagatedNamespaces;
+                    this._propagatedNamespaces = new Hashtable(0);
+                    return this._propagatedNamespaces;
                 }
 
-                _propagatedNamespaces = new Hashtable(namespaces.Count);
+                this._propagatedNamespaces = new Hashtable(namespaces.Count);
                 foreach (XmlNode attrib in namespaces)
                 {
-                    string key = ((attrib.Prefix.Length > 0) ? attrib.Prefix + ":" + attrib.LocalName : attrib.LocalName);
-                    if (!_propagatedNamespaces.Contains(key))
-                        _propagatedNamespaces.Add(key, attrib.Value);
+                    String key = ((attrib.Prefix.Length > 0) ? attrib.Prefix + ":" + attrib.LocalName : attrib.LocalName);
+                    if (!this._propagatedNamespaces.Contains(key))
+                    {
+                        this._propagatedNamespaces.Add(key, attrib.Value);
+                    }
                 }
-                return _propagatedNamespaces;
+                return this._propagatedNamespaces;
             }
         }
     }

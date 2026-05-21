@@ -2,61 +2,74 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
+using System;
 using System.Text;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
     // the class that provides node subset state and canonicalization function to XmlComment
     internal class CanonicalXmlComment : XmlComment, ICanonicalizableNode
     {
-        private bool _isInNodeSet;
-        private readonly bool _includeComments;
+        private Boolean _isInNodeSet;
+        private readonly Boolean _includeComments;
 
-        public CanonicalXmlComment(string comment, XmlDocument doc, bool defaultNodeSetInclusionState, bool includeComments)
+        public CanonicalXmlComment(String comment, XmlDocument doc, Boolean defaultNodeSetInclusionState, Boolean includeComments)
             : base(comment, doc)
         {
-            _isInNodeSet = defaultNodeSetInclusionState;
-            _includeComments = includeComments;
+            this._isInNodeSet = defaultNodeSetInclusionState;
+            this._includeComments = includeComments;
         }
 
-        public bool IsInNodeSet
+        public Boolean IsInNodeSet
         {
-            get { return _isInNodeSet; }
-            set { _isInNodeSet = value; }
+            get { return this._isInNodeSet; }
+            set { this._isInNodeSet = value; }
         }
 
-        public bool IncludeComments
+        public Boolean IncludeComments
         {
-            get { return _includeComments; }
+            get { return this._includeComments; }
         }
 
         public void Write(StringBuilder strBuilder, DocPosition docPos, AncestralNamespaceContextManager anc)
         {
-            if (!IsInNodeSet || !IncludeComments)
+            if (!this.IsInNodeSet || !this.IncludeComments)
+            {
                 return;
+            }
 
             if (docPos == DocPosition.AfterRootElement)
-                strBuilder.Append((char)10);
+            {
+                strBuilder.Append((Char)10);
+            }
+
             strBuilder.Append("<!--");
-            strBuilder.Append(Value);
+            strBuilder.Append(this.Value);
             strBuilder.Append("-->");
             if (docPos == DocPosition.BeforeRootElement)
-                strBuilder.Append((char)10);
+            {
+                strBuilder.Append((Char)10);
+            }
         }
 
         public void WriteHash(IHash hash, DocPosition docPos, AncestralNamespaceContextManager anc)
         {
-            if (!IsInNodeSet || !IncludeComments)
+            if (!this.IsInNodeSet || !this.IncludeComments)
+            {
                 return;
+            }
 
             UTF8Encoding utf8 = new UTF8Encoding(false);
-            byte[] rgbData = utf8.GetBytes("(char) 10");
+            Byte[] rgbData = utf8.GetBytes("(char) 10");
             if (docPos == DocPosition.AfterRootElement)
+            {
                 hash.BlockUpdate(rgbData, 0, rgbData.Length);
+            }
+
             rgbData = utf8.GetBytes("<!--");
             hash.BlockUpdate(rgbData, 0, rgbData.Length);
-            rgbData = utf8.GetBytes(Value);
+            rgbData = utf8.GetBytes(this.Value);
             hash.BlockUpdate(rgbData, 0, rgbData.Length);
             rgbData = utf8.GetBytes("-->");
             hash.BlockUpdate(rgbData, 0, rgbData.Length);

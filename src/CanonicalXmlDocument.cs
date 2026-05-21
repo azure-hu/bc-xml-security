@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
+using System;
 using System.Text;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -11,27 +12,27 @@ namespace Org.BouncyCastle.Crypto.Xml
     // of this type. it maintains the node subset state and performs output rendering during canonicalization
     internal class CanonicalXmlDocument : XmlDocument, ICanonicalizableNode
     {
-        private readonly bool _defaultNodeSetInclusionState;
-        private readonly bool _includeComments;
-        private bool _isInNodeSet;
+        private readonly Boolean _defaultNodeSetInclusionState;
+        private readonly Boolean _includeComments;
+        private Boolean _isInNodeSet;
 
-        public CanonicalXmlDocument(bool defaultNodeSetInclusionState, bool includeComments) : base()
+        public CanonicalXmlDocument(Boolean defaultNodeSetInclusionState, Boolean includeComments) : base()
         {
-            PreserveWhitespace = true;
-            _includeComments = includeComments;
-            _isInNodeSet = _defaultNodeSetInclusionState = defaultNodeSetInclusionState;
+            this.PreserveWhitespace = true;
+            this._includeComments = includeComments;
+            this._isInNodeSet = this._defaultNodeSetInclusionState = defaultNodeSetInclusionState;
         }
 
-        public bool IsInNodeSet
+        public Boolean IsInNodeSet
         {
-            get { return _isInNodeSet; }
-            set { _isInNodeSet = value; }
+            get { return this._isInNodeSet; }
+            set { this._isInNodeSet = value; }
         }
 
         public void Write(StringBuilder strBuilder, DocPosition docPos, AncestralNamespaceContextManager anc)
         {
             docPos = DocPosition.BeforeRootElement;
-            foreach (XmlNode childNode in ChildNodes)
+            foreach (XmlNode childNode in this.ChildNodes)
             {
                 if (childNode.NodeType == XmlNodeType.Element)
                 {
@@ -48,7 +49,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         public void WriteHash(IHash signer, DocPosition docPos, AncestralNamespaceContextManager anc)
         {
             docPos = DocPosition.BeforeRootElement;
-            foreach (XmlNode childNode in ChildNodes)
+            foreach (XmlNode childNode in this.ChildNodes)
             {
                 if (childNode.NodeType == XmlNodeType.Element)
                 {
@@ -62,54 +63,54 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
         }
 
-        public override XmlElement CreateElement(string prefix, string localName, string namespaceURI)
+        public override XmlElement CreateElement(String prefix, String localName, String namespaceURI)
         {
-            return new CanonicalXmlElement(prefix, localName, namespaceURI, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlElement(prefix, localName, namespaceURI, this, this._defaultNodeSetInclusionState);
         }
 
-        public override XmlAttribute CreateAttribute(string prefix, string localName, string namespaceURI)
+        public override XmlAttribute CreateAttribute(String prefix, String localName, String namespaceURI)
         {
-            return new CanonicalXmlAttribute(prefix, localName, namespaceURI, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlAttribute(prefix, localName, namespaceURI, this, this._defaultNodeSetInclusionState);
         }
 
-        protected override XmlAttribute CreateDefaultAttribute(string prefix, string localName, string namespaceURI)
+        protected override XmlAttribute CreateDefaultAttribute(String prefix, String localName, String namespaceURI)
         {
-            return new CanonicalXmlAttribute(prefix, localName, namespaceURI, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlAttribute(prefix, localName, namespaceURI, this, this._defaultNodeSetInclusionState);
         }
 
-        public override XmlText CreateTextNode(string text)
+        public override XmlText CreateTextNode(String text)
         {
-            return new CanonicalXmlText(text, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlText(text, this, this._defaultNodeSetInclusionState);
         }
 
-        public override XmlWhitespace CreateWhitespace(string prefix)
+        public override XmlWhitespace CreateWhitespace(String prefix)
         {
-            return new CanonicalXmlWhitespace(prefix, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlWhitespace(prefix, this, this._defaultNodeSetInclusionState);
         }
 
-        public override XmlSignificantWhitespace CreateSignificantWhitespace(string text)
+        public override XmlSignificantWhitespace CreateSignificantWhitespace(String text)
         {
-            return new CanonicalXmlSignificantWhitespace(text, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlSignificantWhitespace(text, this, this._defaultNodeSetInclusionState);
         }
 
-        public override XmlProcessingInstruction CreateProcessingInstruction(string target, string data)
+        public override XmlProcessingInstruction CreateProcessingInstruction(String target, String data)
         {
-            return new CanonicalXmlProcessingInstruction(target, data, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlProcessingInstruction(target, data, this, this._defaultNodeSetInclusionState);
         }
 
-        public override XmlComment CreateComment(string data)
+        public override XmlComment CreateComment(String data)
         {
-            return new CanonicalXmlComment(data, this, _defaultNodeSetInclusionState, _includeComments);
+            return new CanonicalXmlComment(data, this, this._defaultNodeSetInclusionState, this._includeComments);
         }
 
-        public override XmlEntityReference CreateEntityReference(string name)
+        public override XmlEntityReference CreateEntityReference(String name)
         {
-            return new CanonicalXmlEntityReference(name, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlEntityReference(name, this, this._defaultNodeSetInclusionState);
         }
 
-        public override XmlCDataSection CreateCDataSection(string data)
+        public override XmlCDataSection CreateCDataSection(String data)
         {
-            return new CanonicalXmlCDataSection(data, this, _defaultNodeSetInclusionState);
+            return new CanonicalXmlCDataSection(data, this, this._defaultNodeSetInclusionState);
         }
     }
 }

@@ -18,13 +18,13 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public RSAKeyValue()
         {
-            var pair = Utils.RSAGenerateKeyPair();
-            _key = (RsaKeyParameters)pair.Public;
+            AsymmetricCipherKeyPair pair = Utils.RSAGenerateKeyPair();
+            this._key = (RsaKeyParameters)pair.Public;
         }
 
         public RSAKeyValue(RsaKeyParameters key)
         {
-            _key = key;
+            this._key = key;
         }
 
         //
@@ -33,8 +33,8 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public RsaKeyParameters Key
         {
-            get { return _key; }
-            set { _key = value; }
+            get { return this._key; }
+            set { this._key = value; }
         }
 
         //
@@ -54,25 +54,25 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.PreserveWhitespace = true;
-            return GetXml(xmlDocument);
+            return this.GetXml(xmlDocument);
         }
 
-        private const string KeyValueElementName = "KeyValue";
-        private const string RSAKeyValueElementName = "RSAKeyValue";
-        private const string ModulusElementName = "Modulus";
-        private const string ExponentElementName = "Exponent";
+        private const String KeyValueElementName = "KeyValue";
+        private const String RSAKeyValueElementName = "RSAKeyValue";
+        private const String ModulusElementName = "Modulus";
+        private const String ExponentElementName = "Exponent";
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            XmlElement keyValueElement = xmlDocument.CreateElement(KeyValueElementName, SignedXml.XmlDsigNamespaceUrl);
-            XmlElement rsaKeyValueElement = xmlDocument.CreateElement(RSAKeyValueElementName, SignedXml.XmlDsigNamespaceUrl);
+            XmlElement keyValueElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, KeyValueElementName, SignedXml.XmlDsigNamespaceUrl);
+            XmlElement rsaKeyValueElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, RSAKeyValueElementName, SignedXml.XmlDsigNamespaceUrl);
 
-            XmlElement modulusElement = xmlDocument.CreateElement(ModulusElementName, SignedXml.XmlDsigNamespaceUrl);
-            modulusElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(_key.Modulus.ToByteArrayUnsigned())));
+            XmlElement modulusElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, ModulusElementName, SignedXml.XmlDsigNamespaceUrl);
+            modulusElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(this._key.Modulus.ToByteArrayUnsigned())));
             rsaKeyValueElement.AppendChild(modulusElement);
 
-            XmlElement exponentElement = xmlDocument.CreateElement(ExponentElementName, SignedXml.XmlDsigNamespaceUrl);
-            exponentElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(_key.Exponent.ToByteArrayUnsigned())));
+            XmlElement exponentElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, ExponentElementName, SignedXml.XmlDsigNamespaceUrl);
+            exponentElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(this._key.Exponent.ToByteArrayUnsigned())));
             rsaKeyValueElement.AppendChild(exponentElement);
 
             keyValueElement.AppendChild(rsaKeyValueElement);
@@ -107,7 +107,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 throw new System.Security.Cryptography.CryptographicException($"Root element must be {KeyValueElementName} element in namespace {SignedXml.XmlDsigNamespaceUrl}");
             }
 
-            const string xmlDsigNamespacePrefix = "dsig";
+            String xmlDsigNamespacePrefix = SignedXml.XmlDsigNamespacePrefix;
             XmlNamespaceManager xmlNamespaceManager = new XmlNamespaceManager(value.OwnerDocument.NameTable);
             xmlNamespaceManager.AddNamespace(xmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
@@ -119,7 +119,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             try
             {
-                _key = new RsaKeyParameters(false,
+                this._key = new RsaKeyParameters(false,
                     new Math.BigInteger(1, Convert.FromBase64String(rsaKeyValueElement.SelectSingleNode($"{xmlDsigNamespacePrefix}:{ModulusElementName}", xmlNamespaceManager).InnerText)),
                     new Math.BigInteger(1, Convert.FromBase64String(rsaKeyValueElement.SelectSingleNode($"{xmlDsigNamespacePrefix}:{ExponentElementName}", xmlNamespaceManager).InnerText)));
             }

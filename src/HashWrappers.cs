@@ -1,105 +1,102 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
     public interface IHash
     {
         void Reset();
-        void BlockUpdate(byte[] input, int inOff, int length);
-        int GetHashSize();
-        int DoFinal(byte[] output, int outOff);
+        void BlockUpdate(Byte[] input, Int32 inOff, Int32 length);
+        Int32 GetHashSize();
+        Int32 DoFinal(Byte[] output, Int32 outOff);
     }
 
     public class SignerHashWrapper : IHash
     {
-        private readonly ISigner _hash;
+        private readonly ISigner _signer;
 
         public SignerHashWrapper(ISigner signer)
         {
-            _hash = signer;
+            this._signer = signer;
         }
 
-        public void BlockUpdate(byte[] input, int inOff, int length)
+        public void BlockUpdate(Byte[] input, Int32 inOff, Int32 length)
         {
-            _hash.BlockUpdate(input, inOff, length);
+            this._signer.BlockUpdate(input, inOff, length);
         }
 
-        public int DoFinal(byte[] output, int outOff)
+        public Int32 DoFinal(Byte[] output, Int32 outOff)
         {
             throw new NotSupportedException();
         }
 
-        public int GetHashSize()
+        public Int32 GetHashSize()
         {
             throw new NotSupportedException();
         }
 
         public void Reset()
         {
-            _hash.Reset();
+            this._signer.Reset();
         }
     }
 
     public class MacHashWrapper : IHash
     {
-        private readonly IMac _hash;
+        private readonly IMac _mac;
 
         public MacHashWrapper(IMac mac)
         {
-            _hash = mac;
+            this._mac = mac;
         }
 
-        public void BlockUpdate(byte[] input, int inOff, int length)
+        public void BlockUpdate(Byte[] input, Int32 inOff, Int32 length)
         {
-            _hash.BlockUpdate(input, inOff, length);
+            this._mac.BlockUpdate(input, inOff, length);
         }
 
-        public int DoFinal(byte[] output, int outOff)
+        public Int32 DoFinal(Byte[] output, Int32 outOff)
         {
-            return _hash.DoFinal(output, outOff);
+            return this._mac.DoFinal(output, outOff);
         }
 
-        public int GetHashSize()
+        public Int32 GetHashSize()
         {
-            return _hash.GetMacSize();
+            return this._mac.GetMacSize();
         }
 
         public void Reset()
         {
-            _hash.Reset();
+            this._mac.Reset();
         }
     }
 
     public class DigestHashWrapper : IHash
     {
-        private readonly IDigest _hash;
+        private readonly IDigest _digest;
 
         public DigestHashWrapper(IDigest digest)
         {
-            _hash = digest;
+            this._digest = digest;
         }
 
-        public void BlockUpdate(byte[] input, int inOff, int length)
+        public void BlockUpdate(Byte[] input, Int32 inOff, Int32 length)
         {
-            _hash.BlockUpdate(input, inOff, length);
+            this._digest.BlockUpdate(input, inOff, length);
         }
 
-        public int DoFinal(byte[] output, int outOff)
+        public Int32 DoFinal(Byte[] output, Int32 outOff)
         {
-            return _hash.DoFinal(output, outOff);
+            return this._digest.DoFinal(output, outOff);
         }
 
-        public int GetHashSize()
+        public Int32 GetHashSize()
         {
-            return _hash.GetDigestSize();
+            return this._digest.GetDigestSize();
         }
 
         public void Reset()
         {
-            _hash.Reset();
+            this._digest.Reset();
         }
     }
 }

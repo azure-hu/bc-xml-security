@@ -18,8 +18,8 @@ namespace Org.BouncyCastle.Crypto.Xml
     public class CryptoSignedXmlRecursionException : XmlException
     {
         public CryptoSignedXmlRecursionException() : base() { }
-        public CryptoSignedXmlRecursionException(string message) : base(message) { }
-        public CryptoSignedXmlRecursionException(string message, Exception inner) : base(message, inner) { }
+        public CryptoSignedXmlRecursionException(String message) : base(message) { }
+        public CryptoSignedXmlRecursionException(String message, Exception inner) : base(message, inner) { }
         protected CryptoSignedXmlRecursionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }

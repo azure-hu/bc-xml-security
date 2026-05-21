@@ -29,41 +29,46 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public TransformChain()
         {
-            _transforms = new ArrayList();
+            this._transforms = new ArrayList();
         }
 
         public void Add(Transform transform)
         {
             if (transform != null)
-                _transforms.Add(transform);
+            {
+                this._transforms.Add(transform);
+            }
         }
 
         public IEnumerator GetEnumerator()
         {
-            return _transforms.GetEnumerator();
+            return this._transforms.GetEnumerator();
         }
 
-        public int Count
+        public Int32 Count
         {
-            get { return _transforms.Count; }
+            get { return this._transforms.Count; }
         }
 
-        public Transform this[int index]
+        public Transform this[Int32 index]
         {
             get
             {
-                if (index >= _transforms.Count)
+                if (index >= this._transforms.Count)
+                {
                     throw new ArgumentException(SR.ArgumentOutOfRange_Index, nameof(index));
-                return (Transform)_transforms[index];
+                }
+
+                return (Transform)this._transforms[index];
             }
         }
 
         // The goal behind this method is to pump the input stream through the transforms and get back something that
         // can be hashed
-        internal Stream TransformToOctetStream(object inputObject, Type inputType, XmlResolver resolver, string baseUri)
+        internal Stream TransformToOctetStream(Object inputObject, Type inputType, XmlResolver resolver, String baseUri)
         {
-            object currentInput = inputObject;
-            foreach (Transform transform in _transforms)
+            Object currentInput = inputObject;
+            foreach (Transform transform in this._transforms)
             {
                 if (currentInput == null || transform.AcceptsType(currentInput.GetType()))
                 {
@@ -152,27 +157,29 @@ namespace Org.BouncyCastle.Crypto.Xml
             throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_TransformIncorrectInputType);
         }
 
-        internal Stream TransformToOctetStream(Stream input, XmlResolver resolver, string baseUri)
+        internal Stream TransformToOctetStream(Stream input, XmlResolver resolver, String baseUri)
         {
-            return TransformToOctetStream(input, typeof(Stream), resolver, baseUri);
+            return this.TransformToOctetStream(input, typeof(Stream), resolver, baseUri);
         }
 
-        internal Stream TransformToOctetStream(XmlDocument document, XmlResolver resolver, string baseUri)
+        internal Stream TransformToOctetStream(XmlDocument document, XmlResolver resolver, String baseUri)
         {
-            return TransformToOctetStream(document, typeof(XmlDocument), resolver, baseUri);
+            return this.TransformToOctetStream(document, typeof(XmlDocument), resolver, baseUri);
         }
 
-        internal XmlElement GetXml(XmlDocument document, string ns)
+        internal XmlElement GetXml(XmlDocument document, String ns)
         {
             XmlElement transformsElement = document.CreateElement("Transforms", ns);
-            foreach (Transform transform in _transforms)
+            foreach (Transform transform in this._transforms)
             {
                 if (transform != null)
                 {
                     // Construct the individual transform element
                     XmlElement transformElement = transform.GetXml(document);
                     if (transformElement != null)
+                    {
                         transformsElement.AppendChild(transformElement);
+                    }
                 }
             }
             return transformsElement;
@@ -181,26 +188,32 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
-            XmlNodeList transformNodes = value.SelectNodes("ds:Transform", nsm);
+            XmlNodeList transformNodes = value.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":Transform", nsm);
             if (transformNodes.Count == 0)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "Transforms");
+            }
 
-            _transforms.Clear();
-            for (int i = 0; i < transformNodes.Count; ++i)
+            this._transforms.Clear();
+            for (Int32 i = 0; i < transformNodes.Count; ++i)
             {
                 XmlElement transformElement = (XmlElement)transformNodes.Item(i);
-                string algorithm = Utils.GetAttribute(transformElement, "Algorithm", SignedXml.XmlDsigNamespaceUrl);
+                String algorithm = Utils.GetAttribute(transformElement, "Algorithm", SignedXml.XmlDsigNamespaceUrl);
                 Transform transform = CryptoHelpers.CreateFromName<Transform>(algorithm);
                 if (transform == null)
+                {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
+                }
                 // let the transform read the children of the transformElement for data
                 transform.LoadInnerXml(transformElement.ChildNodes);
-                _transforms.Add(transform);
+                this._transforms.Add(transform);
             }
         }
     }

@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
+using System;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -18,29 +18,34 @@ namespace Org.BouncyCastle.Crypto.Xml
         public RSAPKCS1KeyExchangeDeformatter(RsaKeyParameters key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
-            _rsaKey = key;
+            this._rsaKey = key;
         }
 
-        public SecureRandom RNG {
-            get { return RngValue; }
-            set { RngValue = value; }
-        }
-
-        public string Parameters
+        public SecureRandom RNG
         {
-            get {return null;}
+            get { return this.RngValue; }
+            set { this.RngValue = value; }
+        }
+
+        public String Parameters
+        {
+            get { return null; }
             set { }
         }
 
-        public byte[] DecryptKeyExchange(byte[] rgbIn)
+        public Byte[] DecryptKeyExchange(Byte[] rgbIn)
         {
-            if (_rsaKey == null)
+            if (this._rsaKey == null)
+            {
                 throw new System.Security.Cryptography.CryptographicUnexpectedOperationException(SR.Cryptography_MissingKey);
+            }
 
-            var rsa = CipherUtilities.GetCipher("RSA//PKCS1PADDING");
-            rsa.Init(false, _rsaKey);
+            IBufferedCipher rsa = CipherUtilities.GetCipher("RSA//PKCS1PADDING");
+            rsa.Init(false, this._rsaKey);
 
             return rsa.DoFinal(rgbIn);
         }
@@ -48,9 +53,11 @@ namespace Org.BouncyCastle.Crypto.Xml
         public void SetKey(RsaKeyParameters key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
-            _rsaKey = key;
+            this._rsaKey = key;
         }
     }
 }

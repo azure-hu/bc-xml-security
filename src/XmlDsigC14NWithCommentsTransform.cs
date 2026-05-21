@@ -9,7 +9,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         public XmlDsigC14NWithCommentsTransform()
             : base(true)
         {
-            Algorithm = SignedXml.XmlDsigC14NWithCommentsTransformUrl;
+            this.Algorithm = SignedXml.XmlDsigC14NWithCommentsTransformUrl;
         }
     }
 }

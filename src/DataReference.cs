@@ -8,17 +8,17 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         public DataReference() : base()
         {
-            ReferenceType = "DataReference";
+            this.ReferenceType = "DataReference";
         }
 
-        public DataReference(string uri) : base(uri)
+        public DataReference(System.String uri) : base(uri)
         {
-            ReferenceType = "DataReference";
+            this.ReferenceType = "DataReference";
         }
 
-        public DataReference(string uri, TransformChain transformChain) : base(uri, transformChain)
+        public DataReference(System.String uri, TransformChain transformChain) : base(uri, transformChain)
         {
-            ReferenceType = "DataReference";
+            this.ReferenceType = "DataReference";
         }
     }
 }

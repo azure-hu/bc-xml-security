@@ -9,60 +9,72 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public sealed class CipherReference : EncryptedReference
     {
-        private byte[] _cipherValue;
+        private Byte[] _cipherValue;
 
         public CipherReference() : base()
         {
-            ReferenceType = "CipherReference";
+            this.ReferenceType = "CipherReference";
         }
 
-        public CipherReference(string uri) : base(uri)
+        public CipherReference(String uri) : base(uri)
         {
-            ReferenceType = "CipherReference";
+            this.ReferenceType = "CipherReference";
         }
 
-        public CipherReference(string uri, TransformChain transformChain) : base(uri, transformChain)
+        public CipherReference(String uri, TransformChain transformChain) : base(uri, transformChain)
         {
-            ReferenceType = "CipherReference";
+            this.ReferenceType = "CipherReference";
         }
 
         // This method is used to cache results from resolved cipher references.
-        internal byte[] CipherValue
+        internal Byte[] CipherValue
         {
             get
             {
-                if (!CacheValid)
+                if (!this.CacheValid)
+                {
                     return null;
-                return _cipherValue;
+                }
+
+                return this._cipherValue;
             }
             set
             {
-                _cipherValue = value;
+                this._cipherValue = value;
             }
         }
 
         public override XmlElement GetXml()
         {
-            if (CacheValid) return _cachedXml;
+            if (this.CacheValid)
+            {
+                return this._cachedXml;
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal new XmlElement GetXml(XmlDocument document)
         {
-            if (ReferenceType == null)
+            if (this.ReferenceType == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_ReferenceTypeRequired);
+            }
 
             // Create the Reference
-            XmlElement referenceElement = document.CreateElement(ReferenceType, EncryptedXml.XmlEncNamespaceUrl);
-            if (!string.IsNullOrEmpty(Uri))
-                referenceElement.SetAttribute("URI", Uri);
+            XmlElement referenceElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, this.ReferenceType, EncryptedXml.XmlEncNamespaceUrl);
+            if (!String.IsNullOrEmpty(this.Uri))
+            {
+                referenceElement.SetAttribute("URI", this.Uri);
+            }
 
             // Add the transforms to the CipherReference
-            if (TransformChain.Count > 0)
-                referenceElement.AppendChild(TransformChain.GetXml(document, EncryptedXml.XmlEncNamespaceUrl));
+            if (this.TransformChain.Count > 0)
+            {
+                referenceElement.AppendChild(this.TransformChain.GetXml(document, EncryptedXml.XmlEncNamespaceUrl));
+            }
 
             return referenceElement;
         }
@@ -70,21 +82,25 @@ namespace Org.BouncyCastle.Crypto.Xml
         public override void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
-            ReferenceType = value.LocalName;
-            string uri = Utils.GetAttribute(value, "URI", EncryptedXml.XmlEncNamespaceUrl);
-            Uri = uri ?? throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UriRequired);
+            this.ReferenceType = value.LocalName;
+            String uri = Utils.GetAttribute(value, "URI", EncryptedXml.XmlEncNamespaceUrl);
+            this.Uri = uri ?? throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UriRequired);
 
             // Transforms
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
-            XmlNode transformsNode = value.SelectSingleNode("enc:Transforms", nsm);
+            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            XmlNode transformsNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":Transforms", nsm);
             if (transformsNode != null)
-                TransformChain.LoadXml(transformsNode as XmlElement);
+            {
+                this.TransformChain.LoadXml(transformsNode as XmlElement);
+            }
 
             // cache the Xml
-            _cachedXml = value;
+            this._cachedXml = value;
         }
     }
 }

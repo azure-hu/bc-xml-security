@@ -8,17 +8,17 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         public KeyReference() : base()
         {
-            ReferenceType = "KeyReference";
+            this.ReferenceType = "KeyReference";
         }
 
-        public KeyReference(string uri) : base(uri)
+        public KeyReference(System.String uri) : base(uri)
         {
-            ReferenceType = "KeyReference";
+            this.ReferenceType = "KeyReference";
         }
 
-        public KeyReference(string uri, TransformChain transformChain) : base(uri, transformChain)
+        public KeyReference(System.String uri, TransformChain transformChain) : base(uri, transformChain)
         {
-            ReferenceType = "KeyReference";
+            this.ReferenceType = "KeyReference";
         }
     }
 }

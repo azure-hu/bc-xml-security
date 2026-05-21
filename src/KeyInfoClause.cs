@@ -21,7 +21,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         public abstract XmlElement GetXml();
         internal virtual XmlElement GetXml(XmlDocument xmlDocument)
         {
-            XmlElement keyInfo = GetXml();
+            XmlElement keyInfo = this.GetXml();
             return (XmlElement)xmlDocument.ImportNode(keyInfo, true);
         }
 

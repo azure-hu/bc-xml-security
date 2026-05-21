@@ -9,35 +9,38 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public abstract class EncryptedReference
     {
-        private string _uri;
-        private string _referenceType;
+        private String _uri;
+        private String _referenceType;
         private TransformChain _transformChain;
         internal XmlElement _cachedXml = null;
 
-        protected EncryptedReference() : this(string.Empty, new TransformChain())
+        protected EncryptedReference() : this(String.Empty, new TransformChain())
         {
         }
 
-        protected EncryptedReference(string uri) : this(uri, new TransformChain())
+        protected EncryptedReference(String uri) : this(uri, new TransformChain())
         {
         }
 
-        protected EncryptedReference(string uri, TransformChain transformChain)
+        protected EncryptedReference(String uri, TransformChain transformChain)
         {
-            TransformChain = transformChain;
-            Uri = uri;
-            _cachedXml = null;
+            this.TransformChain = transformChain;
+            this.Uri = uri;
+            this._cachedXml = null;
         }
 
-        public string Uri
+        public String Uri
         {
-            get { return _uri; }
+            get { return this._uri; }
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(SR.Cryptography_Xml_UriRequired);
-                _uri = value;
-                _cachedXml = null;
+                }
+
+                this._uri = value;
+                this._cachedXml = null;
             }
         }
 
@@ -45,62 +48,74 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             get
             {
-                if (_transformChain == null)
-                    _transformChain = new TransformChain();
-                return _transformChain;
+                if (this._transformChain == null)
+                {
+                    this._transformChain = new TransformChain();
+                }
+
+                return this._transformChain;
             }
             set
             {
-                _transformChain = value;
-                _cachedXml = null;
+                this._transformChain = value;
+                this._cachedXml = null;
             }
         }
 
         public void AddTransform(Transform transform)
         {
-            TransformChain.Add(transform);
+            this.TransformChain.Add(transform);
         }
 
-        protected string ReferenceType
+        protected String ReferenceType
         {
-            get { return _referenceType; }
+            get { return this._referenceType; }
             set
             {
-                _referenceType = value;
-                _cachedXml = null;
+                this._referenceType = value;
+                this._cachedXml = null;
             }
         }
 
-        protected internal bool CacheValid
+        protected internal Boolean CacheValid
         {
             get
             {
-                return (_cachedXml != null);
+                return (this._cachedXml != null);
             }
         }
 
         public virtual XmlElement GetXml()
         {
-            if (CacheValid) return _cachedXml;
+            if (this.CacheValid)
+            {
+                return this._cachedXml;
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
-            if (ReferenceType == null)
+            if (this.ReferenceType == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_ReferenceTypeRequired);
+            }
 
             // Create the Reference
-            XmlElement referenceElement = document.CreateElement(ReferenceType, EncryptedXml.XmlEncNamespaceUrl);
-            if (!string.IsNullOrEmpty(_uri))
-                referenceElement.SetAttribute("URI", _uri);
+            XmlElement referenceElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, this.ReferenceType, EncryptedXml.XmlEncNamespaceUrl);
+            if (!String.IsNullOrEmpty(this._uri))
+            {
+                referenceElement.SetAttribute("URI", this._uri);
+            }
 
             // Add the transforms to the CipherReference
-            if (TransformChain.Count > 0)
-                referenceElement.AppendChild(TransformChain.GetXml(document, SignedXml.XmlDsigNamespaceUrl));
+            if (this.TransformChain.Count > 0)
+            {
+                referenceElement.AppendChild(this.TransformChain.GetXml(document, SignedXml.XmlDsigNamespaceUrl));
+            }
 
             return referenceElement;
         }
@@ -108,24 +123,31 @@ namespace Org.BouncyCastle.Crypto.Xml
         public virtual void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
-            ReferenceType = value.LocalName;
+            this.ReferenceType = value.LocalName;
 
-            string uri = Utils.GetAttribute(value, "URI", EncryptedXml.XmlEncNamespaceUrl);
+            String uri = Utils.GetAttribute(value, "URI", EncryptedXml.XmlEncNamespaceUrl);
             if (uri == null)
+            {
                 throw new ArgumentNullException(SR.Cryptography_Xml_UriRequired);
-            Uri = uri;
+            }
+
+            this.Uri = uri;
 
             // Transforms
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
-            XmlNode transformsNode = value.SelectSingleNode("ds:Transforms", nsm);
+            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            XmlNode transformsNode = value.SelectSingleNode(SignedXml.XmlDsigNamespacePrefix + ":Transforms", nsm);
             if (transformsNode != null)
-                TransformChain.LoadXml(transformsNode as XmlElement);
+            {
+                this.TransformChain.LoadXml(transformsNode as XmlElement);
+            }
 
             // cache the Xml
-            _cachedXml = value;
+            this._cachedXml = value;
         }
     }
 }

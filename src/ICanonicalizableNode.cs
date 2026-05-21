@@ -10,7 +10,7 @@ namespace Org.BouncyCastle.Crypto.Xml
     // that have to provide node subsetting and canonicalization features.
     internal interface ICanonicalizableNode
     {
-        bool IsInNodeSet
+        System.Boolean IsInNodeSet
         {
             get;
             set;

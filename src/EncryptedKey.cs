@@ -9,35 +9,38 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public sealed class EncryptedKey : EncryptedType
     {
-        private string _recipient;
-        private string _carriedKeyName;
+        private String _recipient;
+        private String _carriedKeyName;
         private ReferenceList _referenceList;
 
         public EncryptedKey() { }
 
-        public string Recipient
+        public String Recipient
         {
             get
             {
                 // an unspecified value for an XmlAttribute is string.Empty
-                if (_recipient == null)
-                    _recipient = string.Empty;
-                return _recipient;
+                if (this._recipient == null)
+                {
+                    this._recipient = String.Empty;
+                }
+
+                return this._recipient;
             }
             set
             {
-                _recipient = value;
-                _cachedXml = null;
+                this._recipient = value;
+                this._cachedXml = null;
             }
         }
 
-        public string CarriedKeyName
+        public String CarriedKeyName
         {
-            get { return _carriedKeyName; }
+            get { return this._carriedKeyName; }
             set
             {
-                _carriedKeyName = value;
-                _cachedXml = null;
+                this._carriedKeyName = value;
+                this._cachedXml = null;
             }
         }
 
@@ -45,181 +48,216 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             get
             {
-                if (_referenceList == null)
-                    _referenceList = new ReferenceList();
-                return _referenceList;
+                if (this._referenceList == null)
+                {
+                    this._referenceList = new ReferenceList();
+                }
+
+                return this._referenceList;
             }
         }
 
         public void AddReference(DataReference dataReference)
         {
-            ReferenceList.Add(dataReference);
+            this.ReferenceList.Add(dataReference);
         }
 
         public void AddReference(KeyReference keyReference)
         {
-            ReferenceList.Add(keyReference);
+            this.ReferenceList.Add(keyReference);
         }
 
         public override void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
-            nsm.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
-            Id = Utils.GetAttribute(value, "Id", EncryptedXml.XmlEncNamespaceUrl);
-            Type = Utils.GetAttribute(value, "Type", EncryptedXml.XmlEncNamespaceUrl);
-            MimeType = Utils.GetAttribute(value, "MimeType", EncryptedXml.XmlEncNamespaceUrl);
-            Encoding = Utils.GetAttribute(value, "Encoding", EncryptedXml.XmlEncNamespaceUrl);
-            Recipient = Utils.GetAttribute(value, "Recipient", EncryptedXml.XmlEncNamespaceUrl);
+            this.Id = Utils.GetAttribute(value, "Id", EncryptedXml.XmlEncNamespaceUrl);
+            this.Type = Utils.GetAttribute(value, "Type", EncryptedXml.XmlEncNamespaceUrl);
+            this.MimeType = Utils.GetAttribute(value, "MimeType", EncryptedXml.XmlEncNamespaceUrl);
+            this.Encoding = Utils.GetAttribute(value, "Encoding", EncryptedXml.XmlEncNamespaceUrl);
+            this.Recipient = Utils.GetAttribute(value, "Recipient", EncryptedXml.XmlEncNamespaceUrl);
 
-            XmlNode encryptionMethodNode = value.SelectSingleNode("enc:EncryptionMethod", nsm);
+            XmlNode encryptionMethodNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionMethod", nsm);
 
             // EncryptionMethod
-            EncryptionMethod = new EncryptionMethod();
+            this.EncryptionMethod = new EncryptionMethod();
             if (encryptionMethodNode != null)
-                EncryptionMethod.LoadXml(encryptionMethodNode as XmlElement);
+            {
+                this.EncryptionMethod.LoadXml(encryptionMethodNode as XmlElement);
+            }
 
             // Key Info
-            KeyInfo = new KeyInfo();
-            XmlNode keyInfoNode = value.SelectSingleNode("ds:KeyInfo", nsm);
+            this.KeyInfo = new KeyInfo();
+            XmlNode keyInfoNode = value.SelectSingleNode(SignedXml.XmlDsigNamespacePrefix + ":KeyInfo", nsm);
             if (keyInfoNode != null)
-                KeyInfo.LoadXml(keyInfoNode as XmlElement);
+            {
+                this.KeyInfo.LoadXml(keyInfoNode as XmlElement);
+            }
 
             // CipherData
-            XmlNode cipherDataNode = value.SelectSingleNode("enc:CipherData", nsm);
+            XmlNode cipherDataNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CipherData", nsm);
             if (cipherDataNode == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingCipherData);
+            }
 
-            CipherData = new CipherData();
-            CipherData.LoadXml(cipherDataNode as XmlElement);
+            this.CipherData = new CipherData();
+            this.CipherData.LoadXml(cipherDataNode as XmlElement);
 
             // EncryptionProperties
-            XmlNode encryptionPropertiesNode = value.SelectSingleNode("enc:EncryptionProperties", nsm);
+            XmlNode encryptionPropertiesNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionProperties", nsm);
             if (encryptionPropertiesNode != null)
             {
                 // Select the EncryptionProperty elements inside the EncryptionProperties element
-                XmlNodeList encryptionPropertyNodes = encryptionPropertiesNode.SelectNodes("enc:EncryptionProperty", nsm);
+                XmlNodeList encryptionPropertyNodes = encryptionPropertiesNode.SelectNodes(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionProperty", nsm);
                 if (encryptionPropertyNodes != null)
                 {
                     foreach (XmlNode node in encryptionPropertyNodes)
                     {
                         EncryptionProperty ep = new EncryptionProperty();
                         ep.LoadXml(node as XmlElement);
-                        EncryptionProperties.Add(ep);
+                        this.EncryptionProperties.Add(ep);
                     }
                 }
             }
 
             // CarriedKeyName
-            XmlNode carriedKeyNameNode = value.SelectSingleNode("enc:CarriedKeyName", nsm);
+            XmlNode carriedKeyNameNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CarriedKeyName", nsm);
             if (carriedKeyNameNode != null)
             {
-                CarriedKeyName = carriedKeyNameNode.InnerText;
+                this.CarriedKeyName = carriedKeyNameNode.InnerText;
             }
 
             // ReferenceList
-            XmlNode referenceListNode = value.SelectSingleNode("enc:ReferenceList", nsm);
+            XmlNode referenceListNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":ReferenceList", nsm);
             if (referenceListNode != null)
             {
                 // Select the DataReference elements inside the ReferenceList element
-                XmlNodeList dataReferenceNodes = referenceListNode.SelectNodes("enc:DataReference", nsm);
+                XmlNodeList dataReferenceNodes = referenceListNode.SelectNodes(EncryptedXml.XmlEncNamespacePrefix + ":DataReference", nsm);
                 if (dataReferenceNodes != null)
                 {
                     foreach (XmlNode node in dataReferenceNodes)
                     {
                         DataReference dr = new DataReference();
                         dr.LoadXml(node as XmlElement);
-                        ReferenceList.Add(dr);
+                        this.ReferenceList.Add(dr);
                     }
                 }
                 // Select the KeyReference elements inside the ReferenceList element
-                XmlNodeList keyReferenceNodes = referenceListNode.SelectNodes("enc:KeyReference", nsm);
+                XmlNodeList keyReferenceNodes = referenceListNode.SelectNodes(EncryptedXml.XmlEncNamespacePrefix + ":KeyReference", nsm);
                 if (keyReferenceNodes != null)
                 {
                     foreach (XmlNode node in keyReferenceNodes)
                     {
                         KeyReference kr = new KeyReference();
                         kr.LoadXml(node as XmlElement);
-                        ReferenceList.Add(kr);
+                        this.ReferenceList.Add(kr);
                     }
                 }
             }
 
             // Save away the cached value
-            _cachedXml = value;
+            this._cachedXml = value;
         }
 
         public override XmlElement GetXml()
         {
-            if (CacheValid) return _cachedXml;
+            if (this.CacheValid)
+            {
+                return this._cachedXml;
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the EncryptedKey element
-            XmlElement encryptedKeyElement = (XmlElement)document.CreateElement("EncryptedKey", EncryptedXml.XmlEncNamespaceUrl);
+            XmlElement encryptedKeyElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptedKey", EncryptedXml.XmlEncNamespaceUrl);
 
             // Deal with attributes
-            if (!string.IsNullOrEmpty(Id))
-                encryptedKeyElement.SetAttribute("Id", Id);
-            if (!string.IsNullOrEmpty(Type))
-                encryptedKeyElement.SetAttribute("Type", Type);
-            if (!string.IsNullOrEmpty(MimeType))
-                encryptedKeyElement.SetAttribute("MimeType", MimeType);
-            if (!string.IsNullOrEmpty(Encoding))
-                encryptedKeyElement.SetAttribute("Encoding", Encoding);
-            if (!string.IsNullOrEmpty(Recipient))
-                encryptedKeyElement.SetAttribute("Recipient", Recipient);
+            if (!String.IsNullOrEmpty(this.Id))
+            {
+                encryptedKeyElement.SetAttribute("Id", this.Id);
+            }
+
+            if (!String.IsNullOrEmpty(this.Type))
+            {
+                encryptedKeyElement.SetAttribute("Type", this.Type);
+            }
+
+            if (!String.IsNullOrEmpty(this.MimeType))
+            {
+                encryptedKeyElement.SetAttribute("MimeType", this.MimeType);
+            }
+
+            if (!String.IsNullOrEmpty(this.Encoding))
+            {
+                encryptedKeyElement.SetAttribute("Encoding", this.Encoding);
+            }
+
+            if (!String.IsNullOrEmpty(this.Recipient))
+            {
+                encryptedKeyElement.SetAttribute("Recipient", this.Recipient);
+            }
 
             // EncryptionMethod
-            if (EncryptionMethod != null)
-                encryptedKeyElement.AppendChild(EncryptionMethod.GetXml(document));
+            if (this.EncryptionMethod != null)
+            {
+                encryptedKeyElement.AppendChild(this.EncryptionMethod.GetXml(document));
+            }
 
             // KeyInfo
-            if (KeyInfo.Count > 0)
-                encryptedKeyElement.AppendChild(KeyInfo.GetXml(document));
+            if (this.KeyInfo.Count > 0)
+            {
+                encryptedKeyElement.AppendChild(this.KeyInfo.GetXml(document));
+            }
 
             // CipherData
-            if (CipherData == null)
+            if (this.CipherData == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingCipherData);
-            encryptedKeyElement.AppendChild(CipherData.GetXml(document));
+            }
+
+            encryptedKeyElement.AppendChild(this.CipherData.GetXml(document));
 
             // EncryptionProperties
-            if (EncryptionProperties.Count > 0)
+            if (this.EncryptionProperties.Count > 0)
             {
-                XmlElement encryptionPropertiesElement = document.CreateElement("EncryptionProperties", EncryptedXml.XmlEncNamespaceUrl);
-                for (int index = 0; index < EncryptionProperties.Count; index++)
+                XmlElement encryptionPropertiesElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptionProperties", EncryptedXml.XmlEncNamespaceUrl);
+                for (Int32 index = 0; index < this.EncryptionProperties.Count; index++)
                 {
-                    EncryptionProperty ep = EncryptionProperties.Item(index);
+                    EncryptionProperty ep = this.EncryptionProperties.Item(index);
                     encryptionPropertiesElement.AppendChild(ep.GetXml(document));
                 }
                 encryptedKeyElement.AppendChild(encryptionPropertiesElement);
             }
 
             // ReferenceList
-            if (ReferenceList.Count > 0)
+            if (this.ReferenceList.Count > 0)
             {
-                XmlElement referenceListElement = document.CreateElement("ReferenceList", EncryptedXml.XmlEncNamespaceUrl);
-                for (int index = 0; index < ReferenceList.Count; index++)
+                XmlElement referenceListElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "ReferenceList", EncryptedXml.XmlEncNamespaceUrl);
+                for (Int32 index = 0; index < this.ReferenceList.Count; index++)
                 {
-                    referenceListElement.AppendChild(ReferenceList[index].GetXml(document));
+                    referenceListElement.AppendChild(this.ReferenceList[index].GetXml(document));
                 }
                 encryptedKeyElement.AppendChild(referenceListElement);
             }
 
             // CarriedKeyName
-            if (CarriedKeyName != null)
+            if (this.CarriedKeyName != null)
             {
-                XmlElement carriedKeyNameElement = (XmlElement)document.CreateElement("CarriedKeyName", EncryptedXml.XmlEncNamespaceUrl);
-                XmlText carriedKeyNameText = document.CreateTextNode(CarriedKeyName);
+                XmlElement carriedKeyNameElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "CarriedKeyName", EncryptedXml.XmlEncNamespaceUrl);
+                XmlText carriedKeyNameText = document.CreateTextNode(this.CarriedKeyName);
                 carriedKeyNameElement.AppendChild(carriedKeyNameText);
                 encryptedKeyElement.AppendChild(carriedKeyNameElement);
             }

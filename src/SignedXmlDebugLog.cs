@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
 using System;
 using System.Collections.Generic;
@@ -50,13 +51,13 @@ namespace Org.BouncyCastle.Crypto.Xml
         // </configuration>
         //
 
-        private const string NullString = "(null)";
+        private const String NullString = "(null)";
 
         private static readonly TraceSource s_traceSource = new TraceSource("Org.BouncyCastle.Crypto.Xml.SignedXml");
-        private static volatile bool s_haveVerboseLogging;
-        private static volatile bool s_verboseLogging;
-        private static volatile bool s_haveInformationLogging;
-        private static volatile bool s_informationLogging;
+        private static volatile Boolean s_haveVerboseLogging;
+        private static volatile Boolean s_verboseLogging;
+        private static volatile Boolean s_haveInformationLogging;
+        private static volatile Boolean s_informationLogging;
 
         /// <summary>
         ///     Types of events that are logged to the debug log
@@ -159,7 +160,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <summary>
         ///     Check to see if logging should be done in this process
         /// </summary>
-        private static bool InformationLoggingEnabled
+        private static Boolean InformationLoggingEnabled
         {
             get
             {
@@ -176,7 +177,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <summary>
         ///     Check to see if verbose log messages should be generated
         /// </summary>
-        private static bool VerboseLoggingEnabled
+        private static Boolean VerboseLoggingEnabled
         {
             get
             {
@@ -193,13 +194,15 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <summary>
         ///     Convert the byte array into a hex string
         /// </summary>
-        private static string FormatBytes(byte[] bytes)
+        private static String FormatBytes(Byte[] bytes)
         {
             if (bytes == null)
+            {
                 return NullString;
+            }
 
             StringBuilder builder = new StringBuilder(bytes.Length * 2);
-            foreach (byte b in bytes)
+            foreach (Byte b in bytes)
             {
                 builder.Append(b.ToString("x2", CultureInfo.InvariantCulture));
             }
@@ -210,23 +213,23 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <summary>
         ///     Map a key to a string describing the key
         /// </summary>
-        private static string GetKeyName(object key)
+        private static String GetKeyName(Object key)
         {
             Debug.Assert(key != null, "key != null");
 
             AsymmetricKeyParameter cspKey = key as AsymmetricKeyParameter;
             X509Certificate certificate = key as X509Certificate;
 
-            string keyName = null;
+            String keyName = null;
             if (cspKey != null)
             {
-                keyName = string.Format(CultureInfo.InvariantCulture,
+                keyName = String.Format(CultureInfo.InvariantCulture,
                                         "\"{0}\"",
                                         cspKey.GetType().Name);
             }
             else if (certificate != null)
             {
-                keyName = string.Format(CultureInfo.InvariantCulture,
+                keyName = String.Format(CultureInfo.InvariantCulture,
                                         "\"{0}\"",
                                         certificate.SubjectDN);
             }
@@ -235,17 +238,17 @@ namespace Org.BouncyCastle.Crypto.Xml
                 keyName = key.GetHashCode().ToString("x8", CultureInfo.InvariantCulture);
             }
 
-            return string.Format(CultureInfo.InvariantCulture, "{0}#{1}", key.GetType().Name, keyName);
+            return String.Format(CultureInfo.InvariantCulture, "{0}#{1}", key.GetType().Name, keyName);
         }
 
         /// <summary>
         ///     Map an object to a string describing the object
         /// </summary>
-        private static string GetObjectId(object o)
+        private static String GetObjectId(Object o)
         {
             Debug.Assert(o != null, "o != null");
 
-            return string.Format(CultureInfo.InvariantCulture,
+            return String.Format(CultureInfo.InvariantCulture,
                                  "{0}#{1}", o.GetType().Name,
                                  o.GetHashCode().ToString("x8", CultureInfo.InvariantCulture));
         }
@@ -262,7 +265,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_BeginCanonicalization,
                                                   canonicalizationTransform.Algorithm,
                                                   canonicalizationTransform.GetType().Name);
@@ -274,7 +277,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (VerboseLoggingEnabled)
             {
-                string canonicalizationSettings = string.Format(CultureInfo.InvariantCulture,
+                String canonicalizationSettings = String.Format(CultureInfo.InvariantCulture,
                                                                 SR.Log_CanonicalizationSettings,
                                                                 canonicalizationTransform.Resolver.GetType(),
                                                                 canonicalizationTransform.BaseURI);
@@ -290,7 +293,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// </summary>
         /// <param name="signedXml">SignedXml object doing the verification</param>
         /// <param name="formatValidator">Callback delegate which is being used for format verification</param>
-        internal static void LogBeginCheckSignatureFormat(SignedXml signedXml, Func<SignedXml, bool> formatValidator)
+        internal static void LogBeginCheckSignatureFormat(SignedXml signedXml, Func<SignedXml, Boolean> formatValidator)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(formatValidator != null, "formatValidator != null");
@@ -299,7 +302,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             {
                 MethodInfo validationMethod = formatValidator.Method;
 
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_CheckSignatureFormat,
                                                   validationMethod.Module.Assembly.FullName,
                                                   validationMethod.DeclaringType.FullName,
@@ -320,7 +323,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_CheckSignedInfo,
                                                   signedInfo.Id != null ? signedInfo.Id : NullString);
                 WriteLine(signedXml, TraceEventType.Information, SignedXmlDebugEvent.BeginCheckSignedInfo, logMessage);
@@ -346,7 +349,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (VerboseLoggingEnabled)
             {
-                string contextData = string.Format(CultureInfo.InvariantCulture,
+                String contextData = String.Format(CultureInfo.InvariantCulture,
                                                    SR.Log_XmlContext,
                                                    context != null ? context.OuterXml : NullString);
 
@@ -376,7 +379,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (VerboseLoggingEnabled)
             {
-                string contextData = string.Format(CultureInfo.InvariantCulture,
+                String contextData = String.Format(CultureInfo.InvariantCulture,
                                                    SR.Log_XmlContext,
                                                    context != null ? context.OuterXml : NullString);
 
@@ -401,7 +404,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             {
                 using (StreamReader reader = new StreamReader(canonicalizationTransform.GetOutput(typeof(Stream)) as Stream))
                 {
-                    string logMessage = string.Format(CultureInfo.InvariantCulture,
+                    String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                       SR.Log_CanonicalizedOutput,
                                                       reader.ReadToEnd());
                     WriteLine(signedXml,
@@ -417,13 +420,13 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// </summary>
         /// <param name="signedXml">SignedXml object doing the signature verification</param>
         /// <param name="result">result of the signature format verification</param>
-        internal static void LogFormatValidationResult(SignedXml signedXml, bool result)
+        internal static void LogFormatValidationResult(SignedXml signedXml, Boolean result)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = result ? SR.Log_FormatValidationSuccessful :
+                String logMessage = result ? SR.Log_FormatValidationSuccessful :
                                              SR.Log_FormatValidationNotSuccessful;
                 WriteLine(signedXml, TraceEventType.Information, SignedXmlDebugEvent.FormatValidationResult, logMessage);
             }
@@ -435,7 +438,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// </summary>
         /// <param name="signedXml">SignedXml object doing the signature verification</param>
         /// <param name="result">result of the signature format verification</param>
-        internal static void LogUnsafeCanonicalizationMethod(SignedXml signedXml, string algorithm, IEnumerable<string> validAlgorithms)
+        internal static void LogUnsafeCanonicalizationMethod(SignedXml signedXml, String algorithm, IEnumerable<String> validAlgorithms)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(validAlgorithms != null, "validAlgorithms != null");
@@ -443,7 +446,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             if (InformationLoggingEnabled)
             {
                 StringBuilder validAlgorithmBuilder = new StringBuilder();
-                foreach (string validAlgorithm in validAlgorithms)
+                foreach (String validAlgorithm in validAlgorithms)
                 {
                     if (validAlgorithmBuilder.Length != 0)
                     {
@@ -453,7 +456,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                     validAlgorithmBuilder.AppendFormat("\"{0}\"", validAlgorithm);
                 }
 
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_UnsafeCanonicalizationMethod,
                                                   algorithm,
                                                   validAlgorithmBuilder.ToString());
@@ -472,9 +475,9 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <param name="validTransformAlgorithms">The valid C14N algorithms</param>
         internal static void LogUnsafeTransformMethod(
             SignedXml signedXml,
-            string algorithm,
-            IEnumerable<string> validC14nAlgorithms,
-            IEnumerable<string> validTransformAlgorithms)
+            String algorithm,
+            IEnumerable<String> validC14nAlgorithms,
+            IEnumerable<String> validTransformAlgorithms)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(validC14nAlgorithms != null, "validC14nAlgorithms != null");
@@ -483,7 +486,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             if (InformationLoggingEnabled)
             {
                 StringBuilder validAlgorithmBuilder = new StringBuilder();
-                foreach (string validAlgorithm in validC14nAlgorithms)
+                foreach (String validAlgorithm in validC14nAlgorithms)
                 {
                     if (validAlgorithmBuilder.Length != 0)
                     {
@@ -493,7 +496,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                     validAlgorithmBuilder.AppendFormat("\"{0}\"", validAlgorithm);
                 }
 
-                foreach (string validAlgorithm in validTransformAlgorithms)
+                foreach (String validAlgorithm in validTransformAlgorithms)
                 {
                     if (validAlgorithmBuilder.Length != 0)
                     {
@@ -503,7 +506,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                     validAlgorithmBuilder.AppendFormat("\"{0}\"", validAlgorithm);
                 }
 
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_UnsafeTransformMethod,
                                                   algorithm,
                                                   validAlgorithmBuilder.ToString());
@@ -527,7 +530,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 {
                     foreach (XmlAttribute propagatedNamespace in namespaces)
                     {
-                        string propagationMessage = string.Format(CultureInfo.InvariantCulture,
+                        String propagationMessage = String.Format(CultureInfo.InvariantCulture,
                                                                   SR.Log_PropagatingNamespace,
                                                                   propagatedNamespace.Name,
                                                                   propagatedNamespace.Value);
@@ -568,8 +571,8 @@ namespace Org.BouncyCastle.Crypto.Xml
                 MemoryStream ms = new MemoryStream();
 
                 // First read the input stream into our temporary stream
-                byte[] buffer = new byte[4096];
-                int readBytes = 0;
+                Byte[] buffer = new Byte[4096];
+                Int32 readBytes = 0;
                 do
                 {
                     readBytes = data.Read(buffer, 0, buffer.Length);
@@ -577,7 +580,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 } while (readBytes == buffer.Length);
 
                 // Log out information about it
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_TransformedReferenceContents,
                                                   Encoding.UTF8.GetString(ms.ToArray()));
                 WriteLine(reference,
@@ -602,7 +605,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <param name="key">key used for signing</param>
         /// <param name="signatureDescription">signature description being used to create the signature</param>
         internal static void LogSigning(SignedXml signedXml,
-                                        object key,
+                                        Object key,
                                         ISigner signatureDescription)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
@@ -610,7 +613,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_SigningAsymmetric,
                                                   GetKeyName(key),
                                                   signatureDescription.GetType().Name,
@@ -637,7 +640,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_SigningHmac,
                                                   key.GetType().Name);
 
@@ -660,7 +663,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (VerboseLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_SigningReference,
                                                   GetObjectId(reference),
                                                   reference.Uri,
@@ -681,11 +684,11 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// </summary>
         /// <param name="signedXml">SignedXml object doing the verification</param>
         /// <param name="failureLocation">location that the signature was determined to be invalid</param>
-        internal static void LogVerificationFailure(SignedXml signedXml, string failureLocation)
+        internal static void LogVerificationFailure(SignedXml signedXml, String failureLocation)
         {
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_VerificationFailed,
                                                   failureLocation);
 
@@ -702,16 +705,16 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <param name="signedXml">SignedXml object doing the verification</param>
         /// <param name="key">public key used to verify the signature</param>
         /// <param name="verified">true if the signature verified, false otherwise</param>
-        internal static void LogVerificationResult(SignedXml signedXml, object key, bool verified)
+        internal static void LogVerificationResult(SignedXml signedXml, Object key, Boolean verified)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(key != null, "key != null");
 
             if (InformationLoggingEnabled)
             {
-                string resource = verified ? SR.Log_VerificationWithKeySuccessful :
+                String resource = verified ? SR.Log_VerificationWithKeySuccessful :
                                              SR.Log_VerificationWithKeyNotSuccessful;
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   resource,
                                                   GetKeyName(key));
 
@@ -735,7 +738,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_KeyUsages,
                                                   /*keyUsages.KeyUsages*/ "",
                                                   /*GetOidName(keyUsages.Oid)*/ "",
@@ -760,7 +763,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_VerifyReference,
                                                   GetObjectId(reference),
                                                   reference.Uri,
@@ -783,8 +786,8 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <param name="expectedHash">hash value the signature expected the reference to have</param>
         internal static void LogVerifyReferenceHash(SignedXml signedXml,
                                                     Reference reference,
-                                                    byte[] actualHash,
-                                                    byte[] expectedHash)
+                                                    Byte[] actualHash,
+                                                    Byte[] expectedHash)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(reference != null, "reference != null");
@@ -793,7 +796,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (VerboseLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_ReferenceHash,
                                                   GetObjectId(reference),
                                                   reference.DigestMethod,
@@ -820,15 +823,15 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal static void LogVerifySignedInfo(SignedXml signedXml,
                                                  AsymmetricKeyParameter key,
                                                  ISigner signatureDescription,
-                                                 byte[] actualHashValue,
-                                                 byte[] signatureValue)
+                                                 Byte[] actualHashValue,
+                                                 Byte[] signatureValue)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(signatureDescription != null, "signatureDescription != null");
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_VerifySignedInfoAsymmetric,
                                                   GetKeyName(key),
                                                   signatureDescription.GetType().Name,
@@ -842,12 +845,12 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (VerboseLoggingEnabled)
             {
-                string hashLog = string.Format(CultureInfo.InvariantCulture,
+                String hashLog = String.Format(CultureInfo.InvariantCulture,
                                                SR.Log_ActualHashValue,
                                                FormatBytes(actualHashValue));
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.VerifySignedInfo, hashLog);
 
-                string signatureLog = string.Format(CultureInfo.InvariantCulture,
+                String signatureLog = String.Format(CultureInfo.InvariantCulture,
                                                     SR.Log_RawSignatureValue,
                                                     FormatBytes(signatureValue));
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.VerifySignedInfo, signatureLog);
@@ -864,15 +867,15 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <param name="signatureValue">raw signature value</param>
         internal static void LogVerifySignedInfo(SignedXml signedXml,
                                                  IMac mac,
-                                                 byte[] actualHashValue,
-                                                 byte[] signatureValue)
+                                                 Byte[] actualHashValue,
+                                                 Byte[] signatureValue)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(mac != null, "mac != null");
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_VerifySignedInfoHmac,
                                                   mac.GetType().Name);
                 WriteLine(signedXml,
@@ -883,12 +886,12 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (VerboseLoggingEnabled)
             {
-                string hashLog = string.Format(CultureInfo.InvariantCulture,
+                String hashLog = String.Format(CultureInfo.InvariantCulture,
                                                SR.Log_ActualHashValue,
                                                FormatBytes(actualHashValue));
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.VerifySignedInfo, hashLog);
 
-                string signatureLog = string.Format(CultureInfo.InvariantCulture,
+                String signatureLog = String.Format(CultureInfo.InvariantCulture,
                                                     SR.Log_RawSignatureValue,
                                                     FormatBytes(signatureValue));
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.VerifySignedInfo, signatureLog);
@@ -901,7 +904,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <param name="signedXml">SignedXml object building the chain</param>
         /// <param name="chain">chain built for the certificate</param>
         /// <param name="certificate">certificate having the chain built for it</param>
-        /*internal static void LogVerifyX509Chain(SignedXml signedXml, IList<X509Certificate> chain, X509Certificate certificate)
+        internal static void LogVerifyX509Chain(SignedXml signedXml, System.Security.Cryptography.X509Certificates.X509Chain chain, X509Certificate certificate)
         {
             Debug.Assert(signedXml != null, "signedXml != null");
             Debug.Assert(certificate != null, "certificate != null");
@@ -909,7 +912,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string buildMessage = string.Format(CultureInfo.InvariantCulture,
+                String buildMessage = String.Format(CultureInfo.InvariantCulture,
                                                     SR.Log_BuildX509Chain,
                                                     GetKeyName(certificate));
                 WriteLine(signedXml,
@@ -921,27 +924,27 @@ namespace Org.BouncyCastle.Crypto.Xml
             if (VerboseLoggingEnabled)
             {
                 // Dump out the flags and other miscelanious information used for building
-                string revocationMode = string.Format(CultureInfo.InvariantCulture,
+                String revocationMode = String.Format(CultureInfo.InvariantCulture,
                                                       SR.Log_RevocationMode,
                                                       chain.ChainPolicy.RevocationFlag);
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.X509Verification, revocationMode);
 
-                string revocationFlag = string.Format(CultureInfo.InvariantCulture,
+                String revocationFlag = String.Format(CultureInfo.InvariantCulture,
                                                       SR.Log_RevocationFlag,
                                                       chain.ChainPolicy.RevocationFlag);
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.X509Verification, revocationFlag);
 
-                string verificationFlags = string.Format(CultureInfo.InvariantCulture,
+                String verificationFlags = String.Format(CultureInfo.InvariantCulture,
                                                          SR.Log_VerificationFlag,
                                                          chain.ChainPolicy.VerificationFlags);
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.X509Verification, verificationFlags);
 
-                string verificationTime = string.Format(CultureInfo.InvariantCulture,
+                String verificationTime = String.Format(CultureInfo.InvariantCulture,
                                                         SR.Log_VerificationTime,
                                                         chain.ChainPolicy.VerificationTime);
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.X509Verification, verificationTime);
 
-                string urlTimeout = string.Format(CultureInfo.InvariantCulture,
+                String urlTimeout = String.Format(CultureInfo.InvariantCulture,
                                                   SR.Log_UrlTimeout,
                                                   chain.ChainPolicy.UrlRetrievalTimeout);
                 WriteLine(signedXml, TraceEventType.Verbose, SignedXmlDebugEvent.X509Verification, urlTimeout);
@@ -950,11 +953,11 @@ namespace Org.BouncyCastle.Crypto.Xml
             // If there were any errors in the chain, make sure to dump those out
             if (InformationLoggingEnabled)
             {
-                foreach (X509ChainStatus status in chain.ChainStatus)
+                foreach (System.Security.Cryptography.X509Certificates.X509ChainStatus status in chain.ChainStatus)
                 {
-                    if (status.Status != X509ChainStatusFlags.NoError)
+                    if (status.Status != System.Security.Cryptography.X509Certificates.X509ChainStatusFlags.NoError)
                     {
-                        string logMessage = string.Format(CultureInfo.InvariantCulture,
+                        String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                           SR.Log_X509ChainError,
                                                           status.Status,
                                                           status.StatusInformation);
@@ -973,9 +976,10 @@ namespace Org.BouncyCastle.Crypto.Xml
                 StringBuilder chainElements = new StringBuilder();
                 chainElements.Append(SR.Log_CertificateChain);
 
-                foreach (X509Certificate element in chain)
+                foreach (System.Security.Cryptography.X509Certificates.X509ChainElement element in chain.ChainElements)
                 {
-                    chainElements.AppendFormat(CultureInfo.InvariantCulture, " {0}", GetKeyName(element));
+                    X509Certificate _element = DotNetUtilities.FromX509Certificate(element.Certificate);
+                    chainElements.AppendFormat(CultureInfo.InvariantCulture, " {0}", GetKeyName(_element));
                 }
 
                 WriteLine(signedXml,
@@ -983,7 +987,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                           SignedXmlDebugEvent.X509Verification,
                           chainElements.ToString());
             }
-        }*/
+        }
 
         /// <summary>
         /// Write information when user hits the Signed XML recursion depth limit issue.
@@ -999,7 +1003,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             if (InformationLoggingEnabled)
             {
-                string logMessage = string.Format(CultureInfo.InvariantCulture,
+                String logMessage = String.Format(CultureInfo.InvariantCulture,
                                                     SR.Log_SignedXmlRecursionLimit,
                                                     GetObjectId(reference),
                                                     reference.DigestMethod,
@@ -1019,14 +1023,14 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <param name="eventType">severity of the debug event</param>
         /// <param name="data">data being written</param>
         /// <param name="eventId">type of event being traced</param>
-        private static void WriteLine(object source, TraceEventType eventType, SignedXmlDebugEvent eventId, string data)
+        private static void WriteLine(Object source, TraceEventType eventType, SignedXmlDebugEvent eventId, String data)
         {
             Debug.Assert(source != null, "source != null");
-            Debug.Assert(!string.IsNullOrEmpty(data), "!string.IsNullOrEmpty(data)");
+            Debug.Assert(!String.IsNullOrEmpty(data), "!string.IsNullOrEmpty(data)");
             Debug.Assert(InformationLoggingEnabled, "InformationLoggingEnabled");
 
             s_traceSource.TraceEvent(eventType,
-                                    (int)eventId,
+                                    (Int32)eventId,
                                     "[{0}, {1}] {2}",
                                     GetObjectId(source),
                                     eventId,

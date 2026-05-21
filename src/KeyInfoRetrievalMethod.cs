@@ -9,8 +9,8 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public class KeyInfoRetrievalMethod : KeyInfoClause
     {
-        private string _uri;
-        private string _type;
+        private String _uri;
+        private String _type;
 
         //
         // public constructors
@@ -18,49 +18,54 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public KeyInfoRetrievalMethod() { }
 
-        public KeyInfoRetrievalMethod(string strUri)
+        public KeyInfoRetrievalMethod(String strUri)
         {
-            _uri = strUri;
+            this._uri = strUri;
         }
 
-        public KeyInfoRetrievalMethod(string strUri, string typeName)
+        public KeyInfoRetrievalMethod(String strUri, String typeName)
         {
-            _uri = strUri;
-            _type = typeName;
+            this._uri = strUri;
+            this._type = typeName;
         }
 
         //
         // public properties
         //
 
-        public string Uri
+        public String Uri
         {
-            get { return _uri; }
-            set { _uri = value; }
+            get { return this._uri; }
+            set { this._uri = value; }
         }
 
-        public string Type
+        public String Type
         {
-            get { return _type; }
-            set { _type = value; }
+            get { return this._type; }
+            set { this._type = value; }
         }
 
         public override XmlElement GetXml()
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.PreserveWhitespace = true;
-            return GetXml(xmlDocument);
+            return this.GetXml(xmlDocument);
         }
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
             // Create the actual element
-            XmlElement retrievalMethodElement = xmlDocument.CreateElement("RetrievalMethod", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement retrievalMethodElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "RetrievalMethod", SignedXml.XmlDsigNamespaceUrl);
 
-            if (!string.IsNullOrEmpty(_uri))
-                retrievalMethodElement.SetAttribute("URI", _uri);
-            if (!string.IsNullOrEmpty(_type))
-                retrievalMethodElement.SetAttribute("Type", _type);
+            if (!String.IsNullOrEmpty(this._uri))
+            {
+                retrievalMethodElement.SetAttribute("URI", this._uri);
+            }
+
+            if (!String.IsNullOrEmpty(this._type))
+            {
+                retrievalMethodElement.SetAttribute("Type", this._type);
+            }
 
             return retrievalMethodElement;
         }
@@ -68,10 +73,12 @@ namespace Org.BouncyCastle.Crypto.Xml
         public override void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
-            _uri = Utils.GetAttribute(value, "URI", SignedXml.XmlDsigNamespaceUrl);
-            _type = Utils.GetAttribute(value, "Type", SignedXml.XmlDsigNamespaceUrl);
+            this._uri = Utils.GetAttribute(value, "URI", SignedXml.XmlDsigNamespaceUrl);
+            this._type = Utils.GetAttribute(value, "Type", SignedXml.XmlDsigNamespaceUrl);
         }
     }
 }

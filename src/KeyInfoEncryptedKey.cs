@@ -14,33 +14,39 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public KeyInfoEncryptedKey(EncryptedKey encryptedKey)
         {
-            _encryptedKey = encryptedKey;
+            this._encryptedKey = encryptedKey;
         }
 
         public EncryptedKey EncryptedKey
         {
-            get { return _encryptedKey; }
-            set { _encryptedKey = value; }
+            get { return this._encryptedKey; }
+            set { this._encryptedKey = value; }
         }
 
         public override XmlElement GetXml()
         {
-            if (_encryptedKey == null)
+            if (this._encryptedKey == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "KeyInfoEncryptedKey");
-            return _encryptedKey.GetXml();
+            }
+
+            return this._encryptedKey.GetXml();
         }
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            if (_encryptedKey == null)
+            if (this._encryptedKey == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "KeyInfoEncryptedKey");
-            return _encryptedKey.GetXml(xmlDocument);
+            }
+
+            return this._encryptedKey.GetXml(xmlDocument);
         }
 
         public override void LoadXml(XmlElement value)
         {
-            _encryptedKey = new EncryptedKey();
-            _encryptedKey.LoadXml(value);
+            this._encryptedKey = new EncryptedKey();
+            this._encryptedKey.LoadXml(value);
         }
     }
 }

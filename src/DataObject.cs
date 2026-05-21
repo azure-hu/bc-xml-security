@@ -9,10 +9,11 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public class DataObject
     {
-        private string _id;
-        private string _mimeType;
-        private string _encoding;
+        private String _id;
+        private String _mimeType;
+        private String _encoding;
         private CanonicalXmlNodeList _elData;
+        private String _innerText;
         private XmlElement _cachedXml;
 
         //
@@ -21,80 +22,102 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public DataObject()
         {
-            _cachedXml = null;
-            _elData = new CanonicalXmlNodeList();
+            this._cachedXml = null;
+            this._elData = new CanonicalXmlNodeList();
         }
 
-        public DataObject(string id, string mimeType, string encoding, XmlElement data)
+        public DataObject(String id, String mimeType, String encoding, XmlElement data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
-            _id = id;
-            _mimeType = mimeType;
-            _encoding = encoding;
-            _elData = new CanonicalXmlNodeList();
-            _elData.Add(data);
-            _cachedXml = null;
+            this._id = id;
+            this._mimeType = mimeType;
+            this._encoding = encoding;
+            this._elData = new CanonicalXmlNodeList();
+            this._elData.Add(data);
+            this._cachedXml = null;
         }
 
         //
         // public properties
         //
 
-        public string Id
+        public String Id
         {
-            get { return _id; }
+            get { return this._id; }
             set
             {
-                _id = value;
-                _cachedXml = null;
+                this._id = value;
+                this._cachedXml = null;
             }
         }
 
-        public string MimeType
+        public String MimeType
         {
-            get { return _mimeType; }
+            get { return this._mimeType; }
             set
             {
-                _mimeType = value;
-                _cachedXml = null;
+                this._mimeType = value;
+                this._cachedXml = null;
             }
         }
 
-        public string Encoding
+        public String Encoding
         {
-            get { return _encoding; }
+            get { return this._encoding; }
             set
             {
-                _encoding = value;
-                _cachedXml = null;
+                this._encoding = value;
+                this._cachedXml = null;
             }
         }
 
         public XmlNodeList Data
         {
-            get { return _elData; }
+            get { return this._elData; }
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
+                }
 
                 // Reset the node list
-                _elData = new CanonicalXmlNodeList();
+                this._innerText = null;
+                this._elData = new CanonicalXmlNodeList();
                 foreach (XmlNode node in value)
                 {
-                    _elData.Add(node);
+                    this._elData.Add(node);
                 }
-                _cachedXml = null;
+                this._cachedXml = null;
             }
         }
 
-        private bool CacheValid
+        public String InnerText
+        {
+            get { return this._innerText; }
+            set
+            {
+                if (value == null)
+                {
+                    throw new ArgumentNullException(nameof(value));
+                }
+
+                // Reset the node list
+                this._elData = null;
+                this._innerText = value;
+                this._cachedXml = null;
+            }
+        }
+
+        private Boolean CacheValid
         {
             get
             {
-                return (_cachedXml != null);
+                return (this._cachedXml != null);
             }
         }
 
@@ -104,30 +127,45 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public XmlElement GetXml()
         {
-            if (CacheValid) return (_cachedXml);
+            if (this.CacheValid)
+            {
+                return (this._cachedXml);
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
-            XmlElement objectElement = document.CreateElement("Object", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement objectElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Object", SignedXml.XmlDsigNamespaceUrl);
 
-            if (!string.IsNullOrEmpty(_id))
-                objectElement.SetAttribute("Id", _id);
-            if (!string.IsNullOrEmpty(_mimeType))
-                objectElement.SetAttribute("MimeType", _mimeType);
-            if (!string.IsNullOrEmpty(_encoding))
-                objectElement.SetAttribute("Encoding", _encoding);
-
-            if (_elData != null)
+            if (!String.IsNullOrEmpty(this._id))
             {
-                foreach (XmlNode node in _elData)
+                objectElement.SetAttribute("Id", this._id);
+            }
+
+            if (!String.IsNullOrEmpty(this._mimeType))
+            {
+                objectElement.SetAttribute("MimeType", this._mimeType);
+            }
+
+            if (!String.IsNullOrEmpty(this._encoding))
+            {
+                objectElement.SetAttribute("Encoding", this._encoding);
+            }
+
+            if (this._elData != null && this._elData.Count > 0)
+            {
+                foreach (XmlNode node in this._elData)
                 {
                     objectElement.AppendChild(document.ImportNode(node, true));
                 }
+            }
+            else if (!String.IsNullOrEmpty(this._innerText))
+            {
+                objectElement.InnerText = this._innerText;
             }
 
             return objectElement;
@@ -136,19 +174,21 @@ namespace Org.BouncyCastle.Crypto.Xml
         public void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
-            _id = Utils.GetAttribute(value, "Id", SignedXml.XmlDsigNamespaceUrl);
-            _mimeType = Utils.GetAttribute(value, "MimeType", SignedXml.XmlDsigNamespaceUrl);
-            _encoding = Utils.GetAttribute(value, "Encoding", SignedXml.XmlDsigNamespaceUrl);
+            this._id = Utils.GetAttribute(value, "Id", SignedXml.XmlDsigNamespaceUrl);
+            this._mimeType = Utils.GetAttribute(value, "MimeType", SignedXml.XmlDsigNamespaceUrl);
+            this._encoding = Utils.GetAttribute(value, "Encoding", SignedXml.XmlDsigNamespaceUrl);
 
             foreach (XmlNode node in value.ChildNodes)
             {
-                _elData.Add(node);
+                this._elData.Add(node);
             }
 
             // Save away the cached value
-            _cachedXml = value;
+            this._cachedXml = value;
         }
     }
 }

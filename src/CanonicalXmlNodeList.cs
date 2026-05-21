@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
-using System.Collections;
 using System;
+using System.Collections;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -14,98 +14,107 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal CanonicalXmlNodeList()
         {
-            _nodeArray = new ArrayList();
+            this._nodeArray = new ArrayList();
         }
 
-        public override XmlNode Item(int index)
+        public override XmlNode Item(Int32 index)
         {
-            return (XmlNode)_nodeArray[index];
+            return (XmlNode)this._nodeArray[index];
         }
 
         public override IEnumerator GetEnumerator()
         {
-            return _nodeArray.GetEnumerator();
+            return this._nodeArray.GetEnumerator();
         }
 
-        public override int Count
+        public override Int32 Count
         {
-            get { return _nodeArray.Count; }
+            get { return this._nodeArray.Count; }
         }
 
         // IList methods
-        public int Add(object value)
+        public Int32 Add(Object value)
         {
             if (!(value is XmlNode))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, "node");
-            return _nodeArray.Add(value);
+            }
+
+            return this._nodeArray.Add(value);
         }
 
         public void Clear()
         {
-            _nodeArray.Clear();
+            this._nodeArray.Clear();
         }
 
-        public bool Contains(object value)
+        public Boolean Contains(Object value)
         {
-            return _nodeArray.Contains(value);
+            return this._nodeArray.Contains(value);
         }
 
-        public int IndexOf(object value)
+        public Int32 IndexOf(Object value)
         {
-            return _nodeArray.IndexOf(value);
+            return this._nodeArray.IndexOf(value);
         }
 
-        public void Insert(int index, object value)
+        public void Insert(Int32 index, Object value)
         {
             if (!(value is XmlNode))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
-            _nodeArray.Insert(index, value);
+            }
+
+            this._nodeArray.Insert(index, value);
         }
 
-        public void Remove(object value)
+        public void Remove(Object value)
         {
-            _nodeArray.Remove(value);
+            this._nodeArray.Remove(value);
         }
 
-        public void RemoveAt(int index)
+        public void RemoveAt(Int32 index)
         {
-            _nodeArray.RemoveAt(index);
+            this._nodeArray.RemoveAt(index);
         }
 
-        public bool IsFixedSize
+        public Boolean IsFixedSize
         {
-            get { return _nodeArray.IsFixedSize; }
+            get { return this._nodeArray.IsFixedSize; }
         }
 
-        public bool IsReadOnly
+        public Boolean IsReadOnly
         {
-            get { return _nodeArray.IsReadOnly; }
+            get { return this._nodeArray.IsReadOnly; }
         }
 
-        object IList.this[int index]
+        Object IList.this[Int32 index]
         {
-            get { return _nodeArray[index]; }
+            get { return this._nodeArray[index]; }
             set
             {
                 if (!(value is XmlNode))
+                {
                     throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
-                _nodeArray[index] = value;
+                }
+
+                this._nodeArray[index] = value;
             }
         }
 
-        public void CopyTo(Array array, int index)
+        public void CopyTo(Array array, Int32 index)
         {
-            _nodeArray.CopyTo(array, index);
+            this._nodeArray.CopyTo(array, index);
         }
 
-        public object SyncRoot
+        public Object SyncRoot
         {
-            get { return _nodeArray.SyncRoot; }
+            get { return this._nodeArray.SyncRoot; }
         }
 
-        public bool IsSynchronized
+        public Boolean IsSynchronized
         {
-            get { return _nodeArray.IsSynchronized; }
+            get { return this._nodeArray.IsSynchronized; }
         }
     }
 }

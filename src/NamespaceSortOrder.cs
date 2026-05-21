@@ -2,9 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
-using System.Collections;
 using System;
+using System.Collections;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -12,18 +12,33 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         internal NamespaceSortOrder() { }
 
-        public int Compare(object a, object b)
+        public Int32 Compare(Object a, Object b)
         {
             XmlNode nodeA = a as XmlNode;
             XmlNode nodeB = b as XmlNode;
             if ((nodeA == null) || (nodeB == null))
+            {
                 throw new ArgumentException();
-            bool nodeAdefault = Utils.IsDefaultNamespaceNode(nodeA);
-            bool nodeBdefault = Utils.IsDefaultNamespaceNode(nodeB);
-            if (nodeAdefault && nodeBdefault) return 0;
-            if (nodeAdefault) return -1;
-            if (nodeBdefault) return 1;
-            return string.CompareOrdinal(nodeA.LocalName, nodeB.LocalName);
+            }
+
+            Boolean nodeAdefault = Utils.IsDefaultNamespaceNode(nodeA);
+            Boolean nodeBdefault = Utils.IsDefaultNamespaceNode(nodeB);
+            if (nodeAdefault && nodeBdefault)
+            {
+                return 0;
+            }
+
+            if (nodeAdefault)
+            {
+                return -1;
+            }
+
+            if (nodeBdefault)
+            {
+                return 1;
+            }
+
+            return String.CompareOrdinal(nodeA.LocalName, nodeB.LocalName);
         }
     }
 }

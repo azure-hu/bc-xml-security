@@ -15,28 +15,28 @@ namespace Org.BouncyCastle.Crypto.Xml
         private XmlNamespaceManager _namespaceManager = null;
         private XmlDocument _license = null;
         private IRelDecryptor _relDecryptor = null;
-        private const string ElementIssuer = "issuer";
-        private const string NamespaceUriCore = "urn:mpeg:mpeg21:2003:01-REL-R-NS";
+        private const String ElementIssuer = "issuer";
+        private const String NamespaceUriCore = "urn:mpeg:mpeg21:2003:01-REL-R-NS";
 
         public XmlLicenseTransform()
         {
-            Algorithm = SignedXml.XmlLicenseTransformUrl;
+            this.Algorithm = SignedXml.XmlLicenseTransformUrl;
         }
 
         public override Type[] InputTypes
         {
-            get { return _inputTypes; }
+            get { return this._inputTypes; }
         }
 
         public override Type[] OutputTypes
         {
-            get { return _outputTypes; }
+            get { return this._outputTypes; }
         }
 
         public IRelDecryptor Decryptor
         {
-            get { return _relDecryptor; }
-            set { _relDecryptor = value; }
+            get { return this._relDecryptor; }
+            set { this._relDecryptor = value; }
         }
 
         private void DecryptEncryptedGrants(XmlNodeList encryptedGrantList, IRelDecryptor decryptor)
@@ -48,11 +48,11 @@ namespace Org.BouncyCastle.Crypto.Xml
             KeyInfo keyInfoObj = null;
             CipherData cipherDataObj = null;
 
-            for (int i = 0, count = encryptedGrantList.Count; i < count; i++)
+            for (Int32 i = 0, count = encryptedGrantList.Count; i < count; i++)
             {
-                encryptionMethod = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/enc:EncryptionMethod", _namespaceManager) as XmlElement;
-                keyInfo = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/dsig:KeyInfo", _namespaceManager) as XmlElement;
-                cipherData = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/enc:CipherData", _namespaceManager) as XmlElement;
+                encryptionMethod = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptionMethod", this._namespaceManager) as XmlElement;
+                keyInfo = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + SignedXml.XmlDsigNamespacePrefix + ":KeyInfo", this._namespaceManager) as XmlElement;
+                cipherData = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + EncryptedXml.XmlEncNamespacePrefix + ":CipherData", this._namespaceManager) as XmlElement;
                 if ((encryptionMethod != null) &&
                     (keyInfo != null) &&
                     (cipherData != null))
@@ -72,27 +72,35 @@ namespace Org.BouncyCastle.Crypto.Xml
                     try
                     {
                         toDecrypt = new MemoryStream(cipherDataObj.CipherValue);
-                        decryptedContent = _relDecryptor.Decrypt(encryptionMethodObj,
+                        decryptedContent = this._relDecryptor.Decrypt(encryptionMethodObj,
                                                                 keyInfoObj, toDecrypt);
 
                         if ((decryptedContent == null) || (decryptedContent.Length == 0))
+                        {
                             throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_XrmlUnableToDecryptGrant);
+                        }
 
                         streamReader = new StreamReader(decryptedContent);
-                        string clearContent = streamReader.ReadToEnd();
+                        String clearContent = streamReader.ReadToEnd();
 
                         encryptedGrantList[i].ParentNode.InnerXml = clearContent;
                     }
                     finally
                     {
                         if (toDecrypt != null)
+                        {
                             toDecrypt.Close();
+                        }
 
                         if (decryptedContent != null)
+                        {
                             decryptedContent.Close();
+                        }
 
                         if (streamReader != null)
+                        {
                             streamReader.Close();
+                        }
                     }
 
                     encryptionMethodObj = null;
@@ -112,81 +120,99 @@ namespace Org.BouncyCastle.Crypto.Xml
             return null;
         }
 
-        public override object GetOutput()
+        public override Object GetOutput()
         {
-            return _license;
+            return this._license;
         }
 
-        public override object GetOutput(Type type)
+        public override Object GetOutput(Type type)
         {
             if ((type != typeof(XmlDocument)) && (!type.IsSubclassOf(typeof(XmlDocument))))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_TransformIncorrectInputType, nameof(type));
+            }
 
-            return GetOutput();
+            return this.GetOutput();
         }
 
         // License transform has no inner XML elements
         public override void LoadInnerXml(XmlNodeList nodeList)
         {
             if (nodeList != null && nodeList.Count > 0)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
+            }
         }
 
-        public override void LoadInput(object obj)
+        public override void LoadInput(Object obj)
         {
             // Check if the Context property is set before this transform is invoked.
-            if (Context == null)
+            if (this.Context == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_XrmlMissingContext);
+            }
 
-            _license = new XmlDocument();
-            _license.PreserveWhitespace = true;
-            _namespaceManager = new XmlNamespaceManager(_license.NameTable);
-            _namespaceManager.AddNamespace("dsig", SignedXml.XmlDsigNamespaceUrl);
-            _namespaceManager.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
-            _namespaceManager.AddNamespace("r", NamespaceUriCore);
+            this._license = new XmlDocument();
+            this._license.PreserveWhitespace = true;
+            this._namespaceManager = new XmlNamespaceManager(this._license.NameTable);
+            this._namespaceManager.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            this._namespaceManager.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            this._namespaceManager.AddNamespace("r", NamespaceUriCore);
 
             XmlElement currentIssuerContext = null;
             XmlElement currentLicenseContext = null;
             XmlNode signatureNode = null;
 
             // Get the nearest issuer node
-            currentIssuerContext = Context.SelectSingleNode("ancestor-or-self::r:issuer[1]", _namespaceManager) as XmlElement;
+            currentIssuerContext = this.Context.SelectSingleNode("ancestor-or-self::r:issuer[1]", this._namespaceManager) as XmlElement;
             if (currentIssuerContext == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_XrmlMissingIssuer);
+            }
 
-            signatureNode = currentIssuerContext.SelectSingleNode("descendant-or-self::dsig:Signature[1]", _namespaceManager) as XmlElement;
+            signatureNode = currentIssuerContext.SelectSingleNode("descendant-or-self::" + SignedXml.XmlDsigNamespacePrefix + ":Signature[1]", this._namespaceManager) as XmlElement;
             if (signatureNode != null)
+            {
                 signatureNode.ParentNode.RemoveChild(signatureNode);
+            }
 
             // Get the nearest license node
-            currentLicenseContext = currentIssuerContext.SelectSingleNode("ancestor-or-self::r:license[1]", _namespaceManager) as XmlElement;
+            currentLicenseContext = currentIssuerContext.SelectSingleNode("ancestor-or-self::r:license[1]", this._namespaceManager) as XmlElement;
             if (currentLicenseContext == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_XrmlMissingLicence);
+            }
 
-            XmlNodeList issuerList = currentLicenseContext.SelectNodes("descendant-or-self::r:license[1]/r:issuer", _namespaceManager);
+            XmlNodeList issuerList = currentLicenseContext.SelectNodes("descendant-or-self::r:license[1]/r:issuer", this._namespaceManager);
 
             // Remove all issuer nodes except current
-            for (int i = 0, count = issuerList.Count; i < count; i++)
+            for (Int32 i = 0, count = issuerList.Count; i < count; i++)
             {
                 if (issuerList[i] == currentIssuerContext)
+                {
                     continue;
+                }
 
                 if ((issuerList[i].LocalName == ElementIssuer) &&
                     (issuerList[i].NamespaceURI == NamespaceUriCore))
+                {
                     issuerList[i].ParentNode.RemoveChild(issuerList[i]);
+                }
             }
 
-            XmlNodeList encryptedGrantList = currentLicenseContext.SelectNodes("/r:license/r:grant/r:encryptedGrant", _namespaceManager);
+            XmlNodeList encryptedGrantList = currentLicenseContext.SelectNodes("/r:license/r:grant/r:encryptedGrant", this._namespaceManager);
 
             if (encryptedGrantList.Count > 0)
             {
-                if (_relDecryptor == null)
+                if (this._relDecryptor == null)
+                {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_XrmlMissingIRelDecryptor);
+                }
 
-                DecryptEncryptedGrants(encryptedGrantList, _relDecryptor);
+                this.DecryptEncryptedGrants(encryptedGrantList, this._relDecryptor);
             }
 
-            _license.InnerXml = currentLicenseContext.OuterXml;
+            this._license.InnerXml = currentLicenseContext.OuterXml;
         }
     }
 }

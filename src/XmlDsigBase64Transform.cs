@@ -19,17 +19,17 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public XmlDsigBase64Transform()
         {
-            Algorithm = SignedXml.XmlDsigBase64TransformUrl;
+            this.Algorithm = SignedXml.XmlDsigBase64TransformUrl;
         }
 
         public override Type[] InputTypes
         {
-            get { return _inputTypes; }
+            get { return this._inputTypes; }
         }
 
         public override Type[] OutputTypes
         {
-            get { return _outputTypes; }
+            get { return this._outputTypes; }
         }
 
         public override void LoadInnerXml(XmlNodeList nodeList)
@@ -41,43 +41,52 @@ namespace Org.BouncyCastle.Crypto.Xml
             return null;
         }
 
-        public override void LoadInput(object obj)
+        public override void LoadInput(Object obj)
         {
             if (obj is Stream)
             {
-                LoadStreamInput((Stream)obj);
+                this.LoadStreamInput((Stream)obj);
                 return;
             }
             if (obj is XmlNodeList)
             {
-                LoadXmlNodeListInput((XmlNodeList)obj);
+                this.LoadXmlNodeListInput((XmlNodeList)obj);
                 return;
             }
             if (obj is XmlDocument)
             {
-                LoadXmlNodeListInput(((XmlDocument)obj).SelectNodes("//."));
+                this.LoadXmlNodeListInput(((XmlDocument)obj).SelectNodes("//."));
                 return;
             }
         }
 
         private void LoadStreamInput(Stream inputStream)
         {
-            if (inputStream == null) throw new ArgumentException("obj");
+            if (inputStream == null)
+            {
+                throw new ArgumentException("obj");
+            }
+
             MemoryStream ms = new MemoryStream();
-            byte[] buffer = new byte[1024];
-            int bytesRead;
+            Byte[] buffer = new Byte[1024];
+            Int32 bytesRead;
             do
             {
                 bytesRead = inputStream.Read(buffer, 0, 1024);
                 if (bytesRead > 0)
                 {
-                    int i = 0;
-                    int j = 0;
-                    while ((j < bytesRead) && (!char.IsWhiteSpace((char)buffer[j]))) j++;
-                    i = j; j++;
+                    Int32 i = 0;
+                    Int32 j = 0;
+                    while ((j < bytesRead) && (!Char.IsWhiteSpace((Char)buffer[j])))
+                    {
+                        j++;
+                    }
+
+                    i = j;
+                    j++;
                     while (j < bytesRead)
                     {
-                        if (!char.IsWhiteSpace((char)buffer[j]))
+                        if (!Char.IsWhiteSpace((Char)buffer[j]))
                         {
                             buffer[i] = buffer[j];
                             i++;
@@ -88,7 +97,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 }
             } while (bytesRead > 0);
             ms.Position = 0;
-            _cs = new CryptoStream(ms, new FromBase64Transform(), CryptoStreamMode.Read);
+            this._cs = new CryptoStream(ms, new FromBase64Transform(), CryptoStreamMode.Read);
         }
 
         private void LoadXmlNodeListInput(XmlNodeList nodeList)
@@ -98,17 +107,24 @@ namespace Org.BouncyCastle.Crypto.Xml
             {
                 XmlNode result = node.SelectSingleNode("self::text()");
                 if (result != null)
+                {
                     sb.Append(result.OuterXml);
+                }
             }
             UTF8Encoding utf8 = new UTF8Encoding(false);
-            byte[] buffer = utf8.GetBytes(sb.ToString());
-            int i = 0;
-            int j = 0;
-            while ((j < buffer.Length) && (!char.IsWhiteSpace((char)buffer[j]))) j++;
-            i = j; j++;
+            Byte[] buffer = utf8.GetBytes(sb.ToString());
+            Int32 i = 0;
+            Int32 j = 0;
+            while ((j < buffer.Length) && (!Char.IsWhiteSpace((Char)buffer[j])))
+            {
+                j++;
+            }
+
+            i = j;
+            j++;
             while (j < buffer.Length)
             {
-                if (!char.IsWhiteSpace((char)buffer[j]))
+                if (!Char.IsWhiteSpace((Char)buffer[j]))
                 {
                     buffer[i] = buffer[j];
                     i++;
@@ -116,19 +132,22 @@ namespace Org.BouncyCastle.Crypto.Xml
                 j++;
             }
             MemoryStream ms = new MemoryStream(buffer, 0, i);
-            _cs = new CryptoStream(ms, new FromBase64Transform(), CryptoStreamMode.Read);
+            this._cs = new CryptoStream(ms, new FromBase64Transform(), CryptoStreamMode.Read);
         }
 
-        public override object GetOutput()
+        public override Object GetOutput()
         {
-            return _cs;
+            return this._cs;
         }
 
-        public override object GetOutput(Type type)
+        public override Object GetOutput(Type type)
         {
             if (type != typeof(Stream) && !type.IsSubclassOf(typeof(Stream)))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_TransformIncorrectInputType, nameof(type));
-            return _cs;
+            }
+
+            return this._cs;
         }
     }
 }

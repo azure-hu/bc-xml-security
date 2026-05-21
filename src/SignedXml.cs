@@ -2,25 +2,25 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using Org.BouncyCastle.Asn1;
+using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Crypto.Macs;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.X509;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Xml;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Crypto.Macs;
-using System;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
     public class SignedXml
     {
         protected Signature m_signature;
-        protected string m_strSigningKeyName;
+        private String m_strSigningKeyName;
 
         private AsymmetricKeyParameter _signingKey;
         private XmlDocument _containingDocument = null;
@@ -28,27 +28,29 @@ namespace Org.BouncyCastle.Crypto.Xml
         private IList<X509Certificate> _x509Collection = null;
         private IEnumerator _x509Enum = null;
 
-        private bool[] _refProcessed = null;
-        private int[] _refLevelCache = null;
+        private Boolean[] _refProcessed = null;
+        private Int32[] _refLevelCache = null;
 
         internal XmlResolver _xmlResolver = null;
         internal XmlElement _context = null;
-        private bool _bResolverSet = false;
+        protected Boolean _bResolverSet = false;
 
-        private Func<SignedXml, bool> _signatureFormatValidator = DefaultSignatureFormatValidator;
-        private Collection<string> _safeCanonicalizationMethods;
+        private Func<SignedXml, Boolean> _signatureFormatValidator = DefaultSignatureFormatValidator;
+        private Collection<String> _safeCanonicalizationMethods;
 
         // Built in canonicalization algorithm URIs
-        private static IList<string> s_knownCanonicalizationMethods = null;
+        private static IList<String> s_knownCanonicalizationMethods = null;
         // Built in transform algorithm URIs (excluding canonicalization URIs)
-        private static IList<string> s_defaultSafeTransformMethods = null;
+        private static IList<String> s_defaultSafeTransformMethods = null;
 
         // additional HMAC Url identifiers
-        private const string XmlDsigMoreHMACMD5Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-md5";
-        private const string XmlDsigMoreHMACSHA256Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha256";
-        private const string XmlDsigMoreHMACSHA384Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha384";
-        private const string XmlDsigMoreHMACSHA512Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha512";
-        private const string XmlDsigMoreHMACRIPEMD160Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-ripemd160";
+        private const String XmlDsigMoreHMACMD5Url       = "http://www.w3.org/2001/04/xmldsig-more#hmac-md5";
+        public  const String XmlDsigHMACSHA1Url          = "http://www.w3.org/2000/09/xmldsig#hmac-sha1";
+        private const String XmlDsigMoreHMACSHA224Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha224";
+        private const String XmlDsigMoreHMACSHA256Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha256";
+        private const String XmlDsigMoreHMACSHA384Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha384";
+        private const String XmlDsigMoreHMACSHA512Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha512";
+        private const String XmlDsigMoreHMACRIPEMD160Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-ripemd160";
 
         // defines the XML encryption processing rules
         private EncryptedXml _exml = null;
@@ -57,52 +59,77 @@ namespace Org.BouncyCastle.Crypto.Xml
         // public constant Url identifiers most frequently used within the XML Signature classes
         //
 
-        public const string XmlDsigNamespaceUrl = "http://www.w3.org/2000/09/xmldsig#";
-        public const string XmlDsigMinimalCanonicalizationUrl = "http://www.w3.org/2000/09/xmldsig#minimal";
-        public const string XmlDsigCanonicalizationUrl = XmlDsigC14NTransformUrl;
-        public const string XmlDsigCanonicalizationWithCommentsUrl = XmlDsigC14NWithCommentsTransformUrl;
+        public const String XmlDsigNamespaceUrl = "http://www.w3.org/2000/09/xmldsig#";
+        public const String XmlDsigNamespacePrefix = "ds";
+        public const String XmlDsig11NamespaceUrl =  "http://www.w3.org/2009/xmldsig11#";
+        public const String XmlDsig11NamespacePrefix = "dsig11";
+        public const String XmlDsigMinimalCanonicalizationUrl = "http://www.w3.org/2000/09/xmldsig#minimal";
+        public const String XmlDsigCanonicalizationUrl = XmlDsigC14NTransformUrl;
+        public const String XmlDsigCanonicalizationWithCommentsUrl = XmlDsigC14NWithCommentsTransformUrl;
 
-        public const string XmlDsigSHA1Url = "http://www.w3.org/2000/09/xmldsig#sha1";
-        public const string XmlDsigDSAUrl = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
-        public const string XmlDsigRSASHA1Url = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-        public const string XmlDsigHMACSHA1Url = "http://www.w3.org/2000/09/xmldsig#hmac-sha1";
+        public const String XmlDsigSHA1Url       = "http://www.w3.org/2000/09/xmldsig#sha1";
+        public const String XmlDsigSHA256Url     = EncryptedXml.XmlEncSHA256Url;
+        public const String XmlDsigSHA384Url     = SignedXml.XmlDsigMoreSHA384Url;
+        public const String XmlDsigSHA512Url     = EncryptedXml.XmlEncSHA512Url;
 
-        public const string XmlDsigSHA256Url = "http://www.w3.org/2001/04/xmlenc#sha256";
-        public const string XmlDsigRSASHA256Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+        public const String XmlDsigMoreSHA224Url = "http://www.w3.org/2001/04/xmldsig-more#sha224";
+        public const String XmlDsigMoreSHA384Url = "http://www.w3.org/2001/04/xmldsig-more#sha384";
 
-        // Yes, SHA384 is in the xmldsig-more namespace even though all the other SHA variants are in xmlenc. That's the standard.
-        public const string XmlDsigSHA384Url = "http://www.w3.org/2001/04/xmldsig-more#sha384";
-        public const string XmlDsigRSASHA384Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384";
+        public const String XmlDsigMoreSHA3_224Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-224";
+        public const String XmlDsigMoreSHA3_256Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-256";
+        public const String XmlDsigMoreSHA3_384Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-384";
+        public const String XmlDsigMoreSHA3_512Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-512";
 
-        public const string XmlDsigSHA512Url = "http://www.w3.org/2001/04/xmlenc#sha512";
-        public const string XmlDsigRSASHA512Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
+        public const String XmlDsigDSAUrl         = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
+        public const String XmlDsig11DSASHA256Url = "http://www.w3.org/2009/xmldsig11#dsa-sha256";
 
-        public const string XmlDsigC14NTransformUrl = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
-        public const string XmlDsigC14NWithCommentsTransformUrl = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments";
-        public const string XmlDsigExcC14NTransformUrl = "http://www.w3.org/2001/10/xml-exc-c14n#";
-        public const string XmlDsigExcC14NWithCommentsTransformUrl = "http://www.w3.org/2001/10/xml-exc-c14n#WithComments";
-        public const string XmlDsigBase64TransformUrl = "http://www.w3.org/2000/09/xmldsig#base64";
-        public const string XmlDsigXPathTransformUrl = "http://www.w3.org/TR/1999/REC-xpath-19991116";
-        public const string XmlDsigXsltTransformUrl = "http://www.w3.org/TR/1999/REC-xslt-19991116";
-        public const string XmlDsigEnvelopedSignatureTransformUrl = "http://www.w3.org/2000/09/xmldsig#enveloped-signature";
-        public const string XmlDecryptionTransformUrl = "http://www.w3.org/2002/07/decrypt#XML";
-        public const string XmlLicenseTransformUrl = "urn:mpeg:mpeg21:2003:01-REL-R-NS:licenseTransform";
+        public const String XmlDsigMoreRSAMD5Url       = "http://www.w3.org/2001/04/xmldsig-more#rsa-md5";
+        public const String XmlDsigRSASHA1Url      = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+        public const String XmlDsigMoreRSASHA224Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha224";
+        public const String XmlDsigMoreRSASHA256Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+        public const String XmlDsigMoreRSASHA384Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384";
+        public const String XmlDsigMoreRSASHA512Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
+        public const String XmlDsigMoreRSARIPEMD160Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-ripemd160";
+
+        public const String XmlDsigMoreECDSASHA1Url      = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
+        public const String XmlDsigMoreECDSASHA224Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha224";
+        public const String XmlDsigMoreECDSASHA256Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256";
+        public const String XmlDsigMoreECDSASHA384Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384";
+        public const String XmlDsigMoreECDSASHA512Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512";
+        public const String XmlDsigMoreECDSASHA3_224Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-224";
+        public const String XmlDsigMoreECDSASHA3_256Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-256";
+        public const String XmlDsigMoreECDSASHA3_384Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-384";
+        public const String XmlDsigMoreECDSASHA3_512Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-512";
+        public const String XmlDsigMoreECDSARIPEMD160Url = "http://www.w3.org/2007/05/xmldsig-more#ecdsa-ripemd160";
+
+        public const String XmlDsigC14NTransformUrl = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
+        public const String XmlDsigC14NWithCommentsTransformUrl = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments";
+        public const String XmlDsigC14NTransformPrefix = "c14n";
+        public const String XmlDsigExcC14NTransformUrl = "http://www.w3.org/2001/10/xml-exc-c14n#";
+        public const String XmlDsigExcC14NTransformPrefix = "exc14n";
+        public const String XmlDsigExcC14NWithCommentsTransformUrl = "http://www.w3.org/2001/10/xml-exc-c14n#WithComments";
+        public const String XmlDsigBase64TransformUrl = "http://www.w3.org/2000/09/xmldsig#base64";
+        public const String XmlDsigXPathTransformUrl = "http://www.w3.org/TR/1999/REC-xpath-19991116";
+        public const String XmlDsigXsltTransformUrl = "http://www.w3.org/TR/1999/REC-xslt-19991116";
+        public const String XmlDsigEnvelopedSignatureTransformUrl = "http://www.w3.org/2000/09/xmldsig#enveloped-signature";
+        public const String XmlDecryptionTransformUrl = "http://www.w3.org/2002/07/decrypt#XML";
+        public const String XmlLicenseTransformUrl = "urn:mpeg:mpeg21:2003:01-REL-R-NS:licenseTransform";
 
         // GOST 2001 algorithms
-        public const string XmlDsigGost3410Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102001-gostr3411";
-        public const string XmlDsigGost3410ObsoleteUrl = "http://www.w3.org/2001/04/xmldsig-more#gostr34102001-gostr3411";
-        public const string XmlDsigGost3411Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr3411";
-        public const string XmlDsigGost3411ObsoleteUrl = "http://www.w3.org/2001/04/xmldsig-more#gostr3411";
-        public const string XmlDsigGost3411HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr3411";
+        public const String XmlDsigGost3410Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102001-gostr3411";
+        public const String XmlDsigGost3410ObsoleteUrl = "http://www.w3.org/2001/04/xmldsig-more#gostr34102001-gostr3411";
+        public const String XmlDsigGost3411Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr3411";
+        public const String XmlDsigGost3411ObsoleteUrl = "http://www.w3.org/2001/04/xmldsig-more#gostr3411";
+        public const String XmlDsigGost3411HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr3411";
 
         // GOST 2012 algorithms
-        public const string XmlDsigGost3410_2012_256_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-256";
-        public const string XmlDsigGost3411_2012_256_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-256";
-        public const string XmlDsigGost3411_2012_256_HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr34112012-256";
+        public const String XmlDsigGost3410_2012_256_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-256";
+        public const String XmlDsigGost3411_2012_256_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-256";
+        public const String XmlDsigGost3411_2012_256_HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr34112012-256";
 
-        public const string XmlDsigGost3410_2012_512_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-512";
-        public const string XmlDsigGost3411_2012_512_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-512";
-        public const string XmlDsigGost3411_2012_512_HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr34112012-512";
+        public const String XmlDsigGost3410_2012_512_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-512";
+        public const String XmlDsigGost3411_2012_512_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-512";
+        public const String XmlDsigGost3411_2012_512_HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr34112012-512";
 
         //
         // public constructors
@@ -110,33 +137,39 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public SignedXml()
         {
-            Initialize(null);
+            this.Initialize(null);
         }
 
         public SignedXml(XmlDocument document)
         {
             if (document == null)
+            {
                 throw new ArgumentNullException(nameof(document));
-            Initialize(document.DocumentElement);
+            }
+
+            this.Initialize(document.DocumentElement);
         }
 
         public SignedXml(XmlElement elem)
         {
             if (elem == null)
+            {
                 throw new ArgumentNullException(nameof(elem));
-            Initialize(elem);
+            }
+
+            this.Initialize(elem);
         }
 
         private void Initialize(XmlElement element)
         {
-            _containingDocument = (element == null ? null : element.OwnerDocument);
-            _context = element;
-            m_signature = new Signature();
-            m_signature.SignedXml = this;
-            m_signature.SignedInfo = new SignedInfo();
-            _signingKey = null;
+            this._containingDocument = (element == null ? null : element.OwnerDocument);
+            this._context = element;
+            this.m_signature = new Signature();
+            this.m_signature.SignedXml = this;
+            this.m_signature.SignedInfo = new SignedInfo();
+            this._signingKey = null;
 
-            _safeCanonicalizationMethods = new Collection<string>(KnownCanonicalizationMethods);
+            this._safeCanonicalizationMethods = new Collection<String>(KnownCanonicalizationMethods);
         }
 
         //
@@ -144,10 +177,10 @@ namespace Org.BouncyCastle.Crypto.Xml
         //
 
         /// <internalonly/>
-        public string SigningKeyName
+        public String SigningKeyName
         {
-            get { return m_strSigningKeyName; }
-            set { m_strSigningKeyName = value; }
+            get { return this.m_strSigningKeyName; }
+            set { this.m_strSigningKeyName = value; }
         }
 
         public XmlResolver Resolver
@@ -156,97 +189,106 @@ namespace Org.BouncyCastle.Crypto.Xml
             // to return when it has not been explicitely set, as we are using XmlSecureResolver by default
             set
             {
-                _xmlResolver = value;
-                _bResolverSet = true;
+                this._xmlResolver = value;
+                this._bResolverSet = true;
             }
         }
 
-        internal bool ResolverSet
+        internal Boolean ResolverSet
         {
-            get { return _bResolverSet; }
+            get { return this._bResolverSet; }
         }
 
-        public Func<SignedXml, bool> SignatureFormatValidator
+        public Func<SignedXml, Boolean> SignatureFormatValidator
         {
-            get { return _signatureFormatValidator; }
-            set { _signatureFormatValidator = value; }
+            get { return this._signatureFormatValidator; }
+            set { this._signatureFormatValidator = value; }
         }
 
-        public Collection<string> SafeCanonicalizationMethods
+        public Collection<String> SafeCanonicalizationMethods
         {
-            get { return _safeCanonicalizationMethods; }
+            get { return this._safeCanonicalizationMethods; }
         }
 
         public AsymmetricKeyParameter SigningKey
         {
-            get { return _signingKey; }
-            set { _signingKey = value; }
+            get { return this._signingKey; }
+            set { this._signingKey = value; }
         }
 
         public EncryptedXml EncryptedXml
         {
             get
             {
-                if (_exml == null)
-                    _exml = new EncryptedXml(_containingDocument); // default processing rules
-                return _exml;
+                if (this._exml == null)
+                {
+                    this._exml = new EncryptedXml(this._containingDocument); // default processing rules
+                }
+
+                return this._exml;
             }
-            set { _exml = value; }
+            set { this._exml = value; }
         }
 
         public Signature Signature
         {
-            get { return m_signature; }
+            get { return this.m_signature; }
         }
 
         public SignedInfo SignedInfo
         {
-            get { return m_signature.SignedInfo; }
+            get { return this.m_signature.SignedInfo; }
         }
 
-        public string SignatureMethod
+        public String SignatureMethod
         {
-            get { return m_signature.SignedInfo.SignatureMethod; }
+            get { return this.m_signature.SignedInfo.SignatureMethod; }
         }
 
-        public string SignatureLength
+        public String SignatureLength
         {
-            get { return m_signature.SignedInfo.SignatureLength; }
+            get { return this.m_signature.SignedInfo.SignatureLength; }
         }
 
-        public byte[] SignatureValue
+        public Byte[] SignatureValue
         {
-            get { return m_signature.SignatureValue; }
+            get { return this.m_signature.SignatureValue; }
         }
 
         public KeyInfo KeyInfo
         {
-            get { return m_signature.KeyInfo; }
-            set { m_signature.KeyInfo = value; }
+            get { return this.m_signature.KeyInfo; }
+            set { this.m_signature.KeyInfo = value; }
         }
 
         public XmlElement GetXml()
         {
             // If we have a document context, then return a signature element in this context
-            if (_containingDocument != null)
-                return m_signature.GetXml(_containingDocument);
+            if (this._containingDocument != null)
+            {
+                return this.m_signature.GetXml(this._containingDocument);
+            }
             else
-                return m_signature.GetXml();
+            {
+                return this.m_signature.GetXml();
+            }
         }
 
         public void LoadXml(XmlElement value)
         {
             if (value == null)
-                throw new ArgumentNullException(nameof(value));
-
-            m_signature.LoadXml(value);
-
-            if (_context == null)
             {
-                _context = value;
+                throw new ArgumentNullException(nameof(value));
             }
 
-            _bCacheValid = false;
+            this.m_signature.LoadXml(value);
+
+            if (this._context == null)
+            {
+                this._context = value;
+            }
+
+            this._bCacheValid = false;
         }
 
         //
@@ -255,42 +297,45 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public void AddReference(Reference reference)
         {
-            m_signature.SignedInfo.AddReference(reference);
+            this.m_signature.SignedInfo.AddReference(reference);
         }
 
         public void AddObject(DataObject dataObject)
         {
-            m_signature.AddObject(dataObject);
+            this.m_signature.AddObject(dataObject);
         }
 
-        public bool CheckSignature()
+        public Boolean CheckSignature()
         {
             AsymmetricKeyParameter signingKey;
-            return CheckSignatureReturningKey(out signingKey);
+            return this.CheckSignatureReturningKey(out signingKey);
         }
 
-        public bool CheckSignatureReturningKey(out AsymmetricKeyParameter signingKey)
+        public Boolean CheckSignatureReturningKey(out AsymmetricKeyParameter signingKey)
         {
-            SignedXmlDebugLog.LogBeginSignatureVerification(this, _context);
+            SignedXmlDebugLog.LogBeginSignatureVerification(this, this._context);
 
-            int count = 0;
+            Int32 count = 0;
             signingKey = null;
-            bool bRet = false;
+            Boolean bRet = false;
             AsymmetricKeyParameter key = null;
 
-            if (!CheckSignatureFormat())
+            if (!this.CheckSignatureFormat())
             {
                 return false;
             }
 
             do
             {
-                key = GetPublicKey();
+                key = this.GetPublicKey();
                 if (key != null)
                 {
                     if (count++ > 0)
-                        _bCacheValid = false;
-                    bRet = CheckSignature(key);
+                    {
+                        this._bCacheValid = false;
+                    }
+
+                    bRet = this.CheckSignature(key);
                     SignedXmlDebugLog.LogVerificationResult(this, key, bRet);
                 }
             } while (key != null && bRet == false);
@@ -299,21 +344,21 @@ namespace Org.BouncyCastle.Crypto.Xml
             return bRet;
         }
 
-        public bool CheckSignature(AsymmetricKeyParameter key)
+        public Boolean CheckSignature(AsymmetricKeyParameter key)
         {
-            if (!CheckSignatureFormat())
+            if (!this.CheckSignatureFormat())
             {
                 return false;
             }
 
-            if (!CheckSignedInfo(key))
+            if (!this.CheckSignedInfo(key))
             {
                 SignedXmlDebugLog.LogVerificationFailure(this, SR.Log_VerificationFailed_SignedInfo);
                 return false;
             }
 
             // Now is the time to go through all the references and see if their DigestValues are good
-            if (!CheckDigestedReferences())
+            if (!this.CheckDigestedReferences())
             {
                 SignedXmlDebugLog.LogVerificationFailure(this, SR.Log_VerificationFailed_References);
                 return false;
@@ -323,20 +368,20 @@ namespace Org.BouncyCastle.Crypto.Xml
             return true;
         }
 
-        public bool CheckSignature(IMac macAlg)
+        public Boolean CheckSignature(IMac macAlg)
         {
-            if (!CheckSignatureFormat())
+            if (!this.CheckSignatureFormat())
             {
                 return false;
             }
 
-            if (!CheckSignedInfo(macAlg))
+            if (!this.CheckSignedInfo(macAlg))
             {
                 SignedXmlDebugLog.LogVerificationFailure(this, SR.Log_VerificationFailed_SignedInfo);
                 return false;
             }
 
-            if (!CheckDigestedReferences())
+            if (!this.CheckDigestedReferences())
             {
                 SignedXmlDebugLog.LogVerificationFailure(this, SR.Log_VerificationFailed_References);
                 return false;
@@ -346,18 +391,18 @@ namespace Org.BouncyCastle.Crypto.Xml
             return true;
         }
 
-        public bool CheckSignature(X509Certificate certificate, bool verifySignatureOnly)
+        public Boolean CheckSignature(X509Certificate certificate, Boolean verifySignatureOnly)
         {
             if (!verifySignatureOnly)
             {
                 // Check key usages to make sure it is good for signing.
-                var exts = certificate.CertificateStructure.TbsCertificate.Extensions;
+                X509Extensions exts = certificate.CertificateStructure.TbsCertificate.Extensions;
                 foreach (DerObjectIdentifier extension in exts.ExtensionOids)
                 {
                     if (extension.Equals(X509Extensions.KeyUsage))
                     {
-                        bool[] keyUsage = certificate.GetKeyUsage();
-                        bool validKeyUsage = (keyUsage[0 /* DigitalSignature */] || keyUsage[1 /* NonRepudiation */]);
+                        Boolean[] keyUsage = certificate.GetKeyUsage();
+                        Boolean validKeyUsage = (keyUsage[0 /* DigitalSignature */] || keyUsage[1 /* NonRepudiation */]);
 
                         if (!validKeyUsage)
                         {
@@ -369,20 +414,20 @@ namespace Org.BouncyCastle.Crypto.Xml
                 }
 
                 // Do the chain verification to make sure the certificate is valid.
-                /*X509Chain chain = new X509Chain();
-                chain.ChainPolicy.ExtraStore.AddRange(BuildBagOfCerts());
-                bool chainVerified = chain.Build(certificate);
+                System.Security.Cryptography.X509Certificates.X509Chain chain = new System.Security.Cryptography.X509Certificates.X509Chain();
+                chain.ChainPolicy.ExtraStore.AddRange(this.BuildBagOfCerts().Select(c => new System.Security.Cryptography.X509Certificates.X509Certificate2(c.GetEncoded())).ToArray());
+                Boolean chainVerified = chain.Build(new System.Security.Cryptography.X509Certificates.X509Certificate2(certificate.GetEncoded()));
                 SignedXmlDebugLog.LogVerifyX509Chain(this, chain, certificate);
 
                 if (!chainVerified)
                 {
                     SignedXmlDebugLog.LogVerificationFailure(this, SR.Log_VerificationFailed_X509Chain);
                     return false;
-                }*/
+                }
             }
 
             AsymmetricKeyParameter publicKey = certificate.GetPublicKey();
-            if (!CheckSignature(publicKey))
+            if (!this.CheckSignature(publicKey))
             {
                 return false;
             }
@@ -393,82 +438,107 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public void ComputeSignature()
         {
-            SignedXmlDebugLog.LogBeginSignatureComputation(this, _context);
+            this.ComputeSignature(SignedXml.XmlDsigSHA1Url);
+        }
 
-            BuildDigestedReferences();
+        public void ComputeSignature(String digestAlgorithmUrl)
+        {
+            SignedXmlDebugLog.LogBeginSignatureComputation(this, this._context);
+            this.BuildDigestedReferences();
 
             // Load the key
-            AsymmetricKeyParameter key = SigningKey;
+            AsymmetricKeyParameter key = this.SigningKey;
 
             if (key == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_LoadKeyFailed);
+            }
 
             // Check the signature algorithm associated with the key so that we can accordingly set the signature method
-            if (SignedInfo.SignatureMethod == null)
+            if (this.SignedInfo.SignatureMethod == null)
             {
-                if (key is DsaKeyParameters)
-                {
-                    SignedInfo.SignatureMethod = XmlDsigDSAUrl;
-                }
-                else if (key is RsaKeyParameters)
-                {
-                    SignedInfo.SignatureMethod = XmlDsigRSASHA256Url;
-                }
-                else
-                {
-                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CreatedKeyFailed);
-                }
+                this.SignedInfo.SignatureMethod = SignedXml.GetCorrespondingSignatureMethodUrl(this.SigningKey, digestAlgorithmUrl);
             }
 
             // See if there is a signature description class defined in the Config file
-            ISigner signatureDescription = CryptoHelpers.CreateFromName<ISigner>(SignedInfo.SignatureMethod);
+            ISigner signatureDescription = CryptoHelpers.CreateFromName<ISigner>(this.SignedInfo.SignatureMethod);
             if (signatureDescription == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureDescriptionNotCreated);
+            }
 
             signatureDescription.Init(true, key);
-            GetC14NDigest(new SignerHashWrapper(signatureDescription));
+            this.GetC14NDigest(new SignerHashWrapper(signatureDescription));
 
             SignedXmlDebugLog.LogSigning(this, key, signatureDescription);
-            m_signature.SignatureValue = signatureDescription.GenerateSignature();
+            this.m_signature.SignatureValue = signatureDescription.GenerateSignature();
         }
 
         public void ComputeSignature(IMac macAlg)
         {
             if (macAlg == null)
+            {
                 throw new ArgumentNullException(nameof(macAlg));
+            }
 
             if (!(macAlg is HMac))
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureMethodKeyMismatch);
+            }
 
-            int signatureLength;
-            if (m_signature.SignedInfo.SignatureLength == null)
+            Int32 signatureLength;
+            if (this.m_signature.SignedInfo.SignatureLength == null)
+            {
                 signatureLength = macAlg.GetMacSize() * 8;
+            }
             else
-                signatureLength = Convert.ToInt32(m_signature.SignedInfo.SignatureLength, null);
+            {
+                signatureLength = Convert.ToInt32(this.m_signature.SignedInfo.SignatureLength, null);
+            }
             // signatureLength should be less than hash size
             if (signatureLength < 0 || signatureLength > macAlg.GetMacSize() * 8)
-                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidSignatureLength);
-            if (signatureLength % 8 != 0)
-                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidSignatureLength2);
-
-            BuildDigestedReferences();
-            SignedInfo.SignatureMethod = (macAlg.AlgorithmName.Substring(0, macAlg.AlgorithmName.IndexOf('/')).ToUpperInvariant()) switch
             {
-                "SHA-1" => SignedXml.XmlDsigHMACSHA1Url,
-                "SHA-256" => SignedXml.XmlDsigMoreHMACSHA256Url,
-                "SHA-384" => SignedXml.XmlDsigMoreHMACSHA384Url,
-                "SHA-512" => SignedXml.XmlDsigMoreHMACSHA512Url,
-                "MD5" => SignedXml.XmlDsigMoreHMACMD5Url,
-                "RIPEMD160" => SignedXml.XmlDsigMoreHMACRIPEMD160Url,
-                _ => throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureMethodKeyMismatch),
-            };
-            GetC14NDigest(new MacHashWrapper(macAlg));
-            byte[] hashValue = new byte[macAlg.GetMacSize()];
+                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidSignatureLength);
+            }
+
+            if (signatureLength % 8 != 0)
+            {
+                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidSignatureLength2);
+            }
+
+            this.BuildDigestedReferences();
+
+            switch (macAlg.AlgorithmName.Substring(0, macAlg.AlgorithmName.IndexOf('/')).ToUpperInvariant())
+            {
+                case "SHA-1":
+                    this.SignedInfo.SignatureMethod = SignedXml.XmlDsigHMACSHA1Url;
+                    break;
+                case "SHA-256":
+                    this.SignedInfo.SignatureMethod = SignedXml.XmlDsigMoreHMACSHA256Url;
+                    break;
+                case "SHA-384":
+                    this.SignedInfo.SignatureMethod = SignedXml.XmlDsigMoreHMACSHA384Url;
+                    break;
+                case "SHA-512":
+                    this.SignedInfo.SignatureMethod = SignedXml.XmlDsigMoreHMACSHA512Url;
+                    break;
+                case "MD5":
+                    this.SignedInfo.SignatureMethod = SignedXml.XmlDsigMoreHMACMD5Url;
+                    break;
+                case "RIPEMD160":
+                    this.SignedInfo.SignatureMethod = SignedXml.XmlDsigMoreHMACRIPEMD160Url;
+                    break;
+                default:
+                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureMethodKeyMismatch);
+            }
+
+            this.GetC14NDigest(new MacHashWrapper(macAlg));
+            Byte[] hashValue = new Byte[macAlg.GetMacSize()];
             macAlg.DoFinal(hashValue, 0);
 
             SignedXmlDebugLog.LogSigning(this, macAlg);
-            m_signature.SignatureValue = new byte[signatureLength / 8];
-            Buffer.BlockCopy(hashValue, 0, m_signature.SignatureValue, 0, signatureLength / 8);
+            this.m_signature.SignatureValue = new Byte[signatureLength / 8];
+            Buffer.BlockCopy(hashValue, 0, this.m_signature.SignatureValue, 0, signatureLength / 8);
         }
 
         //
@@ -477,40 +547,52 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         protected virtual AsymmetricKeyParameter GetPublicKey()
         {
-            if (KeyInfo == null)
-                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_KeyInfoRequired);
-
-            if (_x509Enum != null)
+            if (this.KeyInfo == null)
             {
-                AsymmetricKeyParameter key = GetNextCertificatePublicKey();
-                if (key != null)
-                    return key;
+                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_KeyInfoRequired);
             }
 
-            if (_keyInfoEnum == null)
-                _keyInfoEnum = KeyInfo.GetEnumerator();
+            if (this._x509Enum != null)
+            {
+                AsymmetricKeyParameter key = this.GetNextCertificatePublicKey();
+                if (key != null)
+                {
+                    return key;
+                }
+            }
+
+            if (this._keyInfoEnum == null)
+            {
+                this._keyInfoEnum = this.KeyInfo.GetEnumerator();
+            }
 
             // In our implementation, we move to the next KeyInfo clause which is an RSAKeyValue, DSAKeyValue or KeyInfoX509Data
-            while (_keyInfoEnum.MoveNext())
+            while (this._keyInfoEnum.MoveNext())
             {
-                RSAKeyValue rsaKeyValue = _keyInfoEnum.Current as RSAKeyValue;
+                RSAKeyValue rsaKeyValue = this._keyInfoEnum.Current as RSAKeyValue;
                 if (rsaKeyValue != null)
+                {
                     return rsaKeyValue.Key;
+                }
 
-                DSAKeyValue dsaKeyValue = _keyInfoEnum.Current as DSAKeyValue;
+                DSAKeyValue dsaKeyValue = this._keyInfoEnum.Current as DSAKeyValue;
                 if (dsaKeyValue != null)
+                {
                     return dsaKeyValue.Key;
+                }
 
-                KeyInfoX509Data x509Data = _keyInfoEnum.Current as KeyInfoX509Data;
+                KeyInfoX509Data x509Data = this._keyInfoEnum.Current as KeyInfoX509Data;
                 if (x509Data != null)
                 {
-                    _x509Collection = Utils.BuildBagOfCerts(x509Data, CertUsageType.Verification);
-                    if (_x509Collection.Count > 0)
+                    this._x509Collection = Utils.BuildBagOfCerts(x509Data, CertUsageType.Verification);
+                    if (this._x509Collection.Count > 0)
                     {
-                        _x509Enum = _x509Collection.GetEnumerator();
-                        AsymmetricKeyParameter key = GetNextCertificatePublicKey();
+                        this._x509Enum = this._x509Collection.GetEnumerator();
+                        AsymmetricKeyParameter key = this.GetNextCertificatePublicKey();
                         if (key != null)
+                        {
                             return key;
+                        }
                     }
                 }
             }
@@ -520,14 +602,16 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         private IList<X509Certificate> BuildBagOfCerts()
         {
-            var collection = new List<X509Certificate>();
-            if (KeyInfo != null)
+            List<X509Certificate> collection = new List<X509Certificate>();
+            if (this.KeyInfo != null)
             {
-                foreach (KeyInfoClause clause in KeyInfo)
+                foreach (KeyInfoClause clause in this.KeyInfo)
                 {
                     KeyInfoX509Data x509Data = clause as KeyInfoX509Data;
                     if (x509Data != null)
+                    {
                         collection.AddRange(Utils.BuildBagOfCerts(x509Data, CertUsageType.Verification));
+                    }
                 }
             }
 
@@ -536,25 +620,29 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         private AsymmetricKeyParameter GetNextCertificatePublicKey()
         {
-            while (_x509Enum.MoveNext())
+            while (this._x509Enum.MoveNext())
             {
-                X509Certificate certificate = (X509Certificate)_x509Enum.Current;
+                X509Certificate certificate = (X509Certificate)this._x509Enum.Current;
                 if (certificate != null)
+                {
                     return certificate.GetPublicKey();
+                }
             }
 
             return null;
         }
 
-        public virtual XmlElement GetIdElement(XmlDocument document, string idValue)
+        public virtual XmlElement GetIdElement(XmlDocument document, String idValue)
         {
             return DefaultGetIdElement(document, idValue);
         }
 
-        internal static XmlElement DefaultGetIdElement(XmlDocument document, string idValue)
+        internal static XmlElement DefaultGetIdElement(XmlDocument document, String idValue)
         {
             if (document == null)
+            {
                 return null;
+            }
 
             try
             {
@@ -603,10 +691,16 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             elem = GetSingleReferenceTarget(document, "Id", idValue);
             if (elem != null)
+            {
                 return elem;
+            }
+
             elem = GetSingleReferenceTarget(document, "id", idValue);
             if (elem != null)
+            {
                 return elem;
+            }
+
             elem = GetSingleReferenceTarget(document, "ID", idValue);
 
             return elem;
@@ -616,10 +710,10 @@ namespace Org.BouncyCastle.Crypto.Xml
         // private methods
         //
 
-        private bool _bCacheValid = false;
+        protected Boolean _bCacheValid = false;
         //private byte[] _digestedSignedInfo = null;
 
-        private static bool DefaultSignatureFormatValidator(SignedXml signedXml)
+        private static Boolean DefaultSignatureFormatValidator(SignedXml signedXml)
         {
             // Reject the signature if it uses a truncated HMAC
             if (signedXml.DoesSignatureUseTruncatedHmac())
@@ -640,16 +734,16 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         // Validation function to see if the current signature is signed with a truncated HMAC - one which
         // has a signature length of fewer bits than the whole HMAC output.
-        private bool DoesSignatureUseTruncatedHmac()
+        private Boolean DoesSignatureUseTruncatedHmac()
         {
             // If we're not using the SignatureLength property, then we're not truncating the signature length
-            if (SignedInfo.SignatureLength == null)
+            if (this.SignedInfo.SignatureLength == null)
             {
                 return false;
             }
 
             // See if we're signed witn an HMAC algorithm
-            IMac hmac = CryptoHelpers.CreateFromName<IMac>(SignatureMethod);
+            IMac hmac = CryptoHelpers.CreateFromName<IMac>(this.SignatureMethod);
             if (hmac == null)
             {
                 // We aren't signed with an HMAC algorithm, so we cannot have a truncated HMAC
@@ -657,8 +751,8 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // Figure out how many bits the signature is using
-            int actualSignatureSize = 0;
-            if (!int.TryParse(SignedInfo.SignatureLength, out actualSignatureSize))
+            Int32 actualSignatureSize = 0;
+            if (!Int32.TryParse(this.SignedInfo.SignatureLength, out actualSignatureSize))
             {
                 // If the value wasn't a valid integer, then we'll conservatively reject it all together
                 return true;
@@ -672,30 +766,30 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         // Validation function to see if the signature uses a canonicalization algorithm from our list
         // of approved algorithm URIs.
-        private bool DoesSignatureUseSafeCanonicalizationMethod()
+        private Boolean DoesSignatureUseSafeCanonicalizationMethod()
         {
-            foreach (string safeAlgorithm in SafeCanonicalizationMethods)
+            foreach (String safeAlgorithm in this.SafeCanonicalizationMethods)
             {
-                if (string.Equals(safeAlgorithm, SignedInfo.CanonicalizationMethod, StringComparison.OrdinalIgnoreCase))
+                if (String.Equals(safeAlgorithm, this.SignedInfo.CanonicalizationMethod, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
             }
 
-            SignedXmlDebugLog.LogUnsafeCanonicalizationMethod(this, SignedInfo.CanonicalizationMethod, SafeCanonicalizationMethods);
+            SignedXmlDebugLog.LogUnsafeCanonicalizationMethod(this, this.SignedInfo.CanonicalizationMethod, this.SafeCanonicalizationMethods);
             return false;
         }
 
-        private bool ReferenceUsesSafeTransformMethods(Reference reference)
+        private Boolean ReferenceUsesSafeTransformMethods(Reference reference)
         {
             TransformChain transformChain = reference.TransformChain;
-            int transformCount = transformChain.Count;
+            Int32 transformCount = transformChain.Count;
 
-            for (int i = 0; i < transformCount; i++)
+            for (Int32 i = 0; i < transformCount; i++)
             {
                 Transform transform = transformChain[i];
 
-                if (!IsSafeTransform(transform.Algorithm))
+                if (!this.IsSafeTransform(transform.Algorithm))
                 {
                     return false;
                 }
@@ -704,20 +798,20 @@ namespace Org.BouncyCastle.Crypto.Xml
             return true;
         }
 
-        private bool IsSafeTransform(string transformAlgorithm)
+        private Boolean IsSafeTransform(String transformAlgorithm)
         {
             // All canonicalization algorithms are valid transform algorithms.
-            foreach (string safeAlgorithm in SafeCanonicalizationMethods)
+            foreach (String safeAlgorithm in this.SafeCanonicalizationMethods)
             {
-                if (string.Equals(safeAlgorithm, transformAlgorithm, StringComparison.OrdinalIgnoreCase))
+                if (String.Equals(safeAlgorithm, transformAlgorithm, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
             }
 
-            foreach (string safeAlgorithm in DefaultSafeTransformMethods)
+            foreach (String safeAlgorithm in DefaultSafeTransformMethods)
             {
-                if (string.Equals(safeAlgorithm, transformAlgorithm, StringComparison.OrdinalIgnoreCase))
+                if (String.Equals(safeAlgorithm, transformAlgorithm, StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
@@ -726,7 +820,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             SignedXmlDebugLog.LogUnsafeTransformMethod(
                 this,
                 transformAlgorithm,
-                SafeCanonicalizationMethods,
+                this.SafeCanonicalizationMethods,
                 DefaultSafeTransformMethods);
 
             return false;
@@ -734,14 +828,14 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         // Get a list of the built in canonicalization algorithms, as well as any that the machine admin has
         // added to the valid set.
-        private static IList<string> KnownCanonicalizationMethods
+        private static IList<String> KnownCanonicalizationMethods
         {
             get
             {
                 if (s_knownCanonicalizationMethods == null)
                 {
                     // Start with the list that the machine admin added, if any
-                    List<string> safeAlgorithms = new List<string>();
+                    List<String> safeAlgorithms = new List<String>();
 
                     // Built in algorithms
                     safeAlgorithms.Add(XmlDsigC14NTransformUrl);
@@ -756,13 +850,13 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
         }
 
-        private static IList<string> DefaultSafeTransformMethods
+        private static IList<String> DefaultSafeTransformMethods
         {
             get
             {
                 if (s_defaultSafeTransformMethods == null)
                 {
-                    List<string> safeAlgorithms = new List<string>();
+                    List<String> safeAlgorithms = new List<String>();
 
                     // Built in algorithms
 
@@ -786,95 +880,115 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         private void GetC14NDigest(IHash hash)
         {
-            bool isKeyedHashAlgorithm = hash is MacHashWrapper;
-            if (isKeyedHashAlgorithm || !_bCacheValid || !SignedInfo.CacheValid)
+            Boolean isKeyedHashAlgorithm = hash is MacHashWrapper;
+            if (isKeyedHashAlgorithm || !this._bCacheValid || !this.SignedInfo.CacheValid)
             {
-                string baseUri = (_containingDocument == null ? null : _containingDocument.BaseURI);
-                XmlResolver resolver = (_bResolverSet ? _xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), baseUri));
-                XmlDocument doc = Utils.PreProcessElementInput(SignedInfo.GetXml(), resolver, baseUri);
+                String baseUri = (this._containingDocument == null ? null : this._containingDocument.BaseURI);
+                XmlResolver resolver = (this._bResolverSet ? this._xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), baseUri));
+                XmlDocument doc = Utils.PreProcessElementInput(this.SignedInfo.GetXml(), resolver, baseUri);
 
                 // Add non default namespaces in scope
-                CanonicalXmlNodeList namespaces = (_context == null ? null : Utils.GetPropagatedAttributes(_context));
+                CanonicalXmlNodeList namespaces = (this._context == null ? null : Utils.GetPropagatedAttributes(this._context));
                 SignedXmlDebugLog.LogNamespacePropagation(this, namespaces);
                 Utils.AddNamespaces(doc.DocumentElement, namespaces);
 
-                Transform c14nMethodTransform = SignedInfo.CanonicalizationMethodObject;
+                Transform c14nMethodTransform = this.SignedInfo.CanonicalizationMethodObject;
                 c14nMethodTransform.Resolver = resolver;
                 c14nMethodTransform.BaseURI = baseUri;
 
                 SignedXmlDebugLog.LogBeginCanonicalization(this, c14nMethodTransform);
                 c14nMethodTransform.LoadInput(doc);
+
+                /*
+                Stream s = (Stream)c14nMethodTransform.GetOutput();
+                XmlDocument testDoc = new XmlDocument();
+                testDoc.Load(s);
+                Console.WriteLine("Canonical SignedProperties:\n{0}", testDoc.DocumentElement.OuterXml);
+                */
+
                 SignedXmlDebugLog.LogCanonicalizedOutput(this, c14nMethodTransform);
                 c14nMethodTransform.GetDigestedOutput(hash);
 
-                _bCacheValid = !isKeyedHashAlgorithm;
+                this._bCacheValid = !isKeyedHashAlgorithm;
             }
         }
 
-        private int GetReferenceLevel(int index, ArrayList references)
+        private Int32 GetReferenceLevel(Int32 index, ArrayList references)
         {
-            if (_refProcessed[index]) return _refLevelCache[index];
-            _refProcessed[index] = true;
+            if (this._refProcessed[index])
+            {
+                return this._refLevelCache[index];
+            }
+
+            this._refProcessed[index] = true;
             Reference reference = (Reference)references[index];
             if (reference.Uri == null || reference.Uri.Length == 0 || (reference.Uri.Length > 0 && reference.Uri[0] != '#'))
             {
-                _refLevelCache[index] = 0;
+                this._refLevelCache[index] = 0;
                 return 0;
             }
             if (reference.Uri.Length > 0 && reference.Uri[0] == '#')
             {
-                string idref = Utils.ExtractIdFromLocalUri(reference.Uri);
+                String idref = Utils.ExtractIdFromLocalUri(reference.Uri);
                 if (idref == "xpointer(/)")
                 {
-                    _refLevelCache[index] = 0;
+                    this._refLevelCache[index] = 0;
                     return 0;
                 }
                 // If this is pointing to another reference
-                for (int j = 0; j < references.Count; ++j)
+                for (Int32 j = 0; j < references.Count; ++j)
                 {
                     if (((Reference)references[j]).Id == idref)
                     {
-                        _refLevelCache[index] = GetReferenceLevel(j, references) + 1;
-                        return (_refLevelCache[index]);
+                        this._refLevelCache[index] = this.GetReferenceLevel(j, references) + 1;
+                        return (this._refLevelCache[index]);
                     }
                 }
                 // Then the reference points to an object tag
-                _refLevelCache[index] = 0;
+                this._refLevelCache[index] = 0;
                 return 0;
             }
             // Malformed reference
             throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidReference);
         }
 
-        private class ReferenceLevelSortOrder : IComparer
+        internal class ReferenceLevelSortOrder : IComparer
         {
             private ArrayList _references = null;
             public ReferenceLevelSortOrder() { }
 
             public ArrayList References
             {
-                get { return _references; }
-                set { _references = value; }
+                get { return this._references; }
+                set { this._references = value; }
             }
 
-            public int Compare(object a, object b)
+            public Int32 Compare(Object a, Object b)
             {
                 Reference referenceA = a as Reference;
                 Reference referenceB = b as Reference;
 
                 // Get the indexes
-                int iIndexA = 0;
-                int iIndexB = 0;
-                int i = 0;
-                foreach (Reference reference in References)
+                Int32 iIndexA = 0;
+                Int32 iIndexB = 0;
+                Int32 i = 0;
+                foreach (Reference reference in this.References)
                 {
-                    if (reference == referenceA) iIndexA = i;
-                    if (reference == referenceB) iIndexB = i;
+                    if (reference == referenceA)
+                    {
+                        iIndexA = i;
+                    }
+
+                    if (reference == referenceB)
+                    {
+                        iIndexB = i;
+                    }
+
                     i++;
                 }
 
-                int iLevelA = referenceA.SignedXml.GetReferenceLevel(iIndexA, References);
-                int iLevelB = referenceB.SignedXml.GetReferenceLevel(iIndexB, References);
+                Int32 iLevelA = referenceA.SignedXml.GetReferenceLevel(iIndexA, this.References);
+                Int32 iLevelB = referenceB.SignedXml.GetReferenceLevel(iIndexB, this.References);
                 return iLevelA.CompareTo(iLevelB);
             }
         }
@@ -882,10 +996,10 @@ namespace Org.BouncyCastle.Crypto.Xml
         private void BuildDigestedReferences()
         {
             // Default the DigestMethod and Canonicalization
-            ArrayList references = SignedInfo.References;
+            ArrayList references = this.SignedInfo.References;
             // Reset the cache
-            _refProcessed = new bool[references.Count];
-            _refLevelCache = new int[references.Count];
+            this._refProcessed = new Boolean[references.Count];
+            this._refLevelCache = new Int32[references.Count];
 
             ReferenceLevelSortOrder sortOrder = new ReferenceLevelSortOrder();
             sortOrder.References = references;
@@ -898,7 +1012,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             sortedReferences.Sort(sortOrder);
 
             CanonicalXmlNodeList nodeList = new CanonicalXmlNodeList();
-            foreach (DataObject obj in m_signature.ObjectList)
+            foreach (DataObject obj in this.m_signature.ObjectList)
             {
                 nodeList.Add(obj.GetXml());
             }
@@ -906,34 +1020,38 @@ namespace Org.BouncyCastle.Crypto.Xml
             {
                 // If no DigestMethod has yet been set, default it to sha1
                 if (reference.DigestMethod == null)
+                {
                     reference.DigestMethod = Reference.DefaultDigestMethod;
+                }
 
                 SignedXmlDebugLog.LogSigningReference(this, reference);
 
-                reference.UpdateHashValue(_containingDocument, nodeList);
+                reference.UpdateHashValue(this._containingDocument, nodeList);
                 // If this reference has an Id attribute, add it
                 if (reference.Id != null)
+                {
                     nodeList.Add(reference.GetXml());
+                }
             }
         }
 
-        private bool CheckDigestedReferences()
+        private Boolean CheckDigestedReferences()
         {
-            ArrayList references = m_signature.SignedInfo.References;
-            for (int i = 0; i < references.Count; ++i)
+            ArrayList references = this.m_signature.SignedInfo.References;
+            for (Int32 i = 0; i < references.Count; ++i)
             {
                 Reference digestedReference = (Reference)references[i];
 
-                if (!ReferenceUsesSafeTransformMethods(digestedReference))
+                if (!this.ReferenceUsesSafeTransformMethods(digestedReference))
                 {
                     return false;
                 }
 
                 SignedXmlDebugLog.LogVerifyReference(this, digestedReference);
-                byte[] calculatedHash = null;
+                Byte[] calculatedHash = null;
                 try
                 {
-                    calculatedHash = digestedReference.CalculateHashValue(_containingDocument, m_signature.ReferencedItems);
+                    calculatedHash = digestedReference.CalculateHashValue(this._containingDocument, this.m_signature.ReferencedItems);
                 }
                 catch (CryptoSignedXmlRecursionException)
                 {
@@ -958,29 +1076,33 @@ namespace Org.BouncyCastle.Crypto.Xml
         // This method makes no attempt to disguise the length of either of its inputs. It is assumed the attacker has
         // knowledge of the algorithms used, and thus the output length. Length is difficult to properly blind in modern CPUs.
         [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
-        private static bool CryptographicEquals(byte[] a, byte[] b)
+        private static Boolean CryptographicEquals(Byte[] a, Byte[] b)
         {
             System.Diagnostics.Debug.Assert(a != null);
             System.Diagnostics.Debug.Assert(b != null);
 
-            int result = 0;
+            Int32 result = 0;
 
             // Short cut if the lengths are not identical
             if (a.Length != b.Length)
+            {
                 return false;
+            }
 
             unchecked
             {
                 // Normally this caching doesn't matter, but with the optimizer off, this nets a non-trivial speedup.
-                int aLength = a.Length;
+                Int32 aLength = a.Length;
 
-                for (int i = 0; i < aLength; i++)
+                for (Int32 i = 0; i < aLength; i++)
+                {
                     // We use subtraction here instead of XOR because the XOR algorithm gets ever so
                     // slightly faster as more and more differences pile up.
                     // This cannot overflow more than once (and back to 0) because bytes are 1 byte
                     // in length, and result is 4 bytes. The OR propagates all set bytes, so the differences
                     // can't add up and overflow a second time.
                     result = result | (a[i] - b[i]);
+                }
             }
 
             return (0 == result);
@@ -989,45 +1111,52 @@ namespace Org.BouncyCastle.Crypto.Xml
         // If we have a signature format validation callback, check to see if this signature's format (not
         // the signautre itself) is valid according to the validator.  A return value of true indicates that
         // the signature format is acceptable, false means that the format is not valid.
-        private bool CheckSignatureFormat()
+        private Boolean CheckSignatureFormat()
         {
-            if (_signatureFormatValidator == null)
+            if (this._signatureFormatValidator == null)
             {
                 // No format validator means that we default to accepting the signature.  (This is
                 // effectively compatibility mode with v3.5).
                 return true;
             }
 
-            SignedXmlDebugLog.LogBeginCheckSignatureFormat(this, _signatureFormatValidator);
+            SignedXmlDebugLog.LogBeginCheckSignatureFormat(this, this._signatureFormatValidator);
 
-            bool formatValid = _signatureFormatValidator(this);
+            Boolean formatValid = this._signatureFormatValidator(this);
             SignedXmlDebugLog.LogFormatValidationResult(this, formatValid);
             return formatValid;
         }
 
-        private bool CheckSignedInfo(AsymmetricKeyParameter key)
+        private Boolean CheckSignedInfo(AsymmetricKeyParameter key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
-            SignedXmlDebugLog.LogBeginCheckSignedInfo(this, m_signature.SignedInfo);
+            SignedXmlDebugLog.LogBeginCheckSignedInfo(this, this.m_signature.SignedInfo);
 
-            ISigner signatureDescription = CryptoHelpers.CreateFromName<ISigner>(SignatureMethod);
+            ISigner signatureDescription = CryptoHelpers.CreateFromName<ISigner>(this.SignatureMethod);
             if (signatureDescription == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureDescriptionNotCreated);
+            }
 
-            // Let's see if the key corresponds with the SignatureMethod 
+            // Let's see if the key corresponds with the SignatureMethod
             //ISigner ta = SignerUtilities.GetSigner(signatureDescription.AlgorithmName);
             //if (!IsKeyTheCorrectAlgorithm(key, ta))
             //    return false;
 
-            try {
+            try
+            {
                 signatureDescription.Init(false, key);
-            } catch (Exception) {
+            }
+            catch (Exception)
+            {
                 return false;
             }
 
-            GetC14NDigest(new SignerHashWrapper(signatureDescription));
+            this.GetC14NDigest(new SignerHashWrapper(signatureDescription));
 
             /*SignedXmlDebugLog.LogVerifySignedInfo(this,
                                                   key,
@@ -1037,48 +1166,69 @@ namespace Org.BouncyCastle.Crypto.Xml
                                                   hashval,
                                                   m_signature.SignatureValue);*/
 
-            return signatureDescription.VerifySignature(m_signature.SignatureValue);
+            return signatureDescription.VerifySignature(this.m_signature.SignatureValue);
         }
 
-        private bool CheckSignedInfo(IMac macAlg)
+        private Boolean CheckSignedInfo(IMac macAlg)
         {
             if (macAlg == null)
+            {
                 throw new ArgumentNullException(nameof(macAlg));
+            }
 
-            SignedXmlDebugLog.LogBeginCheckSignedInfo(this, m_signature.SignedInfo);
+            SignedXmlDebugLog.LogBeginCheckSignedInfo(this, this.m_signature.SignedInfo);
 
-            int signatureLength;
-            if (m_signature.SignedInfo.SignatureLength == null)
+            Int32 signatureLength;
+            if (this.m_signature.SignedInfo.SignatureLength == null)
+            {
                 signatureLength = macAlg.GetMacSize() * 8;
+            }
             else
-                signatureLength = Convert.ToInt32(m_signature.SignedInfo.SignatureLength, null);
+            {
+                signatureLength = Convert.ToInt32(this.m_signature.SignedInfo.SignatureLength, null);
+            }
 
             // signatureLength should be less than hash size
             if (signatureLength < 0 || signatureLength > macAlg.GetMacSize() * 8)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidSignatureLength);
+            }
+
             if (signatureLength % 8 != 0)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidSignatureLength2);
-            if (m_signature.SignatureValue == null)
+            }
+
+            if (this.m_signature.SignatureValue == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureValueRequired);
-            if (m_signature.SignatureValue.Length != signatureLength / 8)
+            }
+
+            if (this.m_signature.SignatureValue.Length != signatureLength / 8)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidSignatureLength);
+            }
 
             // Calculate the hash
-            GetC14NDigest(new MacHashWrapper(macAlg));
-            byte[] hashValue = new byte[macAlg.GetMacSize()];
+            this.GetC14NDigest(new MacHashWrapper(macAlg));
+            Byte[] hashValue = new Byte[macAlg.GetMacSize()];
             macAlg.DoFinal(hashValue, 0);
-            SignedXmlDebugLog.LogVerifySignedInfo(this, macAlg, hashValue, m_signature.SignatureValue);
-            for (int i = 0; i < m_signature.SignatureValue.Length; i++) {
-                if (m_signature.SignatureValue[i] != hashValue[i]) return false;
+            SignedXmlDebugLog.LogVerifySignedInfo(this, macAlg, hashValue, this.m_signature.SignatureValue);
+            for (Int32 i = 0; i < this.m_signature.SignatureValue.Length; i++)
+            {
+                if (this.m_signature.SignatureValue[i] != hashValue[i])
+                {
+                    return false;
+                }
             }
             return true;
         }
 
-        private static XmlElement GetSingleReferenceTarget(XmlDocument document, string idAttributeName, string idValue)
+        private static XmlElement GetSingleReferenceTarget(XmlDocument document, String idAttributeName, String idValue)
         {
             // idValue has already been tested as an NCName (unless overridden for compatibility), so there's no
             // escaping that needs to be done here.
-            string xPath = "//*[@" + idAttributeName + "=\"" + idValue + "\"]";
+            String xPath = "//*[@" + idAttributeName + "=\"" + idValue + "\"]";
 
             // http://www.w3.org/TR/xmldsig-core/#sec-ReferenceProcessingModel says that for the form URI="#chapter1":
             //
@@ -1104,15 +1254,110 @@ namespace Org.BouncyCastle.Crypto.Xml
             throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidReference);
         }
 
-        private static bool IsKeyTheCorrectAlgorithm(AsymmetricKeyParameter key, ISigner expectedType)
+        private static Boolean IsKeyTheCorrectAlgorithm(AsymmetricKeyParameter key, ISigner expectedType)
         {
-            try {
+            try
+            {
                 expectedType.Init(false, key);
-            } catch (Exception) {
+            }
+            catch (Exception)
+            {
                 return false;
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// <![CDATA[Returns a signature method url by signing private key algorithm and supplied digest algorithm url.
+        /// e.g.: signing key is EC private key, and digest algorithm is "http://www.w3.org/2007/05/xmldsig-more#sha3-256",
+        /// then the result is "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-256".]]>
+        /// </summary>
+        /// <param name="signingKey"></param>
+        /// <param name="digestAlgorithmUrl"></param>
+        /// <returns></returns>
+        public static String GetCorrespondingSignatureMethodUrl(AsymmetricKeyParameter signingKey, String digestAlgorithmUrl)
+        {
+            String signatureMethod = null;
+            if (signingKey is ECPrivateKeyParameters)
+            {
+                switch (digestAlgorithmUrl)
+                {
+                    case SignedXml.XmlDsigSHA1Url:
+                        signatureMethod = XmlDsigMoreECDSASHA1Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA224Url:
+                        signatureMethod = XmlDsigMoreECDSASHA224Url;
+                        break;
+                    case EncryptedXml.XmlEncSHA256Url:
+                        signatureMethod = XmlDsigMoreECDSASHA256Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA384Url:
+                        signatureMethod = XmlDsigMoreECDSASHA384Url;
+                        break;
+                    case EncryptedXml.XmlEncSHA512Url:
+                        signatureMethod = XmlDsigMoreECDSASHA512Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA3_224Url:
+                        signatureMethod = XmlDsigMoreECDSASHA3_224Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA3_256Url:
+                        signatureMethod = XmlDsigMoreECDSASHA3_256Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA3_384Url:
+                        signatureMethod = XmlDsigMoreECDSASHA3_384Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA3_512Url:
+                        signatureMethod = XmlDsigMoreECDSASHA3_512Url;
+                        break;
+                    default:
+                        throw new System.Security.Cryptography.CryptographicException($"Digest algorithm \"{digestAlgorithmUrl}\" for EC key not supported!");
+                }
+            }
+            else if (signingKey is RsaKeyParameters)
+            {
+
+                switch (digestAlgorithmUrl)
+                {
+                    case SignedXml.XmlDsigSHA1Url:
+                        signatureMethod = XmlDsigRSASHA1Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA224Url:
+                        signatureMethod = XmlDsigMoreRSASHA224Url;
+                        break;
+                    case EncryptedXml.XmlEncSHA256Url:
+                        signatureMethod = XmlDsigMoreRSASHA256Url;
+                        break;
+                    case SignedXml.XmlDsigMoreSHA384Url:
+                        signatureMethod = XmlDsigMoreRSASHA384Url;
+                        break;
+                    case EncryptedXml.XmlEncSHA512Url:
+                        signatureMethod = XmlDsigMoreRSASHA512Url;
+                        break;
+                    default:
+                        throw new System.Security.Cryptography.CryptographicException($"Digest algorithm \"{digestAlgorithmUrl}\" for RSA key not supported!");
+                }
+            }
+            else if (signingKey is DsaKeyParameters)
+            {
+
+                switch (digestAlgorithmUrl)
+                {
+                    case SignedXml.XmlDsigSHA1Url:
+                        signatureMethod = XmlDsigDSAUrl;
+                        break;
+                    case EncryptedXml.XmlEncSHA256Url:
+                        signatureMethod = XmlDsig11DSASHA256Url;
+                        break;
+                    default:
+                        throw new System.Security.Cryptography.CryptographicException($"Digest algorithm \"{digestAlgorithmUrl}\" for DSA key not supported!");
+                }
+            }
+            else
+            {
+                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CreatedKeyFailed);
+            }
+            return signatureMethod;
         }
     }
 }

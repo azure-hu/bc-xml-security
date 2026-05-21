@@ -12,103 +12,132 @@ namespace Org.BouncyCastle.Crypto.Xml
         public override void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
-            nsm.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
-            Id = Utils.GetAttribute(value, "Id", EncryptedXml.XmlEncNamespaceUrl);
-            Type = Utils.GetAttribute(value, "Type", EncryptedXml.XmlEncNamespaceUrl);
-            MimeType = Utils.GetAttribute(value, "MimeType", EncryptedXml.XmlEncNamespaceUrl);
-            Encoding = Utils.GetAttribute(value, "Encoding", EncryptedXml.XmlEncNamespaceUrl);
+            this.Id = Utils.GetAttribute(value, "Id", EncryptedXml.XmlEncNamespaceUrl);
+            this.Type = Utils.GetAttribute(value, "Type", EncryptedXml.XmlEncNamespaceUrl);
+            this.MimeType = Utils.GetAttribute(value, "MimeType", EncryptedXml.XmlEncNamespaceUrl);
+            this.Encoding = Utils.GetAttribute(value, "Encoding", EncryptedXml.XmlEncNamespaceUrl);
 
-            XmlNode encryptionMethodNode = value.SelectSingleNode("enc:EncryptionMethod", nsm);
+            XmlNode encryptionMethodNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionMethod", nsm);
 
             // EncryptionMethod
-            EncryptionMethod = new EncryptionMethod();
+            this.EncryptionMethod = new EncryptionMethod();
             if (encryptionMethodNode != null)
-                EncryptionMethod.LoadXml(encryptionMethodNode as XmlElement);
+            {
+                this.EncryptionMethod.LoadXml(encryptionMethodNode as XmlElement);
+            }
 
             // Key Info
-            KeyInfo = new KeyInfo();
-            XmlNode keyInfoNode = value.SelectSingleNode("ds:KeyInfo", nsm);
+            this.KeyInfo = new KeyInfo();
+            XmlNode keyInfoNode = value.SelectSingleNode(SignedXml.XmlDsigNamespacePrefix + ":KeyInfo", nsm);
             if (keyInfoNode != null)
-                KeyInfo.LoadXml(keyInfoNode as XmlElement);
+            {
+                this.KeyInfo.LoadXml(keyInfoNode as XmlElement);
+            }
 
             // CipherData
-            XmlNode cipherDataNode = value.SelectSingleNode("enc:CipherData", nsm);
+            XmlNode cipherDataNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CipherData", nsm);
             if (cipherDataNode == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingCipherData);
+            }
 
-            CipherData = new CipherData();
-            CipherData.LoadXml(cipherDataNode as XmlElement);
+            this.CipherData = new CipherData();
+            this.CipherData.LoadXml(cipherDataNode as XmlElement);
 
             // EncryptionProperties
-            XmlNode encryptionPropertiesNode = value.SelectSingleNode("enc:EncryptionProperties", nsm);
+            XmlNode encryptionPropertiesNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionProperties", nsm);
             if (encryptionPropertiesNode != null)
             {
                 // Select the EncryptionProperty elements inside the EncryptionProperties element
-                XmlNodeList encryptionPropertyNodes = encryptionPropertiesNode.SelectNodes("enc:EncryptionProperty", nsm);
+                XmlNodeList encryptionPropertyNodes = encryptionPropertiesNode.SelectNodes(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionProperty", nsm);
                 if (encryptionPropertyNodes != null)
                 {
                     foreach (XmlNode node in encryptionPropertyNodes)
                     {
                         EncryptionProperty ep = new EncryptionProperty();
                         ep.LoadXml(node as XmlElement);
-                        EncryptionProperties.Add(ep);
+                        this.EncryptionProperties.Add(ep);
                     }
                 }
             }
 
             // Save away the cached value
-            _cachedXml = value;
+            this._cachedXml = value;
         }
 
         public override XmlElement GetXml()
         {
-            if (CacheValid) return (_cachedXml);
+            if (this.CacheValid)
+            {
+                return (this._cachedXml);
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the EncryptedData element
-            XmlElement encryptedDataElement = (XmlElement)document.CreateElement("EncryptedData", EncryptedXml.XmlEncNamespaceUrl);
+            XmlElement encryptedDataElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptedData", EncryptedXml.XmlEncNamespaceUrl);
 
             // Deal with attributes
-            if (!string.IsNullOrEmpty(Id))
-                encryptedDataElement.SetAttribute("Id", Id);
-            if (!string.IsNullOrEmpty(Type))
-                encryptedDataElement.SetAttribute("Type", Type);
-            if (!string.IsNullOrEmpty(MimeType))
-                encryptedDataElement.SetAttribute("MimeType", MimeType);
-            if (!string.IsNullOrEmpty(Encoding))
-                encryptedDataElement.SetAttribute("Encoding", Encoding);
+            if (!String.IsNullOrEmpty(this.Id))
+            {
+                encryptedDataElement.SetAttribute("Id", this.Id);
+            }
+
+            if (!String.IsNullOrEmpty(this.Type))
+            {
+                encryptedDataElement.SetAttribute("Type", this.Type);
+            }
+
+            if (!String.IsNullOrEmpty(this.MimeType))
+            {
+                encryptedDataElement.SetAttribute("MimeType", this.MimeType);
+            }
+
+            if (!String.IsNullOrEmpty(this.Encoding))
+            {
+                encryptedDataElement.SetAttribute("Encoding", this.Encoding);
+            }
 
             // EncryptionMethod
-            if (EncryptionMethod != null)
-                encryptedDataElement.AppendChild(EncryptionMethod.GetXml(document));
+            if (this.EncryptionMethod != null)
+            {
+                encryptedDataElement.AppendChild(this.EncryptionMethod.GetXml(document));
+            }
 
             // KeyInfo
-            if (KeyInfo.Count > 0)
-                encryptedDataElement.AppendChild(KeyInfo.GetXml(document));
+            if (this.KeyInfo.Count > 0)
+            {
+                encryptedDataElement.AppendChild(this.KeyInfo.GetXml(document));
+            }
 
             // CipherData is required.
-            if (CipherData == null)
+            if (this.CipherData == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingCipherData);
-            encryptedDataElement.AppendChild(CipherData.GetXml(document));
+            }
+
+            encryptedDataElement.AppendChild(this.CipherData.GetXml(document));
 
             // EncryptionProperties
-            if (EncryptionProperties.Count > 0)
+            if (this.EncryptionProperties.Count > 0)
             {
-                XmlElement encryptionPropertiesElement = document.CreateElement("EncryptionProperties", EncryptedXml.XmlEncNamespaceUrl);
-                for (int index = 0; index < EncryptionProperties.Count; index++)
+                XmlElement encryptionPropertiesElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptionProperties", EncryptedXml.XmlEncNamespaceUrl);
+                for (Int32 index = 0; index < this.EncryptionProperties.Count; index++)
                 {
-                    EncryptionProperty ep = EncryptionProperties.Item(index);
+                    EncryptionProperty ep = this.EncryptionProperties.Item(index);
                     encryptionPropertiesElement.AppendChild(ep.GetXml(document));
                 }
                 encryptedDataElement.AppendChild(encryptionPropertiesElement);

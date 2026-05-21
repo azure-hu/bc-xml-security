@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
 using System.Collections;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -19,27 +19,27 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal void AddRendered(XmlAttribute attr)
         {
-            _rendered.Add(Utils.GetNamespacePrefix(attr), attr);
+            this._rendered.Add(Utils.GetNamespacePrefix(attr), attr);
         }
 
-        internal XmlAttribute GetRendered(string nsPrefix)
+        internal XmlAttribute GetRendered(System.String nsPrefix)
         {
-            return (XmlAttribute)_rendered[nsPrefix];
+            return (XmlAttribute)this._rendered[nsPrefix];
         }
 
         internal void AddUnrendered(XmlAttribute attr)
         {
-            _unrendered.Add(Utils.GetNamespacePrefix(attr), attr);
+            this._unrendered.Add(Utils.GetNamespacePrefix(attr), attr);
         }
 
-        internal XmlAttribute GetUnrendered(string nsPrefix)
+        internal XmlAttribute GetUnrendered(System.String nsPrefix)
         {
-            return (XmlAttribute)_unrendered[nsPrefix];
+            return (XmlAttribute)this._unrendered[nsPrefix];
         }
 
         internal Hashtable GetUnrendered()
         {
-            return _unrendered;
+            return this._unrendered;
         }
     }
 }

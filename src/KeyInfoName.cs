@@ -9,7 +9,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public class KeyInfoName : KeyInfoClause
     {
-        private string _keyName;
+        private String _keyName;
 
         //
         // public constructors
@@ -17,19 +17,19 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public KeyInfoName() : this(null) { }
 
-        public KeyInfoName(string keyName)
+        public KeyInfoName(String keyName)
         {
-            Value = keyName;
+            this.Value = keyName;
         }
 
         //
         // public properties
         //
 
-        public string Value
+        public String Value
         {
-            get { return _keyName; }
-            set { _keyName = value; }
+            get { return this._keyName; }
+            set { this._keyName = value; }
         }
 
         //
@@ -40,22 +40,25 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.PreserveWhitespace = true;
-            return GetXml(xmlDocument);
+            return this.GetXml(xmlDocument);
         }
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            XmlElement nameElement = xmlDocument.CreateElement("KeyName", SignedXml.XmlDsigNamespaceUrl);
-            nameElement.AppendChild(xmlDocument.CreateTextNode(_keyName));
+            XmlElement nameElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "KeyName", SignedXml.XmlDsigNamespaceUrl);
+            nameElement.AppendChild(xmlDocument.CreateTextNode(this._keyName));
             return nameElement;
         }
 
         public override void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
+
             XmlElement nameElement = value;
-            _keyName = nameElement.InnerText.Trim();
+            this._keyName = nameElement.InnerText.Trim();
         }
     }
 }

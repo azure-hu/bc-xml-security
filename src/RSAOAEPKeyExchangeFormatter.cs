@@ -2,15 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
+using System;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
     public class RSAOAEPKeyExchangeFormatter
     {
-        private byte[] ParameterValue;
+        private Byte[] ParameterValue;
         private RsaKeyParameters _rsaKey;
         private SecureRandom RngValue;
 
@@ -18,18 +18,20 @@ namespace Org.BouncyCastle.Crypto.Xml
         public RSAOAEPKeyExchangeFormatter(RsaKeyParameters key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
-            _rsaKey = key;
+            this._rsaKey = key;
         }
 
-        public byte[] Parameter
+        public Byte[] Parameter
         {
             get
             {
-                if (ParameterValue != null)
+                if (this.ParameterValue != null)
                 {
-                    return (byte[])ParameterValue.Clone();
+                    return (Byte[])this.ParameterValue.Clone();
                 }
 
                 return null;
@@ -38,45 +40,50 @@ namespace Org.BouncyCastle.Crypto.Xml
             {
                 if (value != null)
                 {
-                    ParameterValue = (byte[])value.Clone();
+                    this.ParameterValue = (Byte[])value.Clone();
                 }
                 else
                 {
-                    ParameterValue = null;
+                    this.ParameterValue = null;
                 }
             }
         }
 
-        public string Parameters
+        public String Parameters
         {
-            get {return null;}
+            get { return null; }
         }
 
-        public SecureRandom Rng {
-            get { return RngValue; }
-            set { RngValue = value; }
+        public SecureRandom Rng
+        {
+            get { return this.RngValue; }
+            set { this.RngValue = value; }
         }
 
         public void SetKey(RsaKeyParameters key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
-            _rsaKey = key;
+            this._rsaKey = key;
         }
 
-        public byte[] CreateKeyExchange(byte[] rgbData, Type symAlgType)
+        public Byte[] CreateKeyExchange(Byte[] rgbData, Type symAlgType)
         {
-            return CreateKeyExchange(rgbData);
+            return this.CreateKeyExchange(rgbData);
         }
 
-        public byte[] CreateKeyExchange(byte[] rgbData)
+        public Byte[] CreateKeyExchange(Byte[] rgbData)
         {
-            if (_rsaKey == null)
+            if (this._rsaKey == null)
+            {
                 throw new System.Security.Cryptography.CryptographicUnexpectedOperationException(SR.Cryptography_MissingKey);
+            }
 
-            var rsa = CipherUtilities.GetCipher("RSA//OAEPPADDING");
-            rsa.Init(true, _rsaKey);
+            IBufferedCipher rsa = CipherUtilities.GetCipher("RSA//OAEPPADDING");
+            rsa.Init(true, this._rsaKey);
 
             return rsa.DoFinal(rgbData);
         }

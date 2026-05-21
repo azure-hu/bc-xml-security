@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
+using System;
 using System.Collections;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -11,23 +12,23 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         internal ArrayList _ancestorStack = new ArrayList();
 
-        internal NamespaceFrame GetScopeAt(int i)
+        internal NamespaceFrame GetScopeAt(Int32 i)
         {
-            return (NamespaceFrame)_ancestorStack[i];
+            return (NamespaceFrame)this._ancestorStack[i];
         }
 
         internal NamespaceFrame GetCurrentScope()
         {
-            return GetScopeAt(_ancestorStack.Count - 1);
+            return this.GetScopeAt(this._ancestorStack.Count - 1);
         }
 
-        protected XmlAttribute GetNearestRenderedNamespaceWithMatchingPrefix(string nsPrefix, out int depth)
+        protected XmlAttribute GetNearestRenderedNamespaceWithMatchingPrefix(String nsPrefix, out Int32 depth)
         {
             XmlAttribute attr = null;
             depth = -1;
-            for (int i = _ancestorStack.Count - 1; i >= 0; i--)
+            for (Int32 i = this._ancestorStack.Count - 1; i >= 0; i--)
             {
-                if ((attr = GetScopeAt(i).GetRendered(nsPrefix)) != null)
+                if ((attr = this.GetScopeAt(i).GetRendered(nsPrefix)) != null)
                 {
                     depth = i;
                     return attr;
@@ -36,13 +37,13 @@ namespace Org.BouncyCastle.Crypto.Xml
             return null;
         }
 
-        protected XmlAttribute GetNearestUnrenderedNamespaceWithMatchingPrefix(string nsPrefix, out int depth)
+        protected XmlAttribute GetNearestUnrenderedNamespaceWithMatchingPrefix(String nsPrefix, out Int32 depth)
         {
             XmlAttribute attr = null;
             depth = -1;
-            for (int i = _ancestorStack.Count - 1; i >= 0; i--)
+            for (Int32 i = this._ancestorStack.Count - 1; i >= 0; i--)
             {
-                if ((attr = GetScopeAt(i).GetUnrendered(nsPrefix)) != null)
+                if ((attr = this.GetScopeAt(i).GetUnrendered(nsPrefix)) != null)
                 {
                     depth = i;
                     return attr;
@@ -53,12 +54,12 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal void EnterElementContext()
         {
-            _ancestorStack.Add(new NamespaceFrame());
+            this._ancestorStack.Add(new NamespaceFrame());
         }
 
         internal void ExitElementContext()
         {
-            _ancestorStack.RemoveAt(_ancestorStack.Count - 1);
+            this._ancestorStack.RemoveAt(this._ancestorStack.Count - 1);
         }
 
         internal abstract void TrackNamespaceNode(XmlAttribute attr, SortedList nsListToRender, Hashtable nsLocallyDeclared);
@@ -67,30 +68,30 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal void LoadUnrenderedNamespaces(Hashtable nsLocallyDeclared)
         {
-            object[] attrs = new object[nsLocallyDeclared.Count];
+            Object[] attrs = new Object[nsLocallyDeclared.Count];
             nsLocallyDeclared.Values.CopyTo(attrs, 0);
-            foreach (object attr in attrs)
+            foreach (Object attr in attrs)
             {
-                AddUnrendered((XmlAttribute)attr);
+                this.AddUnrendered((XmlAttribute)attr);
             }
         }
 
         internal void LoadRenderedNamespaces(SortedList nsRenderedList)
         {
-            foreach (object attr in nsRenderedList.GetKeyList())
+            foreach (Object attr in nsRenderedList.GetKeyList())
             {
-                AddRendered((XmlAttribute)attr);
+                this.AddRendered((XmlAttribute)attr);
             }
         }
 
         internal void AddRendered(XmlAttribute attr)
         {
-            GetCurrentScope().AddRendered(attr);
+            this.GetCurrentScope().AddRendered(attr);
         }
 
         internal void AddUnrendered(XmlAttribute attr)
         {
-            GetCurrentScope().AddUnrendered(attr);
+            this.GetCurrentScope().AddUnrendered(attr);
         }
     }
 }

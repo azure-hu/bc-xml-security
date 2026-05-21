@@ -10,10 +10,10 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public class Signature
     {
-        private string _id;
+        private String _id;
         private SignedInfo _signedInfo;
-        private byte[] _signatureValue;
-        private string _signatureValueId;
+        private Byte[] _signatureValue;
+        private String _signatureValueId;
         private KeyInfo _keyInfo;
         private IList _embeddedObjects;
         private readonly CanonicalXmlNodeList _referencedItems;
@@ -21,8 +21,8 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal SignedXml SignedXml
         {
-            get { return _signedXml; }
-            set { _signedXml = value; }
+            get { return this._signedXml; }
+            set { this._signedXml = value; }
         }
 
         //
@@ -31,57 +31,62 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public Signature()
         {
-            _embeddedObjects = new ArrayList();
-            _referencedItems = new CanonicalXmlNodeList();
+            this._embeddedObjects = new ArrayList();
+            this._referencedItems = new CanonicalXmlNodeList();
         }
 
         //
         // public properties
         //
 
-        public string Id
+        public String Id
         {
-            get { return _id; }
-            set { _id = value; }
+            get { return this._id; }
+            set { this._id = value; }
         }
 
         public SignedInfo SignedInfo
         {
-            get { return _signedInfo; }
+            get { return this._signedInfo; }
             set
             {
-                _signedInfo = value;
-                if (SignedXml != null && _signedInfo != null)
-                    _signedInfo.SignedXml = SignedXml;
+                this._signedInfo = value;
+                if (this.SignedXml != null && this._signedInfo != null)
+                {
+                    this._signedInfo.SignedXml = this.SignedXml;
+                }
             }
         }
 
-        public byte[] SignatureValue
+        public Byte[] SignatureValue
         {
-            get { return _signatureValue; }
-            set { _signatureValue = value; }
+            get { return this._signatureValue; }
+            set { this._signatureValue = value; }
         }
 
         public KeyInfo KeyInfo
         {
             get
             {
-                if (_keyInfo == null)
-                    _keyInfo = new KeyInfo();
-                return _keyInfo;
+                if (this._keyInfo == null)
+                {
+                    this._keyInfo = new KeyInfo();
+                }
+
+                return this._keyInfo;
             }
-            set { _keyInfo = value; }
+            set { this._keyInfo = value; }
         }
 
         public IList ObjectList
         {
-            get { return _embeddedObjects; }
-            set { _embeddedObjects = value; }
+            get { return this._embeddedObjects; }
+            set { this._embeddedObjects = value; }
         }
 
         internal CanonicalXmlNodeList ReferencedItems
         {
-            get { return _referencedItems; }
+            get { return this._referencedItems; }
         }
 
         //
@@ -92,38 +97,49 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the Signature
-            XmlElement signatureElement = (XmlElement)document.CreateElement("Signature", SignedXml.XmlDsigNamespaceUrl);
-            if (!string.IsNullOrEmpty(_id))
-                signatureElement.SetAttribute("Id", _id);
+            XmlElement signatureElement = (XmlElement)document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Signature", SignedXml.XmlDsigNamespaceUrl);
+            if (!String.IsNullOrEmpty(this._id))
+            {
+                signatureElement.SetAttribute("Id", this._id);
+            }
 
             // Add the SignedInfo
-            if (_signedInfo == null)
+            if (this._signedInfo == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignedInfoRequired);
+            }
 
-            signatureElement.AppendChild(_signedInfo.GetXml(document));
+            signatureElement.AppendChild(this._signedInfo.GetXml(document));
 
             // Add the SignatureValue
-            if (_signatureValue == null)
+            if (this._signatureValue == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureValueRequired);
+            }
 
-            XmlElement signatureValueElement = document.CreateElement("SignatureValue", SignedXml.XmlDsigNamespaceUrl);
-            signatureValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(_signatureValue)));
-            if (!string.IsNullOrEmpty(_signatureValueId))
-                signatureValueElement.SetAttribute("Id", _signatureValueId);
+            XmlElement signatureValueElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "SignatureValue", SignedXml.XmlDsigNamespaceUrl);
+            signatureValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(this._signatureValue)));
+            if (!String.IsNullOrEmpty(this._signatureValueId))
+            {
+                signatureValueElement.SetAttribute("Id", this._signatureValueId);
+            }
+
             signatureElement.AppendChild(signatureValueElement);
 
             // Add the KeyInfo
-            if (KeyInfo.Count > 0)
-                signatureElement.AppendChild(KeyInfo.GetXml(document));
+            if (this.KeyInfo.Count > 0)
+            {
+                signatureElement.AppendChild(this.KeyInfo.GetXml(document));
+            }
 
             // Add the Objects
-            foreach (object obj in _embeddedObjects)
+            foreach (Object obj in this._embeddedObjects)
             {
                 DataObject dataObj = obj as DataObject;
                 if (dataObj != null)
@@ -139,46 +155,60 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             // Make sure we don't get passed null
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             // Signature
             XmlElement signatureElement = value;
             if (!signatureElement.LocalName.Equals("Signature"))
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "Signature");
+            }
 
             // Id attribute -- optional
-            _id = Utils.GetAttribute(signatureElement, "Id", SignedXml.XmlDsigNamespaceUrl);
+            this._id = Utils.GetAttribute(signatureElement, "Id", SignedXml.XmlDsigNamespaceUrl);
             if (!Utils.VerifyAttributes(signatureElement, "Id"))
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "Signature");
+            }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
-            int expectedChildNodes = 0;
+            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            Int32 expectedChildNodes = 0;
 
             // SignedInfo
-            XmlNodeList signedInfoNodes = signatureElement.SelectNodes("ds:SignedInfo", nsm);
+            XmlNodeList signedInfoNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":SignedInfo", nsm);
             if (signedInfoNodes == null || signedInfoNodes.Count == 0 || signedInfoNodes.Count > 1)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "SignedInfo");
+            }
+
             XmlElement signedInfoElement = signedInfoNodes[0] as XmlElement;
             expectedChildNodes += signedInfoNodes.Count;
 
-            SignedInfo = new SignedInfo();
-            SignedInfo.LoadXml(signedInfoElement);
+            this.SignedInfo = new SignedInfo();
+            this.SignedInfo.LoadXml(signedInfoElement);
 
             // SignatureValue
-            XmlNodeList signatureValueNodes = signatureElement.SelectNodes("ds:SignatureValue", nsm);
+            XmlNodeList signatureValueNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":SignatureValue", nsm);
             if (signatureValueNodes == null || signatureValueNodes.Count == 0 || signatureValueNodes.Count > 1)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "SignatureValue");
+            }
+
             XmlElement signatureValueElement = signatureValueNodes[0] as XmlElement;
             expectedChildNodes += signatureValueNodes.Count;
-            _signatureValue = Convert.FromBase64String(Utils.DiscardWhiteSpaces(signatureValueElement.InnerText));
-            _signatureValueId = Utils.GetAttribute(signatureValueElement, "Id", SignedXml.XmlDsigNamespaceUrl);
+            this._signatureValue = Convert.FromBase64String(Utils.DiscardWhiteSpaces(signatureValueElement.InnerText));
+            this._signatureValueId = Utils.GetAttribute(signatureValueElement, "Id", SignedXml.XmlDsigNamespaceUrl);
             if (!Utils.VerifyAttributes(signatureValueElement, "Id"))
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "SignatureValue");
+            }
 
             // KeyInfo - optional single element
-            XmlNodeList keyInfoNodes = signatureElement.SelectNodes("ds:KeyInfo", nsm);
-            _keyInfo = new KeyInfo();
+            XmlNodeList keyInfoNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":KeyInfo", nsm);
+            this._keyInfo = new KeyInfo();
             if (keyInfoNodes != null)
             {
                 if (keyInfoNodes.Count > 1)
@@ -189,14 +219,16 @@ namespace Org.BouncyCastle.Crypto.Xml
                 {
                     XmlElement keyInfoElement = node as XmlElement;
                     if (keyInfoElement != null)
-                        _keyInfo.LoadXml(keyInfoElement);
+                    {
+                        this._keyInfo.LoadXml(keyInfoElement);
+                    }
                 }
                 expectedChildNodes += keyInfoNodes.Count;
             }
 
             // Object - zero or more elements allowed
-            XmlNodeList objectNodes = signatureElement.SelectNodes("ds:Object", nsm);
-            _embeddedObjects.Clear();
+            XmlNodeList objectNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":Object", nsm);
+            this._embeddedObjects.Clear();
             if (objectNodes != null)
             {
                 foreach (XmlNode node in objectNodes)
@@ -206,7 +238,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                     {
                         DataObject dataObj = new DataObject();
                         dataObj.LoadXml(objectElement);
-                        _embeddedObjects.Add(dataObj);
+                        this._embeddedObjects.Add(dataObj);
                     }
                 }
                 expectedChildNodes += objectNodes.Count;
@@ -218,7 +250,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             {
                 foreach (XmlNode node in nodeList)
                 {
-                    _referencedItems.Add(node);
+                    this._referencedItems.Add(node);
                 }
             }
             // Verify that there aren't any extra nodes that aren't allowed
@@ -230,7 +262,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public void AddObject(DataObject dataObject)
         {
-            _embeddedObjects.Add(dataObject);
+            this._embeddedObjects.Add(dataObject);
         }
     }
 }

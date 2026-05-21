@@ -9,61 +9,61 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public abstract class EncryptedType
     {
-        private string _id;
-        private string _type;
-        private string _mimeType;
-        private string _encoding;
+        private String _id;
+        private String _type;
+        private String _mimeType;
+        private String _encoding;
         private EncryptionMethod _encryptionMethod;
         private CipherData _cipherData;
         private EncryptionPropertyCollection _props;
         private KeyInfo _keyInfo;
         internal XmlElement _cachedXml = null;
 
-        internal bool CacheValid
+        internal Boolean CacheValid
         {
             get
             {
-                return (_cachedXml != null);
+                return (this._cachedXml != null);
             }
         }
 
-        public virtual string Id
+        public virtual String Id
         {
-            get { return _id; }
+            get { return this._id; }
             set
             {
-                _id = value;
-                _cachedXml = null;
+                this._id = value;
+                this._cachedXml = null;
             }
         }
 
-        public virtual string Type
+        public virtual String Type
         {
-            get { return _type; }
+            get { return this._type; }
             set
             {
-                _type = value;
-                _cachedXml = null;
+                this._type = value;
+                this._cachedXml = null;
             }
         }
 
-        public virtual string MimeType
+        public virtual String MimeType
         {
-            get { return _mimeType; }
+            get { return this._mimeType; }
             set
             {
-                _mimeType = value;
-                _cachedXml = null;
+                this._mimeType = value;
+                this._cachedXml = null;
             }
         }
 
-        public virtual string Encoding
+        public virtual String Encoding
         {
-            get { return _encoding; }
+            get { return this._encoding; }
             set
             {
-                _encoding = value;
-                _cachedXml = null;
+                this._encoding = value;
+                this._cachedXml = null;
             }
         }
 
@@ -71,20 +71,23 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             get
             {
-                if (_keyInfo == null)
-                    _keyInfo = new KeyInfo();
-                return _keyInfo;
+                if (this._keyInfo == null)
+                {
+                    this._keyInfo = new KeyInfo();
+                }
+
+                return this._keyInfo;
             }
-            set { _keyInfo = value; }
+            set { this._keyInfo = value; }
         }
 
         public virtual EncryptionMethod EncryptionMethod
         {
-            get { return _encryptionMethod; }
+            get { return this._encryptionMethod; }
             set
             {
-                _encryptionMethod = value;
-                _cachedXml = null;
+                this._encryptionMethod = value;
+                this._cachedXml = null;
             }
         }
 
@@ -92,33 +95,40 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             get
             {
-                if (_props == null)
-                    _props = new EncryptionPropertyCollection();
-                return _props;
+                if (this._props == null)
+                {
+                    this._props = new EncryptionPropertyCollection();
+                }
+
+                return this._props;
             }
         }
 
         public void AddProperty(EncryptionProperty ep)
         {
-            EncryptionProperties.Add(ep);
+            this.EncryptionProperties.Add(ep);
         }
 
         public virtual CipherData CipherData
         {
             get
             {
-                if (_cipherData == null)
-                    _cipherData = new CipherData();
+                if (this._cipherData == null)
+                {
+                    this._cipherData = new CipherData();
+                }
 
-                return _cipherData;
+                return this._cipherData;
             }
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
+                }
 
-                _cipherData = value;
-                _cachedXml = null;
+                this._cipherData = value;
+                this._cachedXml = null;
             }
         }
 

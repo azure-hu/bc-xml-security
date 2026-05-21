@@ -15,45 +15,47 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         private readonly Type[] _inputTypes = { typeof(Stream), typeof(XmlNodeList), typeof(XmlDocument) };
         private readonly Type[] _outputTypes = { typeof(XmlNodeList) };
-        private string _xpathexpr;
+        private String _xpathexpr;
         private XmlDocument _document;
         private XmlNamespaceManager _nsm;
 
         public XmlDsigXPathTransform()
         {
-            Algorithm = SignedXml.XmlDsigXPathTransformUrl;
+            this.Algorithm = SignedXml.XmlDsigXPathTransformUrl;
         }
 
         public override Type[] InputTypes
         {
-            get { return _inputTypes; }
+            get { return this._inputTypes; }
         }
 
         public override Type[] OutputTypes
         {
-            get { return _outputTypes; }
+            get { return this._outputTypes; }
         }
 
         public override void LoadInnerXml(XmlNodeList nodeList)
         {
             // XPath transform is specified by text child of first XPath child
             if (nodeList == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
+            }
 
             foreach (XmlNode node in nodeList)
             {
-                string prefix = null;
-                string namespaceURI = null;
+                String prefix = null;
+                String namespaceURI = null;
                 XmlElement elem = node as XmlElement;
                 if (elem != null)
                 {
                     if (elem.LocalName == "XPath")
                     {
-                        _xpathexpr = elem.InnerXml.Trim(null);
+                        this._xpathexpr = elem.InnerXml.Trim(null);
                         XmlNodeReader nr = new XmlNodeReader(elem);
                         XmlNameTable nt = nr.NameTable;
-                        _nsm = new XmlNamespaceManager(nt);
-                        if (!Utils.VerifyAttributes(elem, (string)null))
+                        this._nsm = new XmlNamespaceManager(nt);
+                        if (!Utils.VerifyAttributes(elem, (String)null))
                         {
                             throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
                         }
@@ -69,7 +71,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                                     prefix = elem.Prefix;
                                     namespaceURI = elem.NamespaceURI;
                                 }
-                                _nsm.AddNamespace(prefix, namespaceURI);
+                                this._nsm.AddNamespace(prefix, namespaceURI);
                             }
                         }
                         break;
@@ -81,19 +83,21 @@ namespace Org.BouncyCastle.Crypto.Xml
                 }
             }
 
-            if (_xpathexpr == null)
+            if (this._xpathexpr == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
+            }
         }
 
         protected override XmlNodeList GetInnerXml()
         {
             XmlDocument document = new XmlDocument();
-            XmlElement element = document.CreateElement(null, "XPath", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement element = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "XPath", SignedXml.XmlDsigNamespaceUrl);
 
-            if (_nsm != null)
+            if (this._nsm != null)
             {
                 // Add each of the namespaces as attributes of the element
-                foreach (string prefix in _nsm)
+                foreach (String prefix in this._nsm)
                 {
                     switch (prefix)
                     {
@@ -106,76 +110,81 @@ namespace Org.BouncyCastle.Crypto.Xml
                         default:
                             // Ignore the default namespace
                             if (prefix != null && prefix.Length > 0)
-                                element.SetAttribute("xmlns:" + prefix, _nsm.LookupNamespace(prefix));
+                            {
+                                element.SetAttribute("xmlns:" + prefix, this._nsm.LookupNamespace(prefix));
+                            }
+
                             break;
                     }
                 }
             }
             // Add the XPath as the inner xml of the element
-            element.InnerXml = _xpathexpr;
+            element.InnerXml = this._xpathexpr;
             document.AppendChild(element);
             return document.ChildNodes;
         }
 
-        public override void LoadInput(object obj)
+        public override void LoadInput(Object obj)
         {
             if (obj is Stream)
             {
-                LoadStreamInput((Stream)obj);
+                this.LoadStreamInput((Stream)obj);
             }
             else if (obj is XmlNodeList)
             {
-                LoadXmlNodeListInput((XmlNodeList)obj);
+                this.LoadXmlNodeListInput((XmlNodeList)obj);
             }
             else if (obj is XmlDocument)
             {
-                LoadXmlDocumentInput((XmlDocument)obj);
+                this.LoadXmlDocumentInput((XmlDocument)obj);
             }
         }
 
         private void LoadStreamInput(Stream stream)
         {
-            XmlResolver resolver = (ResolverSet ? _xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), BaseURI));
-            XmlReader valReader = Utils.PreProcessStreamInput(stream, resolver, BaseURI);
-            _document = new XmlDocument();
-            _document.PreserveWhitespace = true;
-            _document.Load(valReader);
+            XmlResolver resolver = (this.ResolverSet ? this._xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), this.BaseURI));
+            XmlReader valReader = Utils.PreProcessStreamInput(stream, resolver, this.BaseURI);
+            this._document = new XmlDocument();
+            this._document.PreserveWhitespace = true;
+            this._document.Load(valReader);
         }
 
         private void LoadXmlNodeListInput(XmlNodeList nodeList)
         {
             // Use C14N to get a document
-            XmlResolver resolver = (ResolverSet ? _xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), BaseURI));
+            XmlResolver resolver = (this.ResolverSet ? this._xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), this.BaseURI));
             CanonicalXml c14n = new CanonicalXml((XmlNodeList)nodeList, resolver, true);
             using (MemoryStream ms = new MemoryStream(c14n.GetBytes()))
             {
-                LoadStreamInput(ms);
+                this.LoadStreamInput(ms);
             }
         }
 
         private void LoadXmlDocumentInput(XmlDocument doc)
         {
-            _document = doc;
+            this._document = doc;
         }
 
-        public override object GetOutput()
+        public override Object GetOutput()
         {
             CanonicalXmlNodeList resultNodeList = new CanonicalXmlNodeList();
-            if (!string.IsNullOrEmpty(_xpathexpr))
+            if (!String.IsNullOrEmpty(this._xpathexpr))
             {
-                XPathNavigator navigator = _document.CreateNavigator();
+                XPathNavigator navigator = this._document.CreateNavigator();
                 XPathNodeIterator it = navigator.Select("//. | //@*");
 
-                XPathExpression xpathExpr = navigator.Compile("boolean(" + _xpathexpr + ")");
-                xpathExpr.SetContext(_nsm);
+                XPathExpression xpathExpr = navigator.Compile("boolean(" + this._xpathexpr + ")");
+                xpathExpr.SetContext(this._nsm);
 
                 while (it.MoveNext())
                 {
                     XmlNode node = ((IHasXmlNode)it.Current).GetNode();
 
-                    bool include = (bool)it.Current.Evaluate(xpathExpr);
+                    Boolean include = (Boolean)it.Current.Evaluate(xpathExpr);
                     if (include == true)
+                    {
                         resultNodeList.Add(node);
+                    }
                 }
 
                 // keep namespaces
@@ -190,11 +199,14 @@ namespace Org.BouncyCastle.Crypto.Xml
             return resultNodeList;
         }
 
-        public override object GetOutput(Type type)
+        public override Object GetOutput(Type type)
         {
             if (type != typeof(XmlNodeList) && !type.IsSubclassOf(typeof(XmlNodeList)))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_TransformIncorrectInputType, nameof(type));
-            return (XmlNodeList)GetOutput();
+            }
+
+            return (XmlNodeList)this.GetOutput();
         }
     }
 }

@@ -8,9 +8,9 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     internal class MyXmlDocument : XmlDocument
     {
-        protected override XmlAttribute CreateDefaultAttribute(string prefix, string localName, string namespaceURI)
+        protected override XmlAttribute CreateDefaultAttribute(System.String prefix, System.String localName, System.String namespaceURI)
         {
-            return CreateAttribute(prefix, localName, namespaceURI);
+            return this.CreateAttribute(prefix, localName, namespaceURI);
         }
     }
 }

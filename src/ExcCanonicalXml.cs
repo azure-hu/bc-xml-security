@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
+using System;
 using System.IO;
 using System.Text;
-using System;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -14,56 +14,64 @@ namespace Org.BouncyCastle.Crypto.Xml
         private readonly CanonicalXmlDocument _c14nDoc;
         private readonly ExcAncestralNamespaceContextManager _ancMgr;
 
-        internal ExcCanonicalXml(Stream inputStream, bool includeComments, string inclusiveNamespacesPrefixList, XmlResolver resolver, string strBaseUri)
+        internal ExcCanonicalXml(Stream inputStream, Boolean includeComments, String inclusiveNamespacesPrefixList, XmlResolver resolver, String strBaseUri)
         {
             if (inputStream == null)
+            {
                 throw new ArgumentNullException(nameof(inputStream));
+            }
 
-            _c14nDoc = new CanonicalXmlDocument(true, includeComments);
-            _c14nDoc.XmlResolver = resolver;
-            _c14nDoc.Load(Utils.PreProcessStreamInput(inputStream, resolver, strBaseUri));
-            _ancMgr = new ExcAncestralNamespaceContextManager(inclusiveNamespacesPrefixList);
+            this._c14nDoc = new CanonicalXmlDocument(true, includeComments);
+            this._c14nDoc.XmlResolver = resolver;
+            this._c14nDoc.Load(Utils.PreProcessStreamInput(inputStream, resolver, strBaseUri));
+            this._ancMgr = new ExcAncestralNamespaceContextManager(inclusiveNamespacesPrefixList);
         }
 
-        internal ExcCanonicalXml(XmlDocument document, bool includeComments, string inclusiveNamespacesPrefixList, XmlResolver resolver)
+        internal ExcCanonicalXml(XmlDocument document, Boolean includeComments, String inclusiveNamespacesPrefixList, XmlResolver resolver)
         {
             if (document == null)
+            {
                 throw new ArgumentNullException(nameof(document));
+            }
 
-            _c14nDoc = new CanonicalXmlDocument(true, includeComments);
-            _c14nDoc.XmlResolver = resolver;
-            _c14nDoc.Load(new XmlNodeReader(document));
-            _ancMgr = new ExcAncestralNamespaceContextManager(inclusiveNamespacesPrefixList);
+            this._c14nDoc = new CanonicalXmlDocument(true, includeComments);
+            this._c14nDoc.XmlResolver = resolver;
+            this._c14nDoc.Load(new XmlNodeReader(document));
+            this._ancMgr = new ExcAncestralNamespaceContextManager(inclusiveNamespacesPrefixList);
         }
 
-        internal ExcCanonicalXml(XmlNodeList nodeList, bool includeComments, string inclusiveNamespacesPrefixList, XmlResolver resolver)
+        internal ExcCanonicalXml(XmlNodeList nodeList, Boolean includeComments, String inclusiveNamespacesPrefixList, XmlResolver resolver)
         {
             if (nodeList == null)
+            {
                 throw new ArgumentNullException(nameof(nodeList));
+            }
 
             XmlDocument doc = Utils.GetOwnerDocument(nodeList);
             if (doc == null)
+            {
                 throw new ArgumentException(nameof(nodeList));
+            }
 
-            _c14nDoc = new CanonicalXmlDocument(false, includeComments);
-            _c14nDoc.XmlResolver = resolver;
-            _c14nDoc.Load(new XmlNodeReader(doc));
-            _ancMgr = new ExcAncestralNamespaceContextManager(inclusiveNamespacesPrefixList);
+            this._c14nDoc = new CanonicalXmlDocument(false, includeComments);
+            this._c14nDoc.XmlResolver = resolver;
+            this._c14nDoc.Load(new XmlNodeReader(doc));
+            this._ancMgr = new ExcAncestralNamespaceContextManager(inclusiveNamespacesPrefixList);
 
-            MarkInclusionStateForNodes(nodeList, doc, _c14nDoc);
+            MarkInclusionStateForNodes(nodeList, doc, this._c14nDoc);
         }
 
-        internal byte[] GetBytes()
+        internal Byte[] GetBytes()
         {
             StringBuilder sb = new StringBuilder();
-            _c14nDoc.Write(sb, DocPosition.BeforeRootElement, _ancMgr);
+            this._c14nDoc.Write(sb, DocPosition.BeforeRootElement, this._ancMgr);
             UTF8Encoding utf8 = new UTF8Encoding(false);
             return utf8.GetBytes(sb.ToString());
         }
 
         internal void GetDigestedBytes(IHash hash)
         {
-            _c14nDoc.WriteHash(hash, DocPosition.BeforeRootElement, _ancMgr);
+            this._c14nDoc.WriteHash(hash, DocPosition.BeforeRootElement, this._ancMgr);
         }
 
         private static void MarkInclusionStateForNodes(XmlNodeList nodeList, XmlDocument inputRoot, XmlDocument root)
@@ -72,7 +80,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             CanonicalXmlNodeList elementListCanonical = new CanonicalXmlNodeList();
             elementList.Add(inputRoot);
             elementListCanonical.Add(root);
-            int index = 0;
+            Int32 index = 0;
 
             do
             {
@@ -80,7 +88,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 XmlNode currentNodeCanonical = (XmlNode)elementListCanonical[index];
                 XmlNodeList childNodes = currentNode.ChildNodes;
                 XmlNodeList childNodesCanonical = currentNodeCanonical.ChildNodes;
-                for (int i = 0; i < childNodes.Count; i++)
+                for (Int32 i = 0; i < childNodes.Count; i++)
                 {
                     elementList.Add(childNodes[i]);
                     elementListCanonical.Add(childNodesCanonical[i]);
@@ -93,7 +101,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                     XmlAttributeCollection attribNodes = childNodes[i].Attributes;
                     if (attribNodes != null)
                     {
-                        for (int j = 0; j < attribNodes.Count; j++)
+                        for (Int32 j = 0; j < attribNodes.Count; j++)
                         {
                             if (Utils.NodeInList(attribNodes[j], nodeList))
                             {
@@ -109,7 +117,9 @@ namespace Org.BouncyCastle.Crypto.Xml
         private static void MarkNodeAsIncluded(XmlNode node)
         {
             if (node is ICanonicalizableNode)
+            {
                 ((ICanonicalizableNode)node).IsInNodeSet = true;
+            }
         }
     }
 }

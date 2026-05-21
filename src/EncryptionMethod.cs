@@ -10,70 +10,79 @@ namespace Org.BouncyCastle.Crypto.Xml
     public class EncryptionMethod
     {
         private XmlElement _cachedXml = null;
-        private int _keySize = 0;
-        private string _algorithm;
+        private Int32 _keySize = 0;
+        private String _algorithm;
 
         public EncryptionMethod()
         {
-            _cachedXml = null;
+            this._cachedXml = null;
         }
 
-        public EncryptionMethod(string algorithm)
+        public EncryptionMethod(String algorithm)
         {
-            _algorithm = algorithm;
-            _cachedXml = null;
+            this._algorithm = algorithm;
+            this._cachedXml = null;
         }
 
-        private bool CacheValid
+        private Boolean CacheValid
         {
             get
             {
-                return (_cachedXml != null);
+                return (this._cachedXml != null);
             }
         }
 
-        public int KeySize
+        public Int32 KeySize
         {
-            get { return _keySize; }
+            get { return this._keySize; }
             set
             {
                 if (value <= 0)
+                {
                     throw new ArgumentOutOfRangeException(nameof(value), SR.Cryptography_Xml_InvalidKeySize);
-                _keySize = value;
-                _cachedXml = null;
+                }
+
+                this._keySize = value;
+                this._cachedXml = null;
             }
         }
 
-        public string KeyAlgorithm
+        public String KeyAlgorithm
         {
-            get { return _algorithm; }
+            get { return this._algorithm; }
             set
             {
-                _algorithm = value;
-                _cachedXml = null;
+                this._algorithm = value;
+                this._cachedXml = null;
             }
         }
 
         public XmlElement GetXml()
         {
-            if (CacheValid) return (_cachedXml);
+            if (this.CacheValid)
+            {
+                return (this._cachedXml);
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the EncryptionMethod element
-            XmlElement encryptionMethodElement = (XmlElement)document.CreateElement("EncryptionMethod", EncryptedXml.XmlEncNamespaceUrl);
-            if (!string.IsNullOrEmpty(_algorithm))
-                encryptionMethodElement.SetAttribute("Algorithm", _algorithm);
-            if (_keySize > 0)
+            XmlElement encryptionMethodElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptionMethod", EncryptedXml.XmlEncNamespaceUrl);
+            if (!String.IsNullOrEmpty(this._algorithm))
+            {
+                encryptionMethodElement.SetAttribute("Algorithm", this._algorithm);
+            }
+
+            if (this._keySize > 0)
             {
                 // Construct a KeySize element
-                XmlElement keySizeElement = document.CreateElement("KeySize", EncryptedXml.XmlEncNamespaceUrl);
-                keySizeElement.AppendChild(document.CreateTextNode(_keySize.ToString(null, null)));
+                XmlElement keySizeElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "KeySize", EncryptedXml.XmlEncNamespaceUrl);
+                keySizeElement.AppendChild(document.CreateTextNode(this._keySize.ToString(null, null)));
                 encryptionMethodElement.AppendChild(keySizeElement);
             }
             return encryptionMethodElement;
@@ -82,22 +91,24 @@ namespace Org.BouncyCastle.Crypto.Xml
         public void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
+            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
 
             XmlElement encryptionMethodElement = value;
-            _algorithm = Utils.GetAttribute(encryptionMethodElement, "Algorithm", EncryptedXml.XmlEncNamespaceUrl);
+            this._algorithm = Utils.GetAttribute(encryptionMethodElement, "Algorithm", EncryptedXml.XmlEncNamespaceUrl);
 
-            XmlNode keySizeNode = value.SelectSingleNode("enc:KeySize", nsm);
+            XmlNode keySizeNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":KeySize", nsm);
             if (keySizeNode != null)
             {
-                KeySize = Convert.ToInt32(Utils.DiscardWhiteSpaces(keySizeNode.InnerText), null);
+                this.KeySize = Convert.ToInt32(Utils.DiscardWhiteSpaces(keySizeNode.InnerText), null);
             }
 
             // Save away the cached value
-            _cachedXml = value;
+            this._cachedXml = value;
         }
     }
 }

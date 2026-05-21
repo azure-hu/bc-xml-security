@@ -11,83 +11,99 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         private XmlElement _cachedXml = null;
         private CipherReference _cipherReference = null;
-        private byte[] _cipherValue = null;
+        private Byte[] _cipherValue = null;
 
         public CipherData() { }
 
-        public CipherData(byte[] cipherValue)
+        public CipherData(Byte[] cipherValue)
         {
-            CipherValue = cipherValue;
+            this.CipherValue = cipherValue;
         }
 
         public CipherData(CipherReference cipherReference)
         {
-            CipherReference = cipherReference;
+            this.CipherReference = cipherReference;
         }
 
-        private bool CacheValid
+        private Boolean CacheValid
         {
             get
             {
-                return (_cachedXml != null);
+                return (this._cachedXml != null);
             }
         }
 
         public CipherReference CipherReference
         {
-            get { return _cipherReference; }
+            get { return this._cipherReference; }
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
-                if (CipherValue != null)
-                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CipherValueElementRequired);
+                }
 
-                _cipherReference = value;
-                _cachedXml = null;
+                if (this.CipherValue != null)
+                {
+                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CipherValueElementRequired);
+                }
+
+                this._cipherReference = value;
+                this._cachedXml = null;
             }
         }
 
-        public byte[] CipherValue
+        public Byte[] CipherValue
         {
-            get { return _cipherValue; }
+            get { return this._cipherValue; }
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
-                if (CipherReference != null)
-                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CipherValueElementRequired);
+                }
 
-                _cipherValue = (byte[])value.Clone();
-                _cachedXml = null;
+                if (this.CipherReference != null)
+                {
+                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CipherValueElementRequired);
+                }
+
+                this._cipherValue = (Byte[])value.Clone();
+                this._cachedXml = null;
             }
         }
 
         public XmlElement GetXml()
         {
-            if (CacheValid) return _cachedXml;
+            if (this.CacheValid)
+            {
+                return this._cachedXml;
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the CipherData element
-            XmlElement cipherDataElement = (XmlElement)document.CreateElement("CipherData", EncryptedXml.XmlEncNamespaceUrl);
-            if (CipherValue != null)
+            XmlElement cipherDataElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "CipherData", EncryptedXml.XmlEncNamespaceUrl);
+            if (this.CipherValue != null)
             {
-                XmlElement cipherValueElement = document.CreateElement("CipherValue", EncryptedXml.XmlEncNamespaceUrl);
-                cipherValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(CipherValue)));
+                XmlElement cipherValueElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "CipherValue", EncryptedXml.XmlEncNamespaceUrl);
+                cipherValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(this.CipherValue)));
                 cipherDataElement.AppendChild(cipherValueElement);
             }
             else
             {
                 // No CipherValue specified, see if there is a CipherReference
-                if (CipherReference == null)
+                if (this.CipherReference == null)
+                {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CipherValueElementRequired);
-                cipherDataElement.AppendChild(CipherReference.GetXml(document));
+                }
+
+                cipherDataElement.AppendChild(this.CipherReference.GetXml(document));
             }
             return cipherDataElement;
         }
@@ -95,23 +111,28 @@ namespace Org.BouncyCastle.Crypto.Xml
         public void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
+            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
 
-            XmlNode cipherValueNode = value.SelectSingleNode("enc:CipherValue", nsm);
-            XmlNode cipherReferenceNode = value.SelectSingleNode("enc:CipherReference", nsm);
+            XmlNode cipherValueNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CipherValue", nsm);
+            XmlNode cipherReferenceNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CipherReference", nsm);
             if (cipherValueNode != null)
             {
                 if (cipherReferenceNode != null)
+                {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_CipherValueElementRequired);
-                _cipherValue = Convert.FromBase64String(Utils.DiscardWhiteSpaces(cipherValueNode.InnerText));
+                }
+
+                this._cipherValue = Convert.FromBase64String(Utils.DiscardWhiteSpaces(cipherValueNode.InnerText));
             }
             else if (cipherReferenceNode != null)
             {
-                _cipherReference = new CipherReference();
-                _cipherReference.LoadXml((XmlElement)cipherReferenceNode);
+                this._cipherReference = new CipherReference();
+                this._cipherReference.LoadXml((XmlElement)cipherReferenceNode);
             }
             else
             {
@@ -119,7 +140,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // Save away the cached value
-            _cachedXml = value;
+            this._cachedXml = value;
         }
     }
 }

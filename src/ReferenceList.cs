@@ -13,77 +13,85 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public ReferenceList()
         {
-            _references = new ArrayList();
+            this._references = new ArrayList();
         }
 
         public IEnumerator GetEnumerator()
         {
-            return _references.GetEnumerator();
+            return this._references.GetEnumerator();
         }
 
-        public int Count
+        public Int32 Count
         {
-            get { return _references.Count; }
+            get { return this._references.Count; }
         }
 
-        public int Add(object value)
+        public Int32 Add(Object value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             if (!(value is DataReference) && !(value is KeyReference))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+            }
 
-            return _references.Add(value);
+            return this._references.Add(value);
         }
 
         public void Clear()
         {
-            _references.Clear();
+            this._references.Clear();
         }
 
-        public bool Contains(object value)
+        public Boolean Contains(Object value)
         {
-            return _references.Contains(value);
+            return this._references.Contains(value);
         }
 
-        public int IndexOf(object value)
+        public Int32 IndexOf(Object value)
         {
-            return _references.IndexOf(value);
+            return this._references.IndexOf(value);
         }
 
-        public void Insert(int index, object value)
+        public void Insert(Int32 index, Object value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             if (!(value is DataReference) && !(value is KeyReference))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+            }
 
-            _references.Insert(index, value);
+            this._references.Insert(index, value);
         }
 
-        public void Remove(object value)
+        public void Remove(Object value)
         {
-            _references.Remove(value);
+            this._references.Remove(value);
         }
 
-        public void RemoveAt(int index)
+        public void RemoveAt(Int32 index)
         {
-            _references.RemoveAt(index);
+            this._references.RemoveAt(index);
         }
 
-        public EncryptedReference Item(int index)
+        public EncryptedReference Item(Int32 index)
         {
-            return (EncryptedReference)_references[index];
+            return (EncryptedReference)this._references[index];
         }
 
         [System.Runtime.CompilerServices.IndexerName("ItemOf")]
-        public EncryptedReference this[int index]
+        public EncryptedReference this[Int32 index]
         {
             get
             {
-                return Item(index);
+                return this.Item(index);
             }
             set
             {
@@ -92,44 +100,48 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         /// <internalonly/>
-        object IList.this[int index]
+        Object IList.this[Int32 index]
         {
-            get { return _references[index]; }
+            get { return this._references[index]; }
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
+                }
 
                 if (!(value is DataReference) && !(value is KeyReference))
+                {
                     throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+                }
 
-                _references[index] = value;
+                this._references[index] = value;
             }
         }
 
-        public void CopyTo(Array array, int index)
+        public void CopyTo(Array array, Int32 index)
         {
-            _references.CopyTo(array, index);
+            this._references.CopyTo(array, index);
         }
 
-        bool IList.IsFixedSize
+        Boolean IList.IsFixedSize
         {
-            get { return _references.IsFixedSize; }
+            get { return this._references.IsFixedSize; }
         }
 
-        bool IList.IsReadOnly
+        Boolean IList.IsReadOnly
         {
-            get { return _references.IsReadOnly; }
+            get { return this._references.IsReadOnly; }
         }
 
-        public object SyncRoot
+        public Object SyncRoot
         {
-            get { return _references.SyncRoot; }
+            get { return this._references.SyncRoot; }
         }
 
-        public bool IsSynchronized
+        public Boolean IsSynchronized
         {
-            get { return _references.IsSynchronized; }
+            get { return this._references.IsSynchronized; }
         }
     }
 }

@@ -7,7 +7,6 @@ using Org.BouncyCastle.X509;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
@@ -23,7 +22,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         // An array of subject names
         private ArrayList _subjectNames = null;
         // A raw byte data representing a certificate revocation list
-        private byte[] _CRL = null;
+        private Byte[] _CRL = null;
 
         //
         // public constructors
@@ -31,23 +30,26 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public KeyInfoX509Data() { }
 
-        public KeyInfoX509Data(byte[] rgbCert)
+        public KeyInfoX509Data(Byte[] rgbCert)
         {
-            if (rgbCert != null) {
-                var parser = new X509CertificateParser();
-                AddCertificate(parser.ReadCertificate(rgbCert));
+            if (rgbCert != null)
+            {
+                X509CertificateParser parser = new X509CertificateParser();
+                this.AddCertificate(parser.ReadCertificate(rgbCert));
             }
         }
 
         public KeyInfoX509Data(X509Certificate cert)
         {
-            AddCertificate(Utils.CloneCertificate(cert));
+            this.AddCertificate(Utils.CloneCertificate(cert));
         }
 
         public KeyInfoX509Data(X509Certificate cert, IEnumerable<X509Certificate> additional, X509IncludeOption includeOption)
         {
             if (cert == null)
+            {
                 throw new ArgumentNullException(nameof(cert));
+            }
 
             X509Certificate certificate = Utils.CloneCertificate(cert);
             IList<X509Certificate> chain = null;
@@ -64,13 +66,13 @@ namespace Org.BouncyCastle.Crypto.Xml
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Partial_Chain);
                     }*/
 
-                    for (int index = 0; index < (Utils.IsSelfSigned(chain) ? 1 : chain.Count - 1); index++)
+                    for (Int32 index = 0; index < (Utils.IsSelfSigned(chain) ? 1 : chain.Count - 1); index++)
                     {
-                        AddCertificate(chain[index]);
+                        this.AddCertificate(chain[index]);
                     }
                     break;
                 case X509IncludeOption.EndCertOnly:
-                    AddCertificate(certificate);
+                    this.AddCertificate(certificate);
                     break;
                 case X509IncludeOption.WholeChain:
                     // Build the certificate chain
@@ -83,9 +85,9 @@ namespace Org.BouncyCastle.Crypto.Xml
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Partial_Chain);
                     }*/
 
-                    foreach (var element in chain)
+                    foreach (X509Certificate element in chain)
                     {
-                        AddCertificate(element);
+                        this.AddCertificate(element);
                     }
                     break;
             }
@@ -97,64 +99,81 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public ArrayList Certificates
         {
-            get { return _certificates; }
+            get { return this._certificates; }
         }
 
         public void AddCertificate(X509Certificate certificate)
         {
             if (certificate == null)
+            {
                 throw new ArgumentNullException(nameof(certificate));
+            }
 
-            if (_certificates == null)
-                _certificates = new ArrayList();
+            if (this._certificates == null)
+            {
+                this._certificates = new ArrayList();
+            }
 
             X509Certificate x509 = certificate;
-            _certificates.Add(x509);
+            this._certificates.Add(x509);
         }
 
         public ArrayList SubjectKeyIds
         {
-            get { return _subjectKeyIds; }
+            get { return this._subjectKeyIds; }
         }
 
-        public void AddSubjectKeyId(byte[] subjectKeyId)
+        public void AddSubjectKeyId(Byte[] subjectKeyId)
         {
-            if (_subjectKeyIds == null)
-                _subjectKeyIds = new ArrayList();
-            _subjectKeyIds.Add(subjectKeyId);
+            if (this._subjectKeyIds == null)
+            {
+                this._subjectKeyIds = new ArrayList();
+            }
+
+            this._subjectKeyIds.Add(subjectKeyId);
         }
 
-        public void AddSubjectKeyId(string subjectKeyId)
+        public void AddSubjectKeyId(String subjectKeyId)
         {
-            if (_subjectKeyIds == null)
-                _subjectKeyIds = new ArrayList();
-            _subjectKeyIds.Add(Utils.DecodeHexString(subjectKeyId));
+            if (this._subjectKeyIds == null)
+            {
+                this._subjectKeyIds = new ArrayList();
+            }
+
+            this._subjectKeyIds.Add(Utils.DecodeHexString(subjectKeyId));
         }
 
         public ArrayList SubjectNames
         {
-            get { return _subjectNames; }
+            get { return this._subjectNames; }
         }
 
-        public void AddSubjectName(string subjectName)
+        public void AddSubjectName(String subjectName)
         {
-            if (_subjectNames == null)
-                _subjectNames = new ArrayList();
-            _subjectNames.Add(subjectName);
+            if (this._subjectNames == null)
+            {
+                this._subjectNames = new ArrayList();
+            }
+
+            this._subjectNames.Add(subjectName);
         }
 
         public ArrayList IssuerSerials
         {
-            get { return _issuerSerials; }
+            get { return this._issuerSerials; }
         }
 
-        public void AddIssuerSerial(string issuerName, string serialNumber)
+        public void AddIssuerSerial(String issuerName, String serialNumber)
         {
-            if (string.IsNullOrEmpty(issuerName))
+            if (String.IsNullOrEmpty(issuerName))
+            {
                 throw new ArgumentException(SR.Arg_EmptyOrNullString, nameof(issuerName));
+            }
 
-            if (string.IsNullOrEmpty(serialNumber))
+            if (String.IsNullOrEmpty(serialNumber))
+            {
                 throw new ArgumentException(SR.Arg_EmptyOrNullString, nameof(serialNumber));
+            }
 
             BigInteger h;
             try
@@ -166,23 +185,29 @@ namespace Org.BouncyCastle.Crypto.Xml
                 throw new ArgumentException(SR.Cryptography_Xml_InvalidX509IssuerSerialNumber, nameof(serialNumber));
             }
 
-            if (_issuerSerials == null)
-                _issuerSerials = new ArrayList();
-            _issuerSerials.Add(Utils.CreateX509IssuerSerial(issuerName, h.ToString()));
+            if (this._issuerSerials == null)
+            {
+                this._issuerSerials = new ArrayList();
+            }
+
+            this._issuerSerials.Add(Utils.CreateX509IssuerSerial(issuerName, h.ToString()));
         }
 
         // When we load an X509Data from Xml, we know the serial number is in decimal representation.
-        internal void InternalAddIssuerSerial(string issuerName, string serialNumber)
+        internal void InternalAddIssuerSerial(String issuerName, String serialNumber)
         {
-            if (_issuerSerials == null)
-                _issuerSerials = new ArrayList();
-            _issuerSerials.Add(Utils.CreateX509IssuerSerial(issuerName, serialNumber));
+            if (this._issuerSerials == null)
+            {
+                this._issuerSerials = new ArrayList();
+            }
+
+            this._issuerSerials.Add(Utils.CreateX509IssuerSerial(issuerName, serialNumber));
         }
 
-        public byte[] CRL
+        public Byte[] CRL
         {
-            get { return _CRL; }
-            set { _CRL = value; }
+            get { return this._CRL; }
+            set { this._CRL = value; }
         }
 
         //
@@ -191,11 +216,26 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         private void Clear()
         {
-            _CRL = null;
-            if (_subjectKeyIds != null) _subjectKeyIds.Clear();
-            if (_subjectNames != null) _subjectNames.Clear();
-            if (_issuerSerials != null) _issuerSerials.Clear();
-            if (_certificates != null) _certificates.Clear();
+            this._CRL = null;
+            if (this._subjectKeyIds != null)
+            {
+                this._subjectKeyIds.Clear();
+            }
+
+            if (this._subjectNames != null)
+            {
+                this._subjectNames.Clear();
+            }
+
+            if (this._issuerSerials != null)
+            {
+                this._issuerSerials.Clear();
+            }
+
+            if (this._certificates != null)
+            {
+                this._certificates.Clear();
+            }
         }
 
         //
@@ -206,62 +246,62 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.PreserveWhitespace = true;
-            return GetXml(xmlDocument);
+            return this.GetXml(xmlDocument);
         }
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            XmlElement x509DataElement = xmlDocument.CreateElement("X509Data", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement x509DataElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509Data", SignedXml.XmlDsigNamespaceUrl);
 
-            if (_issuerSerials != null)
+            if (this._issuerSerials != null)
             {
-                foreach (X509IssuerSerial issuerSerial in _issuerSerials)
+                foreach (X509IssuerSerial issuerSerial in this._issuerSerials)
                 {
-                    XmlElement issuerSerialElement = xmlDocument.CreateElement("X509IssuerSerial", SignedXml.XmlDsigNamespaceUrl);
-                    XmlElement issuerNameElement = xmlDocument.CreateElement("X509IssuerName", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement issuerSerialElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509IssuerSerial", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement issuerNameElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509IssuerName", SignedXml.XmlDsigNamespaceUrl);
                     issuerNameElement.AppendChild(xmlDocument.CreateTextNode(issuerSerial.IssuerName));
                     issuerSerialElement.AppendChild(issuerNameElement);
-                    XmlElement serialNumberElement = xmlDocument.CreateElement("X509SerialNumber", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement serialNumberElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509SerialNumber", SignedXml.XmlDsigNamespaceUrl);
                     serialNumberElement.AppendChild(xmlDocument.CreateTextNode(issuerSerial.SerialNumber));
                     issuerSerialElement.AppendChild(serialNumberElement);
                     x509DataElement.AppendChild(issuerSerialElement);
                 }
             }
 
-            if (_subjectKeyIds != null)
+            if (this._subjectKeyIds != null)
             {
-                foreach (byte[] subjectKeyId in _subjectKeyIds)
+                foreach (Byte[] subjectKeyId in this._subjectKeyIds)
                 {
-                    XmlElement subjectKeyIdElement = xmlDocument.CreateElement("X509SKI", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement subjectKeyIdElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509SKI", SignedXml.XmlDsigNamespaceUrl);
                     subjectKeyIdElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(subjectKeyId)));
                     x509DataElement.AppendChild(subjectKeyIdElement);
                 }
             }
 
-            if (_subjectNames != null)
+            if (this._subjectNames != null)
             {
-                foreach (string subjectName in _subjectNames)
+                foreach (String subjectName in this._subjectNames)
                 {
-                    XmlElement subjectNameElement = xmlDocument.CreateElement("X509SubjectName", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement subjectNameElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509SubjectName", SignedXml.XmlDsigNamespaceUrl);
                     subjectNameElement.AppendChild(xmlDocument.CreateTextNode(subjectName));
                     x509DataElement.AppendChild(subjectNameElement);
                 }
             }
 
-            if (_certificates != null)
+            if (this._certificates != null)
             {
-                foreach (X509Certificate certificate in _certificates)
+                foreach (X509Certificate certificate in this._certificates)
                 {
-                    XmlElement x509Element = xmlDocument.CreateElement("X509Certificate", SignedXml.XmlDsigNamespaceUrl);
+                    XmlElement x509Element = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509Certificate", SignedXml.XmlDsigNamespaceUrl);
                     x509Element.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(certificate.GetEncoded())));
                     x509DataElement.AppendChild(x509Element);
                 }
             }
 
-            if (_CRL != null)
+            if (this._CRL != null)
             {
-                XmlElement crlElement = xmlDocument.CreateElement("X509CRL", SignedXml.XmlDsigNamespaceUrl);
-                crlElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(_CRL)));
+                XmlElement crlElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "X509CRL", SignedXml.XmlDsigNamespaceUrl);
+                crlElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(this._CRL)));
                 x509DataElement.AppendChild(crlElement);
             }
 
@@ -271,51 +311,60 @@ namespace Org.BouncyCastle.Crypto.Xml
         public override void LoadXml(XmlElement element)
         {
             if (element == null)
+            {
                 throw new ArgumentNullException(nameof(element));
+            }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(element.OwnerDocument.NameTable);
-            nsm.AddNamespace("ds", SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
-            XmlNodeList x509IssuerSerialNodes = element.SelectNodes("ds:X509IssuerSerial", nsm);
-            XmlNodeList x509SKINodes = element.SelectNodes("ds:X509SKI", nsm);
-            XmlNodeList x509SubjectNameNodes = element.SelectNodes("ds:X509SubjectName", nsm);
-            XmlNodeList x509CertificateNodes = element.SelectNodes("ds:X509Certificate", nsm);
-            XmlNodeList x509CRLNodes = element.SelectNodes("ds:X509CRL", nsm);
+            XmlNodeList x509IssuerSerialNodes = element.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":X509IssuerSerial", nsm);
+            XmlNodeList x509SKINodes = element.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":X509SKI", nsm);
+            XmlNodeList x509SubjectNameNodes = element.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":X509SubjectName", nsm);
+            XmlNodeList x509CertificateNodes = element.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":X509Certificate", nsm);
+            XmlNodeList x509CRLNodes = element.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":X509CRL", nsm);
 
             if ((x509CRLNodes.Count == 0 && x509IssuerSerialNodes.Count == 0 && x509SKINodes.Count == 0
                     && x509SubjectNameNodes.Count == 0 && x509CertificateNodes.Count == 0)) // Bad X509Data tag, or Empty tag
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "X509Data");
+            }
 
             // Flush anything in the lists
-            Clear();
+            this.Clear();
 
             if (x509CRLNodes.Count != 0)
-                _CRL = Convert.FromBase64String(Utils.DiscardWhiteSpaces(x509CRLNodes.Item(0).InnerText));
+            {
+                this._CRL = Convert.FromBase64String(Utils.DiscardWhiteSpaces(x509CRLNodes.Item(0).InnerText));
+            }
 
             foreach (XmlNode issuerSerialNode in x509IssuerSerialNodes)
             {
-                XmlNode x509IssuerNameNode = issuerSerialNode.SelectSingleNode("ds:X509IssuerName", nsm);
-                XmlNode x509SerialNumberNode = issuerSerialNode.SelectSingleNode("ds:X509SerialNumber", nsm);
+                XmlNode x509IssuerNameNode = issuerSerialNode.SelectSingleNode(SignedXml.XmlDsigNamespacePrefix + ":X509IssuerName", nsm);
+                XmlNode x509SerialNumberNode = issuerSerialNode.SelectSingleNode(SignedXml.XmlDsigNamespacePrefix + ":X509SerialNumber", nsm);
                 if (x509IssuerNameNode == null || x509SerialNumberNode == null)
+                {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "IssuerSerial");
-                InternalAddIssuerSerial(x509IssuerNameNode.InnerText.Trim(), x509SerialNumberNode.InnerText.Trim());
+                }
+
+                this.InternalAddIssuerSerial(x509IssuerNameNode.InnerText.Trim(), x509SerialNumberNode.InnerText.Trim());
             }
 
             foreach (XmlNode node in x509SKINodes)
             {
-                AddSubjectKeyId(Convert.FromBase64String(Utils.DiscardWhiteSpaces(node.InnerText)));
+                this.AddSubjectKeyId(Convert.FromBase64String(Utils.DiscardWhiteSpaces(node.InnerText)));
             }
 
             foreach (XmlNode node in x509SubjectNameNodes)
             {
-                AddSubjectName(node.InnerText.Trim());
+                this.AddSubjectName(node.InnerText.Trim());
             }
 
-            var parser = new X509CertificateParser();
+            X509CertificateParser parser = new X509CertificateParser();
             foreach (XmlNode node in x509CertificateNodes)
             {
-                var cert = Convert.FromBase64String(Utils.DiscardWhiteSpaces(node.InnerText));
-                AddCertificate(parser.ReadCertificate(cert));
+                Byte[] cert = Convert.FromBase64String(Utils.DiscardWhiteSpaces(node.InnerText));
+                this.AddCertificate(parser.ReadCertificate(cert));
             }
         }
     }

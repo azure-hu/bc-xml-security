@@ -13,43 +13,45 @@ namespace Org.BouncyCastle.Crypto.Xml
         private readonly Type[] _inputTypes = { typeof(Stream), typeof(XmlNodeList), typeof(XmlDocument) };
         private readonly Type[] _outputTypes = { typeof(XmlNodeList), typeof(XmlDocument) };
         private XmlNodeList _inputNodeList;
-        private readonly bool _includeComments = false;
+        private readonly Boolean _includeComments = false;
         private XmlNamespaceManager _nsm = null;
         private XmlDocument _containingDocument = null;
-        private int _signaturePosition = 0;
+        private Int32 _signaturePosition = 0;
 
-        internal int SignaturePosition
+        internal Int32 SignaturePosition
         {
-            set { _signaturePosition = value; }
+            set { this._signaturePosition = value; }
         }
 
         public XmlDsigEnvelopedSignatureTransform()
         {
-            Algorithm = SignedXml.XmlDsigEnvelopedSignatureTransformUrl;
+            this.Algorithm = SignedXml.XmlDsigEnvelopedSignatureTransformUrl;
         }
 
         /// <internalonly/>
-        public XmlDsigEnvelopedSignatureTransform(bool includeComments)
+        public XmlDsigEnvelopedSignatureTransform(Boolean includeComments)
         {
-            _includeComments = includeComments;
-            Algorithm = SignedXml.XmlDsigEnvelopedSignatureTransformUrl;
+            this._includeComments = includeComments;
+            this.Algorithm = SignedXml.XmlDsigEnvelopedSignatureTransformUrl;
         }
 
         public override Type[] InputTypes
         {
-            get { return _inputTypes; }
+            get { return this._inputTypes; }
         }
 
         public override Type[] OutputTypes
         {
-            get { return _outputTypes; }
+            get { return this._outputTypes; }
         }
 
         // An enveloped signature has no inner XML elements
         public override void LoadInnerXml(XmlNodeList nodeList)
         {
             if (nodeList != null && nodeList.Count > 0)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
+            }
         }
 
         // An enveloped signature has no inner XML elements
@@ -58,21 +60,21 @@ namespace Org.BouncyCastle.Crypto.Xml
             return null;
         }
 
-        public override void LoadInput(object obj)
+        public override void LoadInput(Object obj)
         {
             if (obj is Stream)
             {
-                LoadStreamInput((Stream)obj);
+                this.LoadStreamInput((Stream)obj);
                 return;
             }
             if (obj is XmlNodeList)
             {
-                LoadXmlNodeListInput((XmlNodeList)obj);
+                this.LoadXmlNodeListInput((XmlNodeList)obj);
                 return;
             }
             if (obj is XmlDocument)
             {
-                LoadXmlDocumentInput((XmlDocument)obj);
+                this.LoadXmlDocumentInput((XmlDocument)obj);
                 return;
             }
         }
@@ -81,56 +83,79 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             XmlDocument doc = new XmlDocument();
             doc.PreserveWhitespace = true;
-            XmlResolver resolver = (ResolverSet ? _xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), BaseURI));
-            XmlReader xmlReader = Utils.PreProcessStreamInput(stream, resolver, BaseURI);
+            XmlResolver resolver = (this.ResolverSet ? this._xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), this.BaseURI));
+            XmlReader xmlReader = Utils.PreProcessStreamInput(stream, resolver, this.BaseURI);
             doc.Load(xmlReader);
-            _containingDocument = doc;
-            if (_containingDocument == null)
+            this._containingDocument = doc;
+            if (this._containingDocument == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_EnvelopedSignatureRequiresContext);
-            _nsm = new XmlNamespaceManager(_containingDocument.NameTable);
-            _nsm.AddNamespace("dsig", SignedXml.XmlDsigNamespaceUrl);
+            }
+
+            this._nsm = new XmlNamespaceManager(this._containingDocument.NameTable);
+            this._nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
         }
 
         private void LoadXmlNodeListInput(XmlNodeList nodeList)
         {
             // Empty node list is not acceptable
             if (nodeList == null)
+            {
                 throw new ArgumentNullException(nameof(nodeList));
-            _containingDocument = Utils.GetOwnerDocument(nodeList);
-            if (_containingDocument == null)
-                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_EnvelopedSignatureRequiresContext);
+            }
 
-            _nsm = new XmlNamespaceManager(_containingDocument.NameTable);
-            _nsm.AddNamespace("dsig", SignedXml.XmlDsigNamespaceUrl);
-            _inputNodeList = nodeList;
+            this._containingDocument = Utils.GetOwnerDocument(nodeList);
+            if (this._containingDocument == null)
+            {
+                throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_EnvelopedSignatureRequiresContext);
+            }
+
+            this._nsm = new XmlNamespaceManager(this._containingDocument.NameTable);
+            this._nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            this._inputNodeList = nodeList;
         }
 
         private void LoadXmlDocumentInput(XmlDocument doc)
         {
             if (doc == null)
+            {
                 throw new ArgumentNullException(nameof(doc));
-            _containingDocument = doc;
-            _nsm = new XmlNamespaceManager(_containingDocument.NameTable);
-            _nsm.AddNamespace("dsig", SignedXml.XmlDsigNamespaceUrl);
+            }
+
+            this._containingDocument = doc;
+            this._nsm = new XmlNamespaceManager(this._containingDocument.NameTable);
+            this._nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
         }
 
-        public override object GetOutput()
+        public override Object GetOutput()
         {
-            if (_containingDocument == null)
+            if (this._containingDocument == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_EnvelopedSignatureRequiresContext);
+            }
 
             // If we have received an XmlNodeList as input
-            if (_inputNodeList != null)
+            if (this._inputNodeList != null)
             {
                 // If the position has not been set, then we don't want to remove any signature tags
-                if (_signaturePosition == 0) return _inputNodeList;
-                XmlNodeList signatureList = _containingDocument.SelectNodes("//dsig:Signature", _nsm);
-                if (signatureList == null) return _inputNodeList;
+                if (this._signaturePosition == 0)
+                {
+                    return this._inputNodeList;
+                }
+
+                XmlNodeList signatureList = this._containingDocument.SelectNodes("//" + SignedXml.XmlDsigNamespacePrefix + ":Signature", this._nsm);
+                if (signatureList == null)
+                {
+                    return this._inputNodeList;
+                }
 
                 CanonicalXmlNodeList resultNodeList = new CanonicalXmlNodeList();
-                foreach (XmlNode node in _inputNodeList)
+                foreach (XmlNode node in this._inputNodeList)
                 {
-                    if (node == null) continue;
+                    if (node == null)
+                    {
+                        continue;
+                    }
                     // keep namespaces
                     if (Utils.IsXmlNamespaceNode(node) || Utils.IsNamespaceNode(node))
                     {
@@ -142,14 +167,17 @@ namespace Org.BouncyCastle.Crypto.Xml
                         try
                         {
                             // Find the nearest signature ancestor tag
-                            XmlNode result = node.SelectSingleNode("ancestor-or-self::dsig:Signature[1]", _nsm);
-                            int position = 0;
+                            XmlNode result = node.SelectSingleNode("ancestor-or-self::" + SignedXml.XmlDsigNamespacePrefix + ":Signature[1]", this._nsm);
+                            Int32 position = 0;
                             foreach (XmlNode node1 in signatureList)
                             {
                                 position++;
-                                if (node1 == result) break;
+                                if (node1 == result)
+                                {
+                                    break;
+                                }
                             }
-                            if (result == null || position != _signaturePosition)
+                            if (result == null || position != this._signaturePosition)
                             {
                                 resultNodeList.Add(node);
                             }
@@ -162,30 +190,41 @@ namespace Org.BouncyCastle.Crypto.Xml
             // Else we have received either a stream or a document as input
             else
             {
-                XmlNodeList signatureList = _containingDocument.SelectNodes("//dsig:Signature", _nsm);
-                if (signatureList == null) return _containingDocument;
-                if (signatureList.Count < _signaturePosition || _signaturePosition <= 0) return _containingDocument;
+                XmlNodeList signatureList = this._containingDocument.SelectNodes("//" + SignedXml.XmlDsigNamespacePrefix + ":Signature", this._nsm);
+                if (signatureList == null)
+                {
+                    return this._containingDocument;
+                }
+
+                if (signatureList.Count < this._signaturePosition || this._signaturePosition <= 0)
+                {
+                    return this._containingDocument;
+                }
 
                 // Remove the signature node with all its children nodes
-                signatureList[_signaturePosition - 1].ParentNode.RemoveChild(signatureList[_signaturePosition - 1]);
-                return _containingDocument;
+                signatureList[this._signaturePosition - 1].ParentNode.RemoveChild(signatureList[this._signaturePosition - 1]);
+                return this._containingDocument;
             }
         }
 
-        public override object GetOutput(Type type)
+        public override Object GetOutput(Type type)
         {
             if (type == typeof(XmlNodeList) || type.IsSubclassOf(typeof(XmlNodeList)))
             {
-                if (_inputNodeList == null)
+                if (this._inputNodeList == null)
                 {
-                    _inputNodeList = Utils.AllDescendantNodes(_containingDocument, true);
+                    this._inputNodeList = Utils.AllDescendantNodes(this._containingDocument, true);
                 }
-                return (XmlNodeList)GetOutput();
+                return (XmlNodeList)this.GetOutput();
             }
             else if (type == typeof(XmlDocument) || type.IsSubclassOf(typeof(XmlDocument)))
             {
-                if (_inputNodeList != null) throw new ArgumentException(SR.Cryptography_Xml_TransformIncorrectInputType, nameof(type));
-                return (XmlDocument)GetOutput();
+                if (this._inputNodeList != null)
+                {
+                    throw new ArgumentException(SR.Cryptography_Xml_TransformIncorrectInputType, nameof(type));
+                }
+
+                return (XmlDocument)this.GetOutput();
             }
             else
             {

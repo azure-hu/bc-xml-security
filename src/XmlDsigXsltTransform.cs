@@ -15,26 +15,26 @@ namespace Org.BouncyCastle.Crypto.Xml
         private readonly Type[] _inputTypes = { typeof(Stream), typeof(XmlDocument), typeof(XmlNodeList) };
         private readonly Type[] _outputTypes = { typeof(Stream) };
         private XmlNodeList _xslNodes;
-        private string _xslFragment;
+        private String _xslFragment;
         private Stream _inputStream;
-        private readonly bool _includeComments = false;
+        private readonly Boolean _includeComments = false;
 
         public XmlDsigXsltTransform()
         {
-            Algorithm = SignedXml.XmlDsigXsltTransformUrl;
+            this.Algorithm = SignedXml.XmlDsigXsltTransformUrl;
         }
 
-        public XmlDsigXsltTransform(bool includeComments)
+        public XmlDsigXsltTransform(Boolean includeComments)
         {
-            _includeComments = includeComments;
-            Algorithm = SignedXml.XmlDsigXsltTransformUrl;
+            this._includeComments = includeComments;
+            this.Algorithm = SignedXml.XmlDsigXsltTransformUrl;
         }
 
         public override Type[] InputTypes
         {
             get
             {
-                return _inputTypes;
+                return this._inputTypes;
             }
         }
 
@@ -42,25 +42,34 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             get
             {
-                return _outputTypes;
+                return this._outputTypes;
             }
         }
 
         public override void LoadInnerXml(XmlNodeList nodeList)
         {
             if (nodeList == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
+            }
             // check that the XSLT element is well formed
             XmlElement firstDataElement = null;
-            int count = 0;
+            Int32 count = 0;
             foreach (XmlNode node in nodeList)
             {
                 // ignore whitespace, but make sure only one child element is present
-                if (node is XmlWhitespace) continue;
+                if (node is XmlWhitespace)
+                {
+                    continue;
+                }
+
                 if (node is XmlElement)
                 {
                     if (count != 0)
+                    {
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
+                    }
+
                     firstDataElement = node as XmlElement;
                     count++;
                     continue;
@@ -69,46 +78,60 @@ namespace Org.BouncyCastle.Crypto.Xml
                 count++;
             }
             if (count != 1 || firstDataElement == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UnknownTransform);
-            _xslNodes = nodeList;
-            _xslFragment = firstDataElement.OuterXml.Trim(null);
+            }
+
+            this._xslNodes = nodeList;
+            this._xslFragment = firstDataElement.OuterXml.Trim(null);
         }
 
         protected override XmlNodeList GetInnerXml()
         {
-            return _xslNodes;
+            return this._xslNodes;
         }
 
-        public override void LoadInput(object obj)
+        public override void LoadInput(Object obj)
         {
-            if (_inputStream != null)
-                _inputStream.Close();
-            _inputStream = new MemoryStream();
+            if (this._inputStream != null)
+            {
+                this._inputStream.Close();
+            }
+
+            this._inputStream = new MemoryStream();
             if (obj is Stream)
             {
-                _inputStream = (Stream)obj;
+                this._inputStream = (Stream)obj;
             }
             else if (obj is XmlNodeList)
             {
-                CanonicalXml xmlDoc = new CanonicalXml((XmlNodeList)obj, null, _includeComments);
-                byte[] buffer = xmlDoc.GetBytes();
-                if (buffer == null) return;
-                _inputStream.Write(buffer, 0, buffer.Length);
-                _inputStream.Flush();
-                _inputStream.Position = 0;
+                CanonicalXml xmlDoc = new CanonicalXml((XmlNodeList)obj, null, this._includeComments);
+                Byte[] buffer = xmlDoc.GetBytes();
+                if (buffer == null)
+                {
+                    return;
+                }
+
+                this._inputStream.Write(buffer, 0, buffer.Length);
+                this._inputStream.Flush();
+                this._inputStream.Position = 0;
             }
             else if (obj is XmlDocument)
             {
-                CanonicalXml xmlDoc = new CanonicalXml((XmlDocument)obj, null, _includeComments);
-                byte[] buffer = xmlDoc.GetBytes();
-                if (buffer == null) return;
-                _inputStream.Write(buffer, 0, buffer.Length);
-                _inputStream.Flush();
-                _inputStream.Position = 0;
+                CanonicalXml xmlDoc = new CanonicalXml((XmlDocument)obj, null, this._includeComments);
+                Byte[] buffer = xmlDoc.GetBytes();
+                if (buffer == null)
+                {
+                    return;
+                }
+
+                this._inputStream.Write(buffer, 0, buffer.Length);
+                this._inputStream.Flush();
+                this._inputStream.Position = 0;
             }
         }
 
-        public override object GetOutput()
+        public override Object GetOutput()
         {
             //  XSL transforms expose many powerful features by default:
             //  1- we need to pass a null evidence to prevent script execution.
@@ -121,13 +144,13 @@ namespace Org.BouncyCastle.Crypto.Xml
             settings.XmlResolver = null;
             settings.MaxCharactersFromEntities = Utils.MaxCharactersFromEntities;
             settings.MaxCharactersInDocument = Utils.MaxCharactersInDocument;
-            using (StringReader sr = new StringReader(_xslFragment))
+            using (StringReader sr = new StringReader(this._xslFragment))
             {
-                XmlReader readerXsl = XmlReader.Create(sr, settings, (string)null);
+                XmlReader readerXsl = XmlReader.Create(sr, settings, (String)null);
                 xslt.Load(readerXsl, XsltSettings.Default, null);
 
                 // Now load the input stream, XmlDocument can be used but is less efficient
-                XmlReader reader = XmlReader.Create(_inputStream, settings, BaseURI);
+                XmlReader reader = XmlReader.Create(this._inputStream, settings, this.BaseURI);
                 XPathDocument inputData = new XPathDocument(reader, XmlSpace.Preserve);
 
                 // Create an XmlTextWriter
@@ -141,11 +164,14 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
         }
 
-        public override object GetOutput(Type type)
+        public override Object GetOutput(Type type)
         {
             if (type != typeof(Stream) && !type.IsSubclassOf(typeof(Stream)))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_TransformIncorrectInputType, nameof(type));
-            return (Stream)GetOutput();
+            }
+
+            return (Stream)this.GetOutput();
         }
     }
 }

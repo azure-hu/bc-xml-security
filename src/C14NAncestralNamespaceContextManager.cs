@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
+using System;
 using System.Collections;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -13,43 +14,55 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         internal C14NAncestralNamespaceContextManager() { }
 
-        private void GetNamespaceToRender(string nsPrefix, SortedList attrListToRender, SortedList nsListToRender, Hashtable nsLocallyDeclared)
+        private void GetNamespaceToRender(String nsPrefix, SortedList attrListToRender, SortedList nsListToRender, Hashtable nsLocallyDeclared)
         {
-            foreach (object a in nsListToRender.GetKeyList())
+            foreach (Object a in nsListToRender.GetKeyList())
             {
                 if (Utils.HasNamespacePrefix((XmlAttribute)a, nsPrefix))
+                {
                     return;
+                }
             }
-            foreach (object a in attrListToRender.GetKeyList())
+            foreach (Object a in attrListToRender.GetKeyList())
             {
                 if (((XmlAttribute)a).LocalName.Equals(nsPrefix))
+                {
                     return;
+                }
             }
 
-            int rDepth;
+            Int32 rDepth;
             XmlAttribute local = (XmlAttribute)nsLocallyDeclared[nsPrefix];
-            XmlAttribute rAncestral = GetNearestRenderedNamespaceWithMatchingPrefix(nsPrefix, out rDepth);
+            XmlAttribute rAncestral = this.GetNearestRenderedNamespaceWithMatchingPrefix(nsPrefix, out rDepth);
             if (local != null)
             {
                 if (Utils.IsNonRedundantNamespaceDecl(local, rAncestral))
                 {
                     nsLocallyDeclared.Remove(nsPrefix);
                     if (Utils.IsXmlNamespaceNode(local))
+                    {
                         attrListToRender.Add(local, null);
+                    }
                     else
+                    {
                         nsListToRender.Add(local, null);
+                    }
                 }
             }
             else
             {
-                int uDepth;
-                XmlAttribute uAncestral = GetNearestUnrenderedNamespaceWithMatchingPrefix(nsPrefix, out uDepth);
+                Int32 uDepth;
+                XmlAttribute uAncestral = this.GetNearestUnrenderedNamespaceWithMatchingPrefix(nsPrefix, out uDepth);
                 if (uAncestral != null && uDepth > rDepth && Utils.IsNonRedundantNamespaceDecl(uAncestral, rAncestral))
                 {
                     if (Utils.IsXmlNamespaceNode(uAncestral))
+                    {
                         attrListToRender.Add(uAncestral, null);
+                    }
                     else
+                    {
                         nsListToRender.Add(uAncestral, null);
+                    }
                 }
             }
         }
@@ -57,30 +70,36 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal override void GetNamespacesToRender(XmlElement element, SortedList attrListToRender, SortedList nsListToRender, Hashtable nsLocallyDeclared)
         {
             XmlAttribute attrib = null;
-            object[] attrs = new object[nsLocallyDeclared.Count];
+            Object[] attrs = new Object[nsLocallyDeclared.Count];
             nsLocallyDeclared.Values.CopyTo(attrs, 0);
-            foreach (object a in attrs)
+            foreach (Object a in attrs)
             {
                 attrib = (XmlAttribute)a;
-                int rDepth;
-                XmlAttribute rAncestral = GetNearestRenderedNamespaceWithMatchingPrefix(Utils.GetNamespacePrefix(attrib), out rDepth);
+                Int32 rDepth;
+                XmlAttribute rAncestral = this.GetNearestRenderedNamespaceWithMatchingPrefix(Utils.GetNamespacePrefix(attrib), out rDepth);
                 if (Utils.IsNonRedundantNamespaceDecl(attrib, rAncestral))
                 {
                     nsLocallyDeclared.Remove(Utils.GetNamespacePrefix(attrib));
                     if (Utils.IsXmlNamespaceNode(attrib))
+                    {
                         attrListToRender.Add(attrib, null);
+                    }
                     else
+                    {
                         nsListToRender.Add(attrib, null);
+                    }
                 }
             }
 
-            for (int i = _ancestorStack.Count - 1; i >= 0; i--)
+            for (Int32 i = this._ancestorStack.Count - 1; i >= 0; i--)
             {
-                foreach (object a in GetScopeAt(i).GetUnrendered().Values)
+                foreach (Object a in this.GetScopeAt(i).GetUnrendered().Values)
                 {
                     attrib = (XmlAttribute)a;
                     if (attrib != null)
-                        GetNamespaceToRender(Utils.GetNamespacePrefix(attrib), attrListToRender, nsListToRender, nsLocallyDeclared);
+                    {
+                        this.GetNamespaceToRender(Utils.GetNamespacePrefix(attrib), attrListToRender, nsListToRender, nsLocallyDeclared);
+                    }
                 }
             }
         }

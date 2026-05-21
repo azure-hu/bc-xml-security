@@ -2,10 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System.Xml;
+using System;
 using System.IO;
 using System.Text;
-using System;
+using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
@@ -19,50 +19,60 @@ namespace Org.BouncyCastle.Crypto.Xml
         // private static string defaultXPathWithComments = "(//. | //@* | //namespace::*)";
         // private static string defaultXPathWithComments = "(//. | //@* | //namespace::*)";
 
-        internal CanonicalXml(Stream inputStream, bool includeComments, XmlResolver resolver, string strBaseUri)
+        internal CanonicalXml(Stream inputStream, Boolean includeComments, XmlResolver resolver, String strBaseUri)
         {
             if (inputStream == null)
+            {
                 throw new ArgumentNullException(nameof(inputStream));
+            }
 
-            _c14nDoc = new CanonicalXmlDocument(true, includeComments);
-            _c14nDoc.XmlResolver = resolver;
-            _c14nDoc.Load(Utils.PreProcessStreamInput(inputStream, resolver, strBaseUri));
-            _ancMgr = new C14NAncestralNamespaceContextManager();
+            this._c14nDoc = new CanonicalXmlDocument(true, includeComments);
+            this._c14nDoc.XmlResolver = resolver;
+            this._c14nDoc.Load(Utils.PreProcessStreamInput(inputStream, resolver, strBaseUri));
+            this._ancMgr = new C14NAncestralNamespaceContextManager();
         }
 
         internal CanonicalXml(XmlDocument document, XmlResolver resolver) : this(document, resolver, false) { }
-        internal CanonicalXml(XmlDocument document, XmlResolver resolver, bool includeComments)
+        internal CanonicalXml(XmlDocument document, XmlResolver resolver, Boolean includeComments)
         {
             if (document == null)
+            {
                 throw new ArgumentNullException(nameof(document));
+            }
 
-            _c14nDoc = new CanonicalXmlDocument(true, includeComments);
-            _c14nDoc.XmlResolver = resolver;
-            _c14nDoc.Load(new XmlNodeReader(document));
-            _ancMgr = new C14NAncestralNamespaceContextManager();
+            this._c14nDoc = new CanonicalXmlDocument(true, includeComments);
+            this._c14nDoc.XmlResolver = resolver;
+            this._c14nDoc.Load(new XmlNodeReader(document));
+            this._ancMgr = new C14NAncestralNamespaceContextManager();
         }
 
-        internal CanonicalXml(XmlNodeList nodeList, XmlResolver resolver, bool includeComments)
+        internal CanonicalXml(XmlNodeList nodeList, XmlResolver resolver, Boolean includeComments)
         {
             if (nodeList == null)
+            {
                 throw new ArgumentNullException(nameof(nodeList));
+            }
 
             XmlDocument doc = Utils.GetOwnerDocument(nodeList);
             if (doc == null)
+            {
                 throw new ArgumentException(nameof(nodeList));
+            }
 
-            _c14nDoc = new CanonicalXmlDocument(false, includeComments);
-            _c14nDoc.XmlResolver = resolver;
-            _c14nDoc.Load(new XmlNodeReader(doc));
-            _ancMgr = new C14NAncestralNamespaceContextManager();
+            this._c14nDoc = new CanonicalXmlDocument(false, includeComments);
+            this._c14nDoc.XmlResolver = resolver;
+            this._c14nDoc.Load(new XmlNodeReader(doc));
+            this._ancMgr = new C14NAncestralNamespaceContextManager();
 
-            MarkInclusionStateForNodes(nodeList, doc, _c14nDoc);
+            MarkInclusionStateForNodes(nodeList, doc, this._c14nDoc);
         }
 
         private static void MarkNodeAsIncluded(XmlNode node)
         {
             if (node is ICanonicalizableNode)
+            {
                 ((ICanonicalizableNode)node).IsInNodeSet = true;
+            }
         }
 
         private static void MarkInclusionStateForNodes(XmlNodeList nodeList, XmlDocument inputRoot, XmlDocument root)
@@ -71,7 +81,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             CanonicalXmlNodeList elementListCanonical = new CanonicalXmlNodeList();
             elementList.Add(inputRoot);
             elementListCanonical.Add(root);
-            int index = 0;
+            Int32 index = 0;
 
             do
             {
@@ -79,7 +89,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 XmlNode currentNodeCanonical = (XmlNode)elementListCanonical[index];
                 XmlNodeList childNodes = currentNode.ChildNodes;
                 XmlNodeList childNodesCanonical = currentNodeCanonical.ChildNodes;
-                for (int i = 0; i < childNodes.Count; i++)
+                for (Int32 i = 0; i < childNodes.Count; i++)
                 {
                     elementList.Add(childNodes[i]);
                     elementListCanonical.Add(childNodesCanonical[i]);
@@ -92,7 +102,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                     XmlAttributeCollection attribNodes = childNodes[i].Attributes;
                     if (attribNodes != null)
                     {
-                        for (int j = 0; j < attribNodes.Count; j++)
+                        for (Int32 j = 0; j < attribNodes.Count; j++)
                         {
                             if (Utils.NodeInList(attribNodes[j], nodeList))
                             {
@@ -105,17 +115,17 @@ namespace Org.BouncyCastle.Crypto.Xml
             } while (index < elementList.Count);
         }
 
-        internal byte[] GetBytes()
+        internal Byte[] GetBytes()
         {
             StringBuilder sb = new StringBuilder();
-            _c14nDoc.Write(sb, DocPosition.BeforeRootElement, _ancMgr);
+            this._c14nDoc.Write(sb, DocPosition.BeforeRootElement, this._ancMgr);
             UTF8Encoding utf8 = new UTF8Encoding(false);
             return utf8.GetBytes(sb.ToString());
         }
 
         internal void GetDigestedBytes(IHash signer)
         {
-            _c14nDoc.WriteHash(signer, DocPosition.BeforeRootElement, _ancMgr);
+            this._c14nDoc.WriteHash(signer, DocPosition.BeforeRootElement, this._ancMgr);
         }
     }
 }

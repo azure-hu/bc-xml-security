@@ -2,52 +2,54 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Collections;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Xml;
 using Org.BouncyCastle.Crypto.Xml;
+using System;
 
 namespace Org.BouncyCastle.X509
 {
     public struct X509IssuerSerial
     {
-        private string _issuerName;
-        private string _serialNumber;
+        private String _issuerName;
+        private String _serialNumber;
 
-        internal X509IssuerSerial(string issuerName, string serialNumber)
+        internal X509IssuerSerial(String issuerName, String serialNumber)
         {
             if (issuerName == null || issuerName.Length == 0)
+            {
                 throw new ArgumentException(SR.Arg_EmptyOrNullString, "issuerName");
+            }
+
             if (serialNumber == null || serialNumber.Length == 0)
+            {
                 throw new ArgumentException(SR.Arg_EmptyOrNullString, "serialNumber");
-            _issuerName = issuerName;
-            _serialNumber = serialNumber;
+            }
+
+            this._issuerName = issuerName;
+            this._serialNumber = serialNumber;
         }
 
 
-        public string IssuerName
+        public String IssuerName
         {
             get
             {
-                return _issuerName;
+                return this._issuerName;
             }
             set
             {
-                _issuerName = value;
+                this._issuerName = value;
             }
         }
 
-        public string SerialNumber
+        public String SerialNumber
         {
             get
             {
-                return _serialNumber;
+                return this._serialNumber;
             }
             set
             {
-                _serialNumber = value;
+                this._serialNumber = value;
             }
         }
     }

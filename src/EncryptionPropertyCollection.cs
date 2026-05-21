@@ -13,116 +13,126 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public EncryptionPropertyCollection()
         {
-            _props = new ArrayList();
+            this._props = new ArrayList();
         }
 
         public IEnumerator GetEnumerator()
         {
-            return _props.GetEnumerator();
+            return this._props.GetEnumerator();
         }
 
-        public int Count
+        public Int32 Count
         {
-            get { return _props.Count; }
+            get { return this._props.Count; }
         }
 
         /// <internalonly/>
-        int IList.Add(object value)
+        Int32 IList.Add(Object value)
         {
             if (!(value is EncryptionProperty))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+            }
 
-            return _props.Add(value);
+            return this._props.Add(value);
         }
 
-        public int Add(EncryptionProperty value)
+        public Int32 Add(EncryptionProperty value)
         {
-            return _props.Add(value);
+            return this._props.Add(value);
         }
 
         public void Clear()
         {
-            _props.Clear();
+            this._props.Clear();
         }
 
         /// <internalonly/>
-        bool IList.Contains(object value)
+        Boolean IList.Contains(Object value)
         {
             if (!(value is EncryptionProperty))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+            }
 
-            return _props.Contains(value);
+            return this._props.Contains(value);
         }
 
-        public bool Contains(EncryptionProperty value)
+        public Boolean Contains(EncryptionProperty value)
         {
-            return _props.Contains(value);
+            return this._props.Contains(value);
         }
 
         /// <internalonly/>
-        int IList.IndexOf(object value)
+        Int32 IList.IndexOf(Object value)
         {
             if (!(value is EncryptionProperty))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+            }
 
-            return _props.IndexOf(value);
+            return this._props.IndexOf(value);
         }
 
-        public int IndexOf(EncryptionProperty value)
+        public Int32 IndexOf(EncryptionProperty value)
         {
-            return _props.IndexOf(value);
+            return this._props.IndexOf(value);
         }
 
         /// <internalonly/>
-        void IList.Insert(int index, object value)
+        void IList.Insert(Int32 index, Object value)
         {
             if (!(value is EncryptionProperty))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+            }
 
-            _props.Insert(index, value);
+            this._props.Insert(index, value);
         }
 
-        public void Insert(int index, EncryptionProperty value)
+        public void Insert(Int32 index, EncryptionProperty value)
         {
-            _props.Insert(index, value);
+            this._props.Insert(index, value);
         }
 
         /// <internalonly/>
-        void IList.Remove(object value)
+        void IList.Remove(Object value)
         {
             if (!(value is EncryptionProperty))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+            }
 
-            _props.Remove(value);
+            this._props.Remove(value);
         }
 
         public void Remove(EncryptionProperty value)
         {
-            _props.Remove(value);
+            this._props.Remove(value);
         }
 
-        public void RemoveAt(int index)
+        public void RemoveAt(Int32 index)
         {
-            _props.RemoveAt(index);
+            this._props.RemoveAt(index);
         }
 
-        public bool IsFixedSize
+        public Boolean IsFixedSize
         {
-            get { return _props.IsFixedSize; }
+            get { return this._props.IsFixedSize; }
         }
 
-        public bool IsReadOnly
+        public Boolean IsReadOnly
         {
-            get { return _props.IsReadOnly; }
+            get { return this._props.IsReadOnly; }
         }
 
-        public EncryptionProperty Item(int index)
+        public EncryptionProperty Item(Int32 index)
         {
-            return (EncryptionProperty)_props[index];
+            return (EncryptionProperty)this._props[index];
         }
 
         [System.Runtime.CompilerServices.IndexerName("ItemOf")]
-        public EncryptionProperty this[int index]
+        public EncryptionProperty this[Int32 index]
         {
             get
             {
@@ -135,36 +145,38 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         /// <internalonly/>
-        object IList.this[int index]
+        Object IList.this[Int32 index]
         {
-            get { return _props[index]; }
+            get { return this._props[index]; }
             set
             {
                 if (!(value is EncryptionProperty))
+                {
                     throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(value));
+                }
 
-                _props[index] = value;
+                this._props[index] = value;
             }
         }
 
-        public void CopyTo(Array array, int index)
+        public void CopyTo(Array array, Int32 index)
         {
-            _props.CopyTo(array, index);
+            this._props.CopyTo(array, index);
         }
 
-        public void CopyTo(EncryptionProperty[] array, int index)
+        public void CopyTo(EncryptionProperty[] array, Int32 index)
         {
-            _props.CopyTo(array, index);
+            this._props.CopyTo(array, index);
         }
 
-        public object SyncRoot
+        public Object SyncRoot
         {
-            get { return _props.SyncRoot; }
+            get { return this._props.SyncRoot; }
         }
 
-        public bool IsSynchronized
+        public Boolean IsSynchronized
         {
-            get { return _props.IsSynchronized; }
+            get { return this._props.IsSynchronized; }
         }
     }
 }

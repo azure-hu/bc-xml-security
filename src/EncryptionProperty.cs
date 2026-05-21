@@ -9,8 +9,8 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public sealed class EncryptionProperty
     {
-        private string _target;
-        private string _id;
+        private String _target;
+        private String _id;
         private XmlElement _elemProp;
         private XmlElement _cachedXml = null;
 
@@ -20,73 +20,91 @@ namespace Org.BouncyCastle.Crypto.Xml
         public EncryptionProperty(XmlElement elementProperty)
         {
             if (elementProperty == null)
+            {
                 throw new ArgumentNullException(nameof(elementProperty));
+            }
+
             if (elementProperty.LocalName != "EncryptionProperty" || elementProperty.NamespaceURI != EncryptedXml.XmlEncNamespaceUrl)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidEncryptionProperty);
+            }
 
-            _elemProp = elementProperty;
-            _cachedXml = null;
+            this._elemProp = elementProperty;
+            this._cachedXml = null;
         }
 
-        public string Id
+        public String Id
         {
-            get { return _id; }
+            get { return this._id; }
         }
 
-        public string Target
+        public String Target
         {
-            get { return _target; }
+            get { return this._target; }
         }
 
         public XmlElement PropertyElement
         {
-            get { return _elemProp; }
+            get { return this._elemProp; }
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
-                if (value.LocalName != "EncryptionProperty" || value.NamespaceURI != EncryptedXml.XmlEncNamespaceUrl)
-                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidEncryptionProperty);
+                }
 
-                _elemProp = value;
-                _cachedXml = null;
+                if (value.LocalName != "EncryptionProperty" || value.NamespaceURI != EncryptedXml.XmlEncNamespaceUrl)
+                {
+                    throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidEncryptionProperty);
+                }
+
+                this._elemProp = value;
+                this._cachedXml = null;
             }
         }
 
-        private bool CacheValid
+        private Boolean CacheValid
         {
             get
             {
-                return (_cachedXml != null);
+                return (this._cachedXml != null);
             }
         }
 
         public XmlElement GetXml()
         {
-            if (CacheValid) return _cachedXml;
+            if (this.CacheValid)
+            {
+                return this._cachedXml;
+            }
 
             XmlDocument document = new XmlDocument();
             document.PreserveWhitespace = true;
-            return GetXml(document);
+            return this.GetXml(document);
         }
 
         internal XmlElement GetXml(XmlDocument document)
         {
-            return document.ImportNode(_elemProp, true) as XmlElement;
+            return document.ImportNode(this._elemProp, true) as XmlElement;
         }
 
         public void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
+
             if (value.LocalName != "EncryptionProperty" || value.NamespaceURI != EncryptedXml.XmlEncNamespaceUrl)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidEncryptionProperty);
+            }
 
             // cache the Xml
-            _cachedXml = value;
-            _id = Utils.GetAttribute(value, "Id", EncryptedXml.XmlEncNamespaceUrl);
-            _target = Utils.GetAttribute(value, "Target", EncryptedXml.XmlEncNamespaceUrl);
-            _elemProp = value;
+            this._cachedXml = value;
+            this._id = Utils.GetAttribute(value, "Id", EncryptedXml.XmlEncNamespaceUrl);
+            this._target = Utils.GetAttribute(value, "Target", EncryptedXml.XmlEncNamespaceUrl);
+            this._elemProp = value;
         }
     }
 }

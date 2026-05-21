@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.X509;
@@ -22,43 +20,47 @@ namespace Org.BouncyCastle.Crypto.Xml
         // public constant Url identifiers used within the XML Encryption classes
         //
 
-        public const string XmlEncNamespaceUrl = "http://www.w3.org/2001/04/xmlenc#";
-        public const string XmlEncElementUrl = "http://www.w3.org/2001/04/xmlenc#Element";
-        public const string XmlEncElementContentUrl = "http://www.w3.org/2001/04/xmlenc#Content";
-        public const string XmlEncEncryptedKeyUrl = "http://www.w3.org/2001/04/xmlenc#EncryptedKey";
+        public const String XmlEncNamespaceUrl = "http://www.w3.org/2001/04/xmlenc#";
+        public const String XmlEncNamespacePrefix = "xenc";
+        public const String XmlEnc11NamespaceUrl =  "http://www.w3.org/2009/xmlenc11#";
+        public const String XmlEnc11NamespacePrefix = "xenc11";
+        public const String XmlEncElementUrl = "http://www.w3.org/2001/04/xmlenc#Element";
+        public const String XmlEncElementContentUrl = "http://www.w3.org/2001/04/xmlenc#Content";
+        public const String XmlEncEncryptedKeyUrl = "http://www.w3.org/2001/04/xmlenc#EncryptedKey";
 
         //
         // Symmetric Block Encryption
         //
 
-        public const string XmlEncDESUrl = "http://www.w3.org/2001/04/xmlenc#des-cbc";
-        public const string XmlEncTripleDESUrl = "http://www.w3.org/2001/04/xmlenc#tripledes-cbc";
-        public const string XmlEncAES128Url = "http://www.w3.org/2001/04/xmlenc#aes128-cbc";
-        public const string XmlEncAES256Url = "http://www.w3.org/2001/04/xmlenc#aes256-cbc";
-        public const string XmlEncAES192Url = "http://www.w3.org/2001/04/xmlenc#aes192-cbc";
+        public const String XmlEncDESUrl = "http://www.w3.org/2001/04/xmlenc#des-cbc";
+        public const String XmlEncTripleDESUrl = "http://www.w3.org/2001/04/xmlenc#tripledes-cbc";
+        public const String XmlEncAES128Url = "http://www.w3.org/2001/04/xmlenc#aes128-cbc";
+        public const String XmlEncAES256Url = "http://www.w3.org/2001/04/xmlenc#aes256-cbc";
+        public const String XmlEncAES192Url = "http://www.w3.org/2001/04/xmlenc#aes192-cbc";
 
         //
         // Key Transport
         //
 
-        public const string XmlEncRSA15Url = "http://www.w3.org/2001/04/xmlenc#rsa-1_5";
-        public const string XmlEncRSAOAEPUrl = "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p";
+        public const String XmlEncRSA15Url = "http://www.w3.org/2001/04/xmlenc#rsa-1_5";
+        public const String XmlEncRSAOAEPUrl = "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p";
 
         //
         // Symmetric Key Wrap
         //
 
-        public const string XmlEncTripleDESKeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-tripledes";
-        public const string XmlEncAES128KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
-        public const string XmlEncAES256KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes256";
-        public const string XmlEncAES192KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes192";
+        public const String XmlEncTripleDESKeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-tripledes";
+        public const String XmlEncAES128KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
+        public const String XmlEncAES256KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes256";
+        public const String XmlEncAES192KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes192";
 
         //
         // Message Digest
         //
 
-        public const string XmlEncSHA256Url = "http://www.w3.org/2001/04/xmlenc#sha256";
-        public const string XmlEncSHA512Url = "http://www.w3.org/2001/04/xmlenc#sha512";
+        public const String XmlEncRIPEMD1606Url = "http://www.w3.org/2001/04/xmlenc#ripemd160";
+        public const String XmlEncSHA256Url = "http://www.w3.org/2001/04/xmlenc#sha256";
+        public const String XmlEncSHA512Url = "http://www.w3.org/2001/04/xmlenc#sha512";
 
         //
         // private members
@@ -67,15 +69,15 @@ namespace Org.BouncyCastle.Crypto.Xml
         private readonly XmlDocument _document;
         private XmlResolver _xmlResolver;
         // hash table defining the key name mapping
-        private const int _capacity = 4; // 4 is a reasonable capacity for
-                                          // the key name mapping hash table
+        private const Int32 _capacity = 4; // 4 is a reasonable capacity for
+                                           // the key name mapping hash table
         private readonly Hashtable _keyNameMapping;
-        private string _padding;
-        private string _mode;
+        private String _padding;
+        private String _mode;
         private Encoding _encoding;
-        private string _recipient;
-        private int _xmlDsigSearchDepthCounter = 0;
-        private int _xmlDsigSearchDepth;
+        private String _recipient;
+        private Int32 _xmlDsigSearchDepthCounter = 0;
+        private Int32 _xmlDsigSearchDepth;
 
         //
         // public constructors
@@ -84,16 +86,16 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public EncryptedXml(XmlDocument document)
         {
-            _document = document;
-            _xmlResolver = null;
+            this._document = document;
+            this._xmlResolver = null;
             // set the default padding to ISO-10126
-            _padding = "ISO10126PADDING";
+            this._padding = "ISO10126PADDING";
             // set the default cipher mode to CBC
-            _mode = "CBC";
+            this._mode = "CBC";
             // By default the encoding is going to be UTF8
-            _encoding = Encoding.UTF8;
-            _keyNameMapping = new Hashtable(_capacity);
-            _xmlDsigSearchDepth = Utils.XmlDsigSearchDepth;
+            this._encoding = Encoding.UTF8;
+            this._keyNameMapping = new Hashtable(_capacity);
+            this._xmlDsigSearchDepth = Utils.XmlDsigSearchDepth;
         }
 
         /// <summary>
@@ -101,9 +103,9 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// if the counter is over the limit defined by admin or developer.
         /// </summary>
         /// <returns>returns true if the limit has reached otherwise false</returns>
-        private bool IsOverXmlDsigRecursionLimit()
+        private Boolean IsOverXmlDsigRecursionLimit()
         {
-            if (_xmlDsigSearchDepthCounter > XmlDSigSearchDepth)
+            if (this._xmlDsigSearchDepthCounter > this.XmlDSigSearchDepth)
             {
                 return true;
             }
@@ -113,70 +115,75 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// <summary>
         /// Gets / Sets the max limit for recursive search of encryption key in signed XML
         /// </summary>
-        public int XmlDSigSearchDepth
+        public Int32 XmlDSigSearchDepth
         {
             get
             {
-                return _xmlDsigSearchDepth;
+                return this._xmlDsigSearchDepth;
             }
             set
             {
-                _xmlDsigSearchDepth = value;
+                this._xmlDsigSearchDepth = value;
             }
         }
 
         // The resolver to use for external entities
         public XmlResolver Resolver
         {
-            get { return _xmlResolver; }
-            set { _xmlResolver = value; }
+            get { return this._xmlResolver; }
+            set { this._xmlResolver = value; }
         }
 
         // The padding to be used. XML Encryption uses ISO 10126
         // but it's nice to provide a way to extend this to include other forms of paddings
-        public string Padding
+        public String Padding
         {
-            get { return _padding; }
-            set { _padding = value; }
+            get { return this._padding; }
+            set { this._padding = value; }
         }
 
         // The cipher mode to be used. XML Encryption uses CBC padding
         // but it's nice to provide a way to extend this to include other cipher modes
-        public string Mode
+        public String Mode
         {
-            get { return _mode; }
-            set { _mode = value; }
+            get { return this._mode; }
+            set { this._mode = value; }
         }
 
         // The encoding of the XML document
         public Encoding Encoding
         {
-            get { return _encoding; }
-            set { _encoding = value; }
+            get { return this._encoding; }
+            set { this._encoding = value; }
         }
 
         // This is used to specify the EncryptedKey elements that should be considered
         // when an EncyptedData references an EncryptedKey using a CarriedKeyName and Recipient
-        public string Recipient
+        public String Recipient
         {
             get
             {
                 // an unspecified value for an XmlAttribute is string.Empty
-                if (_recipient == null)
-                    _recipient = string.Empty;
-                return _recipient;
+                if (this._recipient == null)
+                {
+                    this._recipient = String.Empty;
+                }
+
+                return this._recipient;
             }
-            set { _recipient = value; }
+            set { this._recipient = value; }
         }
 
         //
         // private methods
         //
 
-        private byte[] GetCipherValue(CipherData cipherData)
+        private Byte[] GetCipherValue(CipherData cipherData)
         {
             if (cipherData == null)
+            {
                 throw new ArgumentNullException(nameof(cipherData));
+            }
 
             Stream inputStream = null;
 
@@ -187,7 +194,10 @@ namespace Org.BouncyCastle.Crypto.Xml
             else if (cipherData.CipherReference != null)
             {
                 if (cipherData.CipherReference.CipherValue != null)
+                {
                     return cipherData.CipherReference.CipherValue;
+                }
+
                 Stream decInputStream = null;
                 if (cipherData.CipherReference.Uri == null)
                 {
@@ -197,45 +207,48 @@ namespace Org.BouncyCastle.Crypto.Xml
                 if (cipherData.CipherReference.Uri.Length == 0)
                 {
                     // self referenced Uri
-                    string baseUri = (_document == null ? null : _document.BaseURI);
+                    String baseUri = (this._document == null ? null : this._document.BaseURI);
                     TransformChain tc = cipherData.CipherReference.TransformChain;
                     if (tc == null)
                     {
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UriNotSupported);
                     }
-                    decInputStream = tc.TransformToOctetStream(_document, _xmlResolver, baseUri);
+                    decInputStream = tc.TransformToOctetStream(this._document, this._xmlResolver, baseUri);
                 }
                 else if (cipherData.CipherReference.Uri[0] == '#')
                 {
-                    string idref = Utils.ExtractIdFromLocalUri(cipherData.CipherReference.Uri);
+                    String idref = Utils.ExtractIdFromLocalUri(cipherData.CipherReference.Uri);
                     // Serialize
-                    XmlElement idElem = GetIdElement(_document, idref);
+                    XmlElement idElem = this.GetIdElement(this._document, idref);
                     if (idElem == null || idElem.OuterXml == null)
                     {
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UriNotSupported);
                     }
-                    inputStream = new MemoryStream(_encoding.GetBytes(idElem.OuterXml));
-                    string baseUri = (_document == null ? null : _document.BaseURI);
+                    inputStream = new MemoryStream(this._encoding.GetBytes(idElem.OuterXml));
+                    String baseUri = (this._document == null ? null : this._document.BaseURI);
                     TransformChain tc = cipherData.CipherReference.TransformChain;
                     if (tc == null)
                     {
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UriNotSupported);
                     }
-                    decInputStream = tc.TransformToOctetStream(inputStream, _xmlResolver, baseUri);
+                    decInputStream = tc.TransformToOctetStream(inputStream, this._xmlResolver, baseUri);
                 }
                 else
                 {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UriNotResolved, cipherData.CipherReference.Uri);
                 }
                 // read the output stream into a memory stream
-                byte[] cipherValue = null;
+                Byte[] cipherValue = null;
                 using (MemoryStream ms = new MemoryStream())
                 {
                     Utils.Pump(decInputStream, ms);
                     cipherValue = ms.ToArray();
                     // Close the stream and return
                     if (inputStream != null)
+                    {
                         inputStream.Close();
+                    }
+
                     decInputStream.Close();
                 }
 
@@ -253,23 +266,28 @@ namespace Org.BouncyCastle.Crypto.Xml
         //
 
         // This describes how the application wants to associate id references to elements
-        public virtual XmlElement GetIdElement(XmlDocument document, string idValue)
+        public virtual XmlElement GetIdElement(XmlDocument document, String idValue)
         {
             return SignedXml.DefaultGetIdElement(document, idValue);
         }
 
         // default behaviour is to look for the IV in the CipherValue
-        public virtual byte[] GetDecryptionIV(EncryptedData encryptedData, string symmetricAlgorithmUri)
+        public virtual Byte[] GetDecryptionIV(EncryptedData encryptedData, String symmetricAlgorithmUri)
         {
             if (encryptedData == null)
+            {
                 throw new ArgumentNullException(nameof(encryptedData));
+            }
 
-            int initBytesSize = 0;
+            Int32 initBytesSize = 0;
             // If the Uri is not provided by the application, try to get it from the EncryptionMethod
             if (symmetricAlgorithmUri == null)
             {
                 if (encryptedData.EncryptionMethod == null)
+                {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingAlgorithm);
+                }
+
                 symmetricAlgorithmUri = encryptedData.EncryptionMethod.KeyAlgorithm;
             }
             switch (symmetricAlgorithmUri)
@@ -287,21 +305,26 @@ namespace Org.BouncyCastle.Crypto.Xml
                     // The Uri is not supported.
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_UriNotSupported);
             }
-            byte[] IV = new byte[initBytesSize];
-            byte[] cipherValue = GetCipherValue(encryptedData.CipherData);
+            Byte[] IV = new Byte[initBytesSize];
+            Byte[] cipherValue = this.GetCipherValue(encryptedData.CipherData);
             Buffer.BlockCopy(cipherValue, 0, IV, 0, IV.Length);
             return IV;
         }
 
         // default behaviour is to look for keys defined by an EncryptedKey clause
         // either directly or through a KeyInfoRetrievalMethod, and key names in the key mapping
-        public virtual ICipherParameters GetDecryptionKey(EncryptedData encryptedData, string symmetricAlgorithmUri)
+        public virtual ICipherParameters GetDecryptionKey(EncryptedData encryptedData, String symmetricAlgorithmUri)
         {
             if (encryptedData == null)
+            {
                 throw new ArgumentNullException(nameof(encryptedData));
+            }
 
             if (encryptedData.KeyInfo == null)
+            {
                 return null;
+            }
+
             IEnumerator keyInfoEnum = encryptedData.KeyInfo.GetEnumerator();
             KeyInfoRetrievalMethod kiRetrievalMethod;
             KeyInfoName kiName;
@@ -314,13 +337,15 @@ namespace Org.BouncyCastle.Crypto.Xml
                 if (kiName != null)
                 {
                     // Get the decryption key from the key mapping
-                    string keyName = kiName.Value;
-                    if (_keyNameMapping[keyName] as ICipherParameters != null)
-                        return (ICipherParameters)_keyNameMapping[keyName];
+                    String keyName = kiName.Value;
+                    if (this._keyNameMapping[keyName] as ICipherParameters != null)
+                    {
+                        return (ICipherParameters)this._keyNameMapping[keyName];
+                    }
                     // try to get it from a CarriedKeyName
-                    XmlNamespaceManager nsm = new XmlNamespaceManager(_document.NameTable);
-                    nsm.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
-                    XmlNodeList encryptedKeyList = _document.SelectNodes("//enc:EncryptedKey", nsm);
+                    XmlNamespaceManager nsm = new XmlNamespaceManager(this._document.NameTable);
+                    nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+                    XmlNodeList encryptedKeyList = this._document.SelectNodes("//" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptedKey", nsm);
                     if (encryptedKeyList != null)
                     {
                         foreach (XmlNode encryptedKeyNode in encryptedKeyList)
@@ -328,7 +353,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                             XmlElement encryptedKeyElement = encryptedKeyNode as XmlElement;
                             EncryptedKey ek1 = new EncryptedKey();
                             ek1.LoadXml(encryptedKeyElement);
-                            if (ek1.CarriedKeyName == keyName && ek1.Recipient == Recipient)
+                            if (ek1.CarriedKeyName == keyName && ek1.Recipient == this.Recipient)
                             {
                                 ek = ek1;
                                 break;
@@ -340,9 +365,9 @@ namespace Org.BouncyCastle.Crypto.Xml
                 kiRetrievalMethod = keyInfoEnum.Current as KeyInfoRetrievalMethod;
                 if (kiRetrievalMethod != null)
                 {
-                    string idref = Utils.ExtractIdFromLocalUri(kiRetrievalMethod.Uri);
+                    String idref = Utils.ExtractIdFromLocalUri(kiRetrievalMethod.Uri);
                     ek = new EncryptedKey();
-                    ek.LoadXml(GetIdElement(_document, idref));
+                    ek.LoadXml(this.GetIdElement(this._document, idref));
                     break;
                 }
                 kiEncKey = keyInfoEnum.Current as KeyInfoEncryptedKey;
@@ -361,12 +386,17 @@ namespace Org.BouncyCastle.Crypto.Xml
                 if (symmetricAlgorithmUri == null)
                 {
                     if (encryptedData.EncryptionMethod == null)
+                    {
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingAlgorithm);
+                    }
+
                     symmetricAlgorithmUri = encryptedData.EncryptionMethod.KeyAlgorithm;
                 }
-                byte[] key = DecryptEncryptedKey(ek);
+                Byte[] key = this.DecryptEncryptedKey(ek);
                 if (key == null)
+                {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingDecryptionKey);
+                }
 
                 IBufferedCipher symAlg = CryptoHelpers.CreateFromName<IBufferedCipher>(symmetricAlgorithmUri);
                 if (symAlg == null)
@@ -376,11 +406,17 @@ namespace Org.BouncyCastle.Crypto.Xml
 
                 KeyParameter keyParam;
                 if (symAlg.AlgorithmName.IndexOf("DESede", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
                     keyParam = new DesEdeParameters(key);
+                }
                 else if (symAlg.AlgorithmName.IndexOf("DES", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
                     keyParam = new DesParameters(key);
+                }
                 else
+                {
                     keyParam = new KeyParameter(key);
+                }
 
                 return keyParam;
             }
@@ -388,12 +424,17 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         // Try to decrypt the EncryptedKey given the key mapping
-        public virtual byte[] DecryptEncryptedKey(EncryptedKey encryptedKey, RsaKeyParameters privateKey = null)
+        public virtual Byte[] DecryptEncryptedKey(EncryptedKey encryptedKey, RsaKeyParameters privateKey = null)
         {
             if (encryptedKey == null)
+            {
                 throw new ArgumentNullException(nameof(encryptedKey));
+            }
+
             if (encryptedKey.KeyInfo == null)
+            {
                 return null;
+            }
 
             IEnumerator keyInfoEnum = encryptedKey.KeyInfo.GetEnumerator();
             KeyInfoName kiName;
@@ -401,7 +442,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             KeyInfoRetrievalMethod kiRetrievalMethod;
             KeyInfoEncryptedKey kiEncKey;
             EncryptedKey ek = null;
-            bool fOAEP = false;
+            Boolean fOAEP = false;
 
             while (keyInfoEnum.MoveNext())
             {
@@ -409,8 +450,8 @@ namespace Org.BouncyCastle.Crypto.Xml
                 if (kiName != null)
                 {
                     // Get the decryption key from the key mapping
-                    string keyName = kiName.Value;
-                    object kek = _keyNameMapping[keyName];
+                    String keyName = kiName.Value;
+                    Object kek = this._keyNameMapping[keyName];
                     if (kek != null)
                     {
                         if (encryptedKey.CipherData == null || encryptedKey.CipherData.CipherValue == null)
@@ -419,9 +460,13 @@ namespace Org.BouncyCastle.Crypto.Xml
                         }
                         // kek is either a SymmetricAlgorithm or an RSA key, otherwise, we wouldn't be able to insert it in the hash table
                         if (kek is KeyParameter kp)
+                        {
                             return EncryptedXml.DecryptKey(encryptedKey.CipherData.CipherValue, kp);
+                        }
                         else if (kek is ParametersWithIV piv)
+                        {
                             return EncryptedXml.DecryptKey(encryptedKey.CipherData.CipherValue, piv.Parameters as KeyParameter);
+                        }
 
                         // kek is an RSA key: get fOAEP from the algorithm, default to false
                         fOAEP = (encryptedKey.EncryptionMethod != null && encryptedKey.EncryptionMethod.KeyAlgorithm == EncryptedXml.XmlEncRSAOAEPUrl);
@@ -450,27 +495,27 @@ namespace Org.BouncyCastle.Crypto.Xml
                 kiRetrievalMethod = keyInfoEnum.Current as KeyInfoRetrievalMethod;
                 if (kiRetrievalMethod != null)
                 {
-                    string idref = Utils.ExtractIdFromLocalUri(kiRetrievalMethod.Uri);
+                    String idref = Utils.ExtractIdFromLocalUri(kiRetrievalMethod.Uri);
                     ek = new EncryptedKey();
-                    ek.LoadXml(GetIdElement(_document, idref));
+                    ek.LoadXml(this.GetIdElement(this._document, idref));
                     try
                     {
                         //Following checks if XML dsig processing is in loop and within the limit defined by machine
                         // admin or developer. Once the recursion depth crosses the defined limit it will throw exception.
-                        _xmlDsigSearchDepthCounter++;
-                        if (IsOverXmlDsigRecursionLimit())
+                        this._xmlDsigSearchDepthCounter++;
+                        if (this.IsOverXmlDsigRecursionLimit())
                         {
                             //Throw exception once recursion limit is hit.
                             throw new CryptoSignedXmlRecursionException();
                         }
                         else
                         {
-                            return DecryptEncryptedKey(ek, privateKey);
+                            return this.DecryptEncryptedKey(ek, privateKey);
                         }
                     }
                     finally
                     {
-                        _xmlDsigSearchDepthCounter--;
+                        this._xmlDsigSearchDepthCounter--;
                     }
                 }
                 kiEncKey = keyInfoEnum.Current as KeyInfoEncryptedKey;
@@ -478,7 +523,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 {
                     ek = kiEncKey.EncryptedKey;
                     // recursively process EncryptedKey elements
-                    byte[] encryptionKey = DecryptEncryptedKey(ek, privateKey);
+                    Byte[] encryptionKey = this.DecryptEncryptedKey(ek, privateKey);
                     if (encryptionKey != null)
                     {
                         // this is a symmetric algorithm for sure
@@ -508,22 +553,29 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         // defines a key name mapping. Default behaviour is to require the key object
         // to be an RSA key or a SymmetricAlgorithm
-        public void AddKeyNameMapping(string keyName, object keyObject)
+        public void AddKeyNameMapping(String keyName, Object keyObject)
         {
             if (keyName == null)
+            {
                 throw new ArgumentNullException(nameof(keyName));
+            }
+
             if (keyObject == null)
+            {
                 throw new ArgumentNullException(nameof(keyObject));
+            }
 
             if (!(keyObject is RsaKeyParameters) && !(keyObject is ICipherParameters))
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_NotSupportedCryptographicTransform);
+            }
 
-            _keyNameMapping.Add(keyName, keyObject);
+            this._keyNameMapping.Add(keyName, keyObject);
         }
 
         public void ClearKeyNameMappings()
         {
-            _keyNameMapping.Clear();
+            this._keyNameMapping.Clear();
         }
 
         // Encrypts the given element with the certificate specified. The certificate is added as
@@ -531,13 +583,20 @@ namespace Org.BouncyCastle.Crypto.Xml
         public EncryptedData Encrypt(XmlElement inputElement, X509Certificate certificate)
         {
             if (inputElement == null)
+            {
                 throw new ArgumentNullException(nameof(inputElement));
+            }
+
             if (certificate == null)
+            {
                 throw new ArgumentNullException(nameof(certificate));
+            }
 
             AsymmetricKeyParameter rsaPublicKey = certificate.GetPublicKey();
             if (rsaPublicKey == null || !(rsaPublicKey is RsaKeyParameters))
+            {
                 throw new NotSupportedException(SR.NotSupported_KeyAlgorithm);
+            }
 
             // Create the EncryptedData object, using an AES-256 session key by default.
             EncryptedData ed = new EncryptedData();
@@ -558,7 +617,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             // Encrypt the input element with the random session key that we've created above.
             KeyInfoEncryptedKey kek = new KeyInfoEncryptedKey(ek);
             ed.KeyInfo.AddClause(kek);
-            ed.CipherData.CipherValue = EncryptData(inputElement, rijnKey, false);
+            ed.CipherData.CipherValue = this.EncryptData(inputElement, rijnKey, false);
 
             return ed;
         }
@@ -566,19 +625,28 @@ namespace Org.BouncyCastle.Crypto.Xml
         // Encrypts the given element with the key name specified. A corresponding key name mapping
         // has to be defined before calling this method. The key name is added as
         // a KeyNameInfo KeyInfo to an EncryptedKey (AES session key) generated randomly.
-        public EncryptedData Encrypt(XmlElement inputElement, string keyName)
+        public EncryptedData Encrypt(XmlElement inputElement, String keyName)
         {
             if (inputElement == null)
+            {
                 throw new ArgumentNullException(nameof(inputElement));
-            if (keyName == null)
-                throw new ArgumentNullException(nameof(keyName));
+            }
 
-            object encryptionKey = null;
-            if (_keyNameMapping != null)
-                encryptionKey = _keyNameMapping[keyName];
+            if (keyName == null)
+            {
+                throw new ArgumentNullException(nameof(keyName));
+            }
+
+            Object encryptionKey = null;
+            if (this._keyNameMapping != null)
+            {
+                encryptionKey = this._keyNameMapping[keyName];
+            }
 
             if (encryptionKey == null)
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingEncryptionKey);
+            }
 
             // kek is either a SymmetricAlgorithm or an RSA key, otherwise, we wouldn't be able to insert it in the hash table
             ParametersWithIV iv = encryptionKey as ParametersWithIV;
@@ -591,7 +659,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             ed.EncryptionMethod = new EncryptionMethod(EncryptedXml.XmlEncAES256Url);
 
             // Include the key name in the EncryptedKey KeyInfo.
-            string encryptionMethod = null;
+            String encryptionMethod = null;
             if (symKey == null && iv == null)
             {
                 encryptionMethod = EncryptedXml.XmlEncRSA15Url;
@@ -631,15 +699,15 @@ namespace Org.BouncyCastle.Crypto.Xml
             ek.KeyInfo.AddClause(new KeyInfoName(keyName));
 
             // Create a random AES session key and encrypt it with the public key associated with the certificate.
-            var keydata = Utils.GenerateRandomBlock(256 / 8);
-            var ivdata = Utils.GenerateRandomBlock(128 / 8);
-            var rijn = new ParametersWithIV(new KeyParameter(keydata), ivdata);
+            Byte[] keydata = Utils.GenerateRandomBlock(256 / 8);
+            Byte[] ivdata = Utils.GenerateRandomBlock(128 / 8);
+            ParametersWithIV rijn = new ParametersWithIV(new KeyParameter(keydata), ivdata);
             ek.CipherData.CipherValue = (symKey == null ? EncryptedXml.EncryptKey(keydata, rsa, false) : EncryptedXml.EncryptKey(keydata, symKey));
 
             // Encrypt the input element with the random session key that we've created above.
             KeyInfoEncryptedKey kek = new KeyInfoEncryptedKey(ek);
             ed.KeyInfo.AddClause(kek);
-            ed.CipherData.CipherValue = EncryptData(inputElement, rijn, false);
+            ed.CipherData.CipherValue = this.EncryptData(inputElement, rijn, false);
 
             return ed;
         }
@@ -650,9 +718,9 @@ namespace Org.BouncyCastle.Crypto.Xml
         public void DecryptDocument()
         {
             // Look for all EncryptedData elements and decrypt them
-            XmlNamespaceManager nsm = new XmlNamespaceManager(_document.NameTable);
-            nsm.AddNamespace("enc", EncryptedXml.XmlEncNamespaceUrl);
-            XmlNodeList encryptedDataList = _document.SelectNodes("//enc:EncryptedData", nsm);
+            XmlNamespaceManager nsm = new XmlNamespaceManager(this._document.NameTable);
+            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            XmlNodeList encryptedDataList = this._document.SelectNodes("//" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptedData", nsm);
             if (encryptedDataList != null)
             {
                 foreach (XmlNode encryptedDataNode in encryptedDataList)
@@ -660,46 +728,60 @@ namespace Org.BouncyCastle.Crypto.Xml
                     XmlElement encryptedDataElement = encryptedDataNode as XmlElement;
                     EncryptedData ed = new EncryptedData();
                     ed.LoadXml(encryptedDataElement);
-                    ICipherParameters symAlg = GetDecryptionKey(ed, null);
+                    ICipherParameters symAlg = this.GetDecryptionKey(ed, null);
                     if (symAlg == null)
+                    {
                         throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingDecryptionKey);
-                    byte[] decrypted = DecryptData(ed, symAlg);
-                    ReplaceData(encryptedDataElement, decrypted);
+                    }
+
+                    Byte[] decrypted = this.DecryptData(ed, symAlg);
+                    this.ReplaceData(encryptedDataElement, decrypted);
                 }
             }
         }
 
         // encrypts the supplied arbitrary data
-        public byte[] EncryptData(byte[] plaintext, ICipherParameters symmetricAlgorithm)
+        public Byte[] EncryptData(Byte[] plaintext, ICipherParameters symmetricAlgorithm)
         {
             if (plaintext == null)
+            {
                 throw new ArgumentNullException(nameof(plaintext));
-            if (symmetricAlgorithm == null)
-                throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
 
-            var ivParam = symmetricAlgorithm as ParametersWithIV;
-            var keyParam = ivParam == null ? symmetricAlgorithm as KeyParameter : ivParam.Parameters as KeyParameter;
+            if (symmetricAlgorithm == null)
+            {
+                throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
+
+            ParametersWithIV ivParam = symmetricAlgorithm as ParametersWithIV;
+            KeyParameter keyParam = ivParam == null ? symmetricAlgorithm as KeyParameter : ivParam.Parameters as KeyParameter;
 
             IBufferedCipher enc;
             if (keyParam is DesEdeParameters)
-                enc = CipherUtilities.GetCipher($"DESede/{_mode}/{_padding}");
+            {
+                enc = CipherUtilities.GetCipher($"DESede/{this._mode}/{this._padding}");
+            }
             else if (keyParam is DesParameters)
-                enc = CipherUtilities.GetCipher($"DES/{_mode}/{_padding}");
+            {
+                enc = CipherUtilities.GetCipher($"DES/{this._mode}/{this._padding}");
+            }
             else
-                enc = CipherUtilities.GetCipher($"AES/{_mode}/{_padding}");
+            {
+                enc = CipherUtilities.GetCipher($"AES/{this._mode}/{this._padding}");
+            }
 
             enc.Init(true, symmetricAlgorithm);
-            byte[] cipher = enc.DoFinal(plaintext);
+            Byte[] cipher = enc.DoFinal(plaintext);
 
-            byte[] output = null;
-            if (_mode.Equals("ECB", StringComparison.OrdinalIgnoreCase))
+            Byte[] output = null;
+            if (this._mode.Equals("ECB", StringComparison.OrdinalIgnoreCase))
             {
                 output = cipher;
             }
             else
             {
-                byte[] IV = ((ParametersWithIV)symmetricAlgorithm).GetIV();
-                output = new byte[cipher.Length + IV.Length];
+                Byte[] IV = ((ParametersWithIV)symmetricAlgorithm).GetIV();
+                output = new Byte[cipher.Length + IV.Length];
                 Buffer.BlockCopy(IV, 0, output, 0, IV.Length);
                 Buffer.BlockCopy(cipher, 0, output, IV.Length, cipher.Length);
             }
@@ -707,38 +789,50 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         // encrypts the supplied input element
-        public byte[] EncryptData(XmlElement inputElement, ICipherParameters symmetricAlgorithm, bool content)
+        public Byte[] EncryptData(XmlElement inputElement, ICipherParameters symmetricAlgorithm, Boolean content)
         {
             if (inputElement == null)
+            {
                 throw new ArgumentNullException(nameof(inputElement));
-            if (symmetricAlgorithm == null)
-                throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
 
-            byte[] plainText = (content ? _encoding.GetBytes(inputElement.InnerXml) : _encoding.GetBytes(inputElement.OuterXml));
-            return EncryptData(plainText, symmetricAlgorithm);
+            if (symmetricAlgorithm == null)
+            {
+                throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
+
+            Byte[] plainText = (content ? this._encoding.GetBytes(inputElement.InnerXml) : this._encoding.GetBytes(inputElement.OuterXml));
+            return this.EncryptData(plainText, symmetricAlgorithm);
         }
 
         // decrypts the supplied EncryptedData
-        public byte[] DecryptData(EncryptedData encryptedData, ICipherParameters symmetricAlgorithm)
+        public Byte[] DecryptData(EncryptedData encryptedData, ICipherParameters symmetricAlgorithm)
         {
             if (encryptedData == null)
+            {
                 throw new ArgumentNullException(nameof(encryptedData));
-            if (symmetricAlgorithm == null)
-                throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
 
-            var ivParam = symmetricAlgorithm as ParametersWithIV;
-            var keyParam = ivParam == null ? symmetricAlgorithm as KeyParameter : ivParam.Parameters as KeyParameter;
+            if (symmetricAlgorithm == null)
+            {
+                throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
+
+            ParametersWithIV ivParam = symmetricAlgorithm as ParametersWithIV;
+            KeyParameter keyParam = ivParam == null ? symmetricAlgorithm as KeyParameter : ivParam.Parameters as KeyParameter;
 
             // get the cipher value and decrypt
-            byte[] cipherValue = GetCipherValue(encryptedData.CipherData);
+            Byte[] cipherValue = this.GetCipherValue(encryptedData.CipherData);
 
             // read the IV from cipherValue
-            byte[] decryptionIV = null;
-            if (!_mode.Equals("ECB", StringComparison.OrdinalIgnoreCase))
-                decryptionIV = GetDecryptionIV(encryptedData, null);
+            Byte[] decryptionIV = null;
+            if (!this._mode.Equals("ECB", StringComparison.OrdinalIgnoreCase))
+            {
+                decryptionIV = this.GetDecryptionIV(encryptedData, null);
+            }
 
-            byte[] output = null;
-            int lengthIV = 0;
+            Byte[] output = null;
+            Int32 lengthIV = 0;
             if (decryptionIV != null)
             {
                 symmetricAlgorithm = new ParametersWithIV(keyParam, decryptionIV);
@@ -747,11 +841,17 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             IBufferedCipher dec;
             if (keyParam is DesEdeParameters)
-                dec = CipherUtilities.GetCipher($"DESede/{_mode}/{_padding}");
+            {
+                dec = CipherUtilities.GetCipher($"DESede/{this._mode}/{this._padding}");
+            }
             else if (keyParam is DesParameters)
-                dec = CipherUtilities.GetCipher($"DES/{_mode}/{_padding}");
+            {
+                dec = CipherUtilities.GetCipher($"DES/{this._mode}/{this._padding}");
+            }
             else
-                dec = CipherUtilities.GetCipher($"AES/{_mode}/{_padding}");
+            {
+                dec = CipherUtilities.GetCipher($"AES/{this._mode}/{this._padding}");
+            }
 
             dec.Init(false, symmetricAlgorithm);
             output = dec.DoFinal(cipherValue, lengthIV, cipherValue.Length - lengthIV);
@@ -760,12 +860,17 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         // This method replaces an EncryptedData element with the decrypted sequence of bytes
-        public void ReplaceData(XmlElement inputElement, byte[] decryptedData)
+        public void ReplaceData(XmlElement inputElement, Byte[] decryptedData)
         {
             if (inputElement == null)
+            {
                 throw new ArgumentNullException(nameof(inputElement));
+            }
+
             if (decryptedData == null)
+            {
                 throw new ArgumentNullException(nameof(decryptedData));
+            }
 
             XmlNode parent = inputElement.ParentNode;
             if (parent.NodeType == XmlNodeType.Document)
@@ -776,10 +881,10 @@ namespace Org.BouncyCastle.Crypto.Xml
                 // decrypted XML, import it into the existing document, and replace just the root element.
                 XmlDocument importDocument = new XmlDocument();
                 importDocument.PreserveWhitespace = true;
-                string decryptedString = _encoding.GetString(decryptedData);
+                String decryptedString = this._encoding.GetString(decryptedData);
                 using (StringReader sr = new StringReader(decryptedString))
                 {
-                    using (XmlReader xr = XmlReader.Create(sr, Utils.GetSecureXmlReaderSettings(_xmlResolver)))
+                    using (XmlReader xr = XmlReader.Create(sr, Utils.GetSecureXmlReaderSettings(this._xmlResolver)))
                     {
                         importDocument.Load(xr);
                     }
@@ -800,7 +905,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
                     // Replace the children of the dummy node with the sequence of bytes passed in.
                     // The string will be parsed into DOM objects in the context of the parent of the EncryptedData element.
-                    dummy.InnerXml = _encoding.GetString(decryptedData);
+                    dummy.InnerXml = this._encoding.GetString(decryptedData);
 
                     // Move the children of the dummy node up to the parent.
                     XmlNode child = dummy.FirstChild;
@@ -830,12 +935,17 @@ namespace Org.BouncyCastle.Crypto.Xml
         //
 
         // replaces the inputElement with the provided EncryptedData
-        public static void ReplaceElement(XmlElement inputElement, EncryptedData encryptedData, bool content)
+        public static void ReplaceElement(XmlElement inputElement, EncryptedData encryptedData, Boolean content)
         {
             if (inputElement == null)
+            {
                 throw new ArgumentNullException(nameof(inputElement));
+            }
+
             if (encryptedData == null)
+            {
                 throw new ArgumentNullException(nameof(encryptedData));
+            }
 
             // First, get the XML representation of the EncryptedData object
             XmlElement elemED = encryptedData.GetXml(inputElement.OwnerDocument);
@@ -856,12 +966,17 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         // wraps the supplied input key data using the provided symmetric algorithm
-        public static byte[] EncryptKey(byte[] keyData, KeyParameter symmetricAlgorithm)
+        public static Byte[] EncryptKey(Byte[] keyData, KeyParameter symmetricAlgorithm)
         {
             if (keyData == null)
+            {
                 throw new ArgumentNullException(nameof(keyData));
+            }
+
             if (symmetricAlgorithm == null)
+            {
                 throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
 
             if (symmetricAlgorithm is DesParameters)
             {
@@ -878,12 +993,17 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         // encrypts the supplied input key data using an RSA key and specifies whether we want to use OAEP
         // padding or PKCS#1 v1.5 padding as described in the PKCS specification
-        public static byte[] EncryptKey(byte[] keyData, RsaKeyParameters rsa, bool useOAEP)
+        public static Byte[] EncryptKey(Byte[] keyData, RsaKeyParameters rsa, Boolean useOAEP)
         {
             if (keyData == null)
+            {
                 throw new ArgumentNullException(nameof(keyData));
+            }
+
             if (rsa == null)
+            {
                 throw new ArgumentNullException(nameof(rsa));
+            }
 
             if (useOAEP)
             {
@@ -898,12 +1018,17 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         // decrypts the supplied wrapped key using the provided symmetric algorithm
-        public static byte[] DecryptKey(byte[] keyData, KeyParameter symmetricAlgorithm)
+        public static Byte[] DecryptKey(Byte[] keyData, KeyParameter symmetricAlgorithm)
         {
             if (keyData == null)
+            {
                 throw new ArgumentNullException(nameof(keyData));
+            }
+
             if (symmetricAlgorithm == null)
+            {
                 throw new ArgumentNullException(nameof(symmetricAlgorithm));
+            }
 
             if (symmetricAlgorithm is DesParameters)
             {
@@ -919,12 +1044,17 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         // decrypts the supplied data using an RSA key and specifies whether we want to use OAEP
         // padding or PKCS#1 v1.5 padding as described in the PKCS specification
-        public static byte[] DecryptKey(byte[] keyData, RsaKeyParameters rsa, bool useOAEP)
+        public static Byte[] DecryptKey(Byte[] keyData, RsaKeyParameters rsa, Boolean useOAEP)
         {
             if (keyData == null)
+            {
                 throw new ArgumentNullException(nameof(keyData));
+            }
+
             if (rsa == null)
+            {
                 throw new ArgumentNullException(nameof(rsa));
+            }
 
             if (useOAEP)
             {

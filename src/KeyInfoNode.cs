@@ -19,7 +19,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public KeyInfoNode(XmlElement node)
         {
-            _node = node;
+            this._node = node;
         }
 
         //
@@ -28,8 +28,8 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public XmlElement Value
         {
-            get { return _node; }
-            set { _node = value; }
+            get { return this._node; }
+            set { this._node = value; }
         }
 
         //
@@ -40,17 +40,17 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.PreserveWhitespace = true;
-            return GetXml(xmlDocument);
+            return this.GetXml(xmlDocument);
         }
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            return xmlDocument.ImportNode(_node, true) as XmlElement;
+            return xmlDocument.ImportNode(this._node, true) as XmlElement;
         }
 
         public override void LoadXml(XmlElement value)
         {
-            _node = value;
+            this._node = value;
         }
     }
 }

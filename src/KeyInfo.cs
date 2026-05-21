@@ -10,7 +10,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 {
     public class KeyInfo : IEnumerable
     {
-        private string _id = null;
+        private String _id = null;
         private readonly ArrayList _keyInfoClauses;
 
         //
@@ -19,39 +19,39 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public KeyInfo()
         {
-            _keyInfoClauses = new ArrayList();
+            this._keyInfoClauses = new ArrayList();
         }
 
         //
         // public properties
         //
 
-        public string Id
+        public String Id
         {
-            get { return _id; }
-            set { _id = value; }
+            get { return this._id; }
+            set { this._id = value; }
         }
 
         public XmlElement GetXml()
         {
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.PreserveWhitespace = true;
-            return GetXml(xmlDocument);
+            return this.GetXml(xmlDocument);
         }
 
         internal XmlElement GetXml(XmlDocument xmlDocument)
         {
             // Create the KeyInfo element itself
-            XmlElement keyInfoElement = xmlDocument.CreateElement("KeyInfo", SignedXml.XmlDsigNamespaceUrl);
-            if (!string.IsNullOrEmpty(_id))
+            XmlElement keyInfoElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "KeyInfo", SignedXml.XmlDsigNamespaceUrl);
+            if (!String.IsNullOrEmpty(this._id))
             {
-                keyInfoElement.SetAttribute("Id", _id);
+                keyInfoElement.SetAttribute("Id", this._id);
             }
 
             // Add all the clauses that go underneath it
-            for (int i = 0; i < _keyInfoClauses.Count; ++i)
+            for (Int32 i = 0; i < this._keyInfoClauses.Count; ++i)
             {
-                XmlElement xmlElement = ((KeyInfoClause)_keyInfoClauses[i]).GetXml(xmlDocument);
+                XmlElement xmlElement = ((KeyInfoClause)this._keyInfoClauses[i]).GetXml(xmlDocument);
                 if (xmlElement != null)
                 {
                     keyInfoElement.AppendChild(xmlElement);
@@ -63,12 +63,16 @@ namespace Org.BouncyCastle.Crypto.Xml
         public void LoadXml(XmlElement value)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             XmlElement keyInfoElement = value;
-            _id = Utils.GetAttribute(keyInfoElement, "Id", SignedXml.XmlDsigNamespaceUrl);
+            this._id = Utils.GetAttribute(keyInfoElement, "Id", SignedXml.XmlDsigNamespaceUrl);
             if (!Utils.VerifyAttributes(keyInfoElement, "Id"))
+            {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "KeyInfo");
+            }
 
             XmlNode child = keyInfoElement.FirstChild;
             while (child != null)
@@ -77,11 +81,11 @@ namespace Org.BouncyCastle.Crypto.Xml
                 if (elem != null)
                 {
                     // Create the right type of KeyInfoClause; we use a combination of the namespace and tag name (local name)
-                    string kicString = elem.NamespaceURI + " " + elem.LocalName;
+                    String kicString = elem.NamespaceURI + " " + elem.LocalName;
                     // Special-case handling for KeyValue -- we have to go one level deeper
                     if (kicString == "http://www.w3.org/2000/09/xmldsig# KeyValue")
                     {
-                        if (!Utils.VerifyAttributes(elem, (string[])null))
+                        if (!Utils.VerifyAttributes(elem, (String[])null))
                         {
                             throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "KeyInfo/KeyValue");
                         }
@@ -100,20 +104,22 @@ namespace Org.BouncyCastle.Crypto.Xml
                     KeyInfoClause keyInfoClause = CryptoHelpers.CreateFromName<KeyInfoClause>(kicString);
                     // if we don't know what kind of KeyInfoClause we're looking at, use a generic KeyInfoNode:
                     if (keyInfoClause == null)
+                    {
                         keyInfoClause = new KeyInfoNode();
+                    }
 
                     // Ask the create clause to fill itself with the corresponding XML
                     keyInfoClause.LoadXml(elem);
                     // Add it to our list of KeyInfoClauses
-                    AddClause(keyInfoClause);
+                    this.AddClause(keyInfoClause);
                 }
                 child = child.NextSibling;
             }
         }
 
-        public int Count
+        public Int32 Count
         {
-            get { return _keyInfoClauses.Count; }
+            get { return this._keyInfoClauses.Count; }
         }
 
         //
@@ -122,26 +128,28 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         public void AddClause(KeyInfoClause clause)
         {
-            _keyInfoClauses.Add(clause);
+            this._keyInfoClauses.Add(clause);
         }
 
         public IEnumerator GetEnumerator()
         {
-            return _keyInfoClauses.GetEnumerator();
+            return this._keyInfoClauses.GetEnumerator();
         }
 
         public IEnumerator GetEnumerator(Type requestedObjectType)
         {
             ArrayList requestedList = new ArrayList();
 
-            object tempObj;
-            IEnumerator tempEnum = _keyInfoClauses.GetEnumerator();
+            Object tempObj;
+            IEnumerator tempEnum = this._keyInfoClauses.GetEnumerator();
 
             while (tempEnum.MoveNext())
             {
                 tempObj = tempEnum.Current;
                 if (requestedObjectType.Equals(tempObj.GetType()))
+                {
                     requestedList.Add(tempObj);
+                }
             }
 
             return requestedList.GetEnumerator();

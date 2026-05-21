@@ -12,37 +12,37 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         private readonly Type[] _inputTypes = { typeof(Stream), typeof(XmlDocument), typeof(XmlNodeList) };
         private readonly Type[] _outputTypes = { typeof(Stream) };
-        private readonly bool _includeComments = false;
-        private string _inclusiveNamespacesPrefixList;
+        private readonly Boolean _includeComments = false;
+        private String _inclusiveNamespacesPrefixList;
         private ExcCanonicalXml _excCanonicalXml;
 
         public XmlDsigExcC14NTransform() : this(false, null) { }
 
-        public XmlDsigExcC14NTransform(bool includeComments) : this(includeComments, null) { }
+        public XmlDsigExcC14NTransform(Boolean includeComments) : this(includeComments, null) { }
 
-        public XmlDsigExcC14NTransform(string inclusiveNamespacesPrefixList) : this(false, inclusiveNamespacesPrefixList) { }
+        public XmlDsigExcC14NTransform(String inclusiveNamespacesPrefixList) : this(false, inclusiveNamespacesPrefixList) { }
 
-        public XmlDsigExcC14NTransform(bool includeComments, string inclusiveNamespacesPrefixList)
+        public XmlDsigExcC14NTransform(Boolean includeComments, String inclusiveNamespacesPrefixList)
         {
-            _includeComments = includeComments;
-            _inclusiveNamespacesPrefixList = inclusiveNamespacesPrefixList;
-            Algorithm = (includeComments ? SignedXml.XmlDsigExcC14NWithCommentsTransformUrl : SignedXml.XmlDsigExcC14NTransformUrl);
+            this._includeComments = includeComments;
+            this._inclusiveNamespacesPrefixList = inclusiveNamespacesPrefixList;
+            this.Algorithm = (includeComments ? SignedXml.XmlDsigExcC14NWithCommentsTransformUrl : SignedXml.XmlDsigExcC14NTransformUrl);
         }
 
-        public string InclusiveNamespacesPrefixList
+        public String InclusiveNamespacesPrefixList
         {
-            get { return _inclusiveNamespacesPrefixList; }
-            set { _inclusiveNamespacesPrefixList = value; }
+            get { return this._inclusiveNamespacesPrefixList; }
+            set { this._inclusiveNamespacesPrefixList = value; }
         }
 
         public override Type[] InputTypes
         {
-            get { return _inputTypes; }
+            get { return this._inputTypes; }
         }
 
         public override Type[] OutputTypes
         {
-            get { return _outputTypes; }
+            get { return this._outputTypes; }
         }
 
         public override void LoadInnerXml(XmlNodeList nodeList)
@@ -74,54 +74,65 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
         }
 
-        public override void LoadInput(object obj)
+        public override void LoadInput(Object obj)
         {
-            XmlResolver resolver = (ResolverSet ? _xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), BaseURI));
+            XmlResolver resolver = (this.ResolverSet ? this._xmlResolver : new XmlSecureResolver(new XmlUrlResolver(), this.BaseURI));
             if (obj is Stream)
             {
-                _excCanonicalXml = new ExcCanonicalXml((Stream)obj, _includeComments, _inclusiveNamespacesPrefixList, resolver, BaseURI);
+                this._excCanonicalXml = new ExcCanonicalXml((Stream)obj, this._includeComments, this._inclusiveNamespacesPrefixList, resolver, this.BaseURI);
             }
             else if (obj is XmlDocument)
             {
-                _excCanonicalXml = new ExcCanonicalXml((XmlDocument)obj, _includeComments, _inclusiveNamespacesPrefixList, resolver);
+                this._excCanonicalXml = new ExcCanonicalXml((XmlDocument)obj, this._includeComments, this._inclusiveNamespacesPrefixList, resolver);
             }
             else if (obj is XmlNodeList)
             {
-                _excCanonicalXml = new ExcCanonicalXml((XmlNodeList)obj, _includeComments, _inclusiveNamespacesPrefixList, resolver);
+                this._excCanonicalXml = new ExcCanonicalXml((XmlNodeList)obj, this._includeComments, this._inclusiveNamespacesPrefixList, resolver);
             }
             else
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_IncorrectObjectType, nameof(obj));
+            }
         }
 
         protected override XmlNodeList GetInnerXml()
         {
-            if (InclusiveNamespacesPrefixList == null)
+            if (this.InclusiveNamespacesPrefixList == null)
+            {
                 return null;
+            }
+
             XmlDocument document = new XmlDocument();
-            XmlElement element = document.CreateElement("Transform", SignedXml.XmlDsigNamespaceUrl);
-            if (!string.IsNullOrEmpty(Algorithm))
-                element.SetAttribute("Algorithm", Algorithm);
-            XmlElement prefixListElement = document.CreateElement("InclusiveNamespaces", SignedXml.XmlDsigExcC14NTransformUrl);
-            prefixListElement.SetAttribute("PrefixList", InclusiveNamespacesPrefixList);
+            XmlElement element = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Transform", SignedXml.XmlDsigNamespaceUrl);
+            if (!String.IsNullOrEmpty(this.Algorithm))
+            {
+                element.SetAttribute("Algorithm", this.Algorithm);
+            }
+
+            XmlElement prefixListElement = document.CreateElement(SignedXml.XmlDsigExcC14NTransformPrefix, "InclusiveNamespaces", SignedXml.XmlDsigExcC14NTransformUrl);
+            prefixListElement.SetAttribute("PrefixList", this.InclusiveNamespacesPrefixList);
             element.AppendChild(prefixListElement);
             return element.ChildNodes;
         }
 
-        public override object GetOutput()
+        public override Object GetOutput()
         {
-            return new MemoryStream(_excCanonicalXml.GetBytes());
+            return new MemoryStream(this._excCanonicalXml.GetBytes());
         }
 
-        public override object GetOutput(Type type)
+        public override Object GetOutput(Type type)
         {
             if (type != typeof(Stream) && !type.IsSubclassOf(typeof(Stream)))
+            {
                 throw new ArgumentException(SR.Cryptography_Xml_TransformIncorrectInputType, nameof(type));
-            return new MemoryStream(_excCanonicalXml.GetBytes());
+            }
+
+            return new MemoryStream(this._excCanonicalXml.GetBytes());
         }
 
         public override void GetDigestedOutput(IHash signer)
         {
-            _excCanonicalXml.GetDigestedBytes(signer);
+            this._excCanonicalXml.GetDigestedBytes(signer);
         }
     }
 }
