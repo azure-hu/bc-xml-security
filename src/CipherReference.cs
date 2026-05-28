@@ -64,7 +64,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // Create the Reference
-            XmlElement referenceElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, this.ReferenceType, EncryptedXml.XmlEncNamespaceUrl);
+            XmlElement referenceElement = document.CreateElement(EncryptedXml.DefaultXmlEncNamespacePrefix, this.ReferenceType, EncryptedXml.XmlEncNamespaceUrl);
             if (!String.IsNullOrEmpty(this.Uri))
             {
                 referenceElement.SetAttribute("URI", this.Uri);
@@ -92,8 +92,8 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             // Transforms
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
-            XmlNode transformsNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":Transforms", nsm);
+            nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            XmlNode transformsNode = value.SelectSingleNode(EncryptedXml.DefaultXmlEncNamespacePrefix + ":Transforms", nsm);
             if (transformsNode != null)
             {
                 this.TransformChain.LoadXml(transformsNode as XmlElement);

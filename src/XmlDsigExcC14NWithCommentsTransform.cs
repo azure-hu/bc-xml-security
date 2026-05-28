@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+
 namespace Org.BouncyCastle.Crypto.Xml
 {
     // <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
@@ -15,7 +17,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             this.Algorithm = SignedXml.XmlDsigExcC14NWithCommentsTransformUrl;
         }
 
-        public XmlDsigExcC14NWithCommentsTransform(System.String inclusiveNamespacesPrefixList) : base(true, inclusiveNamespacesPrefixList)
+        public XmlDsigExcC14NWithCommentsTransform(String inclusiveNamespacesPrefixList) : base(true, inclusiveNamespacesPrefixList)
         {
             this.Algorithm = SignedXml.XmlDsigExcC14NWithCommentsTransformUrl;
         }

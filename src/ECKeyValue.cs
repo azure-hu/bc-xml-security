@@ -2,33 +2,34 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Utilities.IO;
 using System;
-using System.IO;
 using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
     public class ECKeyValue : KeyInfoClause
     {
-        private ECPublicKeyParameters _key;
+        //private ECPublicKeyParameters _key;
+        private NamedCurve _namedCurve = null;
+        private ECPoint _publicKey = null;
 
         //
         // public constructors
         //
+        
 
+        public ECKeyValue() { }
+        public ECKeyValue(NamedCurve namedCurve, ECPoint publicKey)
+        {
+            this._namedCurve = namedCurve;
+            this._publicKey = publicKey;
+        }
+
+        /*
         public ECKeyValue(ECPublicKeyParameters key)
         {
             this._key = key;
         }
-
-        //
-        // public properties
-        //
 
         public ECPublicKeyParameters Key
         {
@@ -42,6 +43,38 @@ namespace Org.BouncyCastle.Crypto.Xml
                 this._key = value;
             }
         }
+        */
+
+        //
+        // public properties
+        //
+
+        public NamedCurve NamedCurve
+        {
+            get
+            {
+                return this._namedCurve;
+            }
+
+            set
+            {
+                this._namedCurve = value;
+            }
+        }
+
+        public ECPoint PublicKey
+        {
+            get
+            {
+                return this._publicKey;
+            }
+
+            set
+            {
+                this._publicKey = value;
+            }
+        }
+
 
         //
         // public methods
@@ -66,7 +99,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         }
 
         private const String KeyValueElementName = "KeyValue";
-        private const String ECKeyValueElementName = "ECAKeyValue";
+        private const String ECKeyValueElementName = "ECKeyValue";
 
         //Optional ECParameters - NamedCurve Choice
         private const String ECParametersElementName = "ECParameters";
@@ -80,41 +113,37 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            XmlElement keyValueElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, KeyValueElementName, SignedXml.XmlDsigNamespaceUrl);
-            XmlElement ecKeyValueElement = xmlDocument.CreateElement(SignedXml.XmlDsig11NamespacePrefix, ECKeyValueElementName, SignedXml.XmlDsig11NamespaceUrl);
+            XmlElement keyValueElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, KeyValueElementName, SignedXml.XmlDsigNamespaceUrl);
+            XmlElement ecKeyValueElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsig11NamespacePrefix, ECKeyValueElementName, SignedXml.XmlDsig11NamespaceUrl);
 
+            /*
             DerObjectIdentifier curveOid = this.FindECCurveOid(this._key);
-            XmlElement namedCurveElement = xmlDocument.CreateElement(SignedXml.XmlDsig11NamespacePrefix, NamedCurveElementName, SignedXml.XmlDsig11NamespaceUrl);
+            XmlElement namedCurveElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsig11NamespacePrefix, NamedCurveElementName, SignedXml.XmlDsig11NamespaceUrl);
             namedCurveElement.AppendChild(xmlDocument.CreateTextNode(String.Format("urn:oid:{0}", curveOid.ToString())));
-            ecKeyValueElement.AppendChild(namedCurveElement);
+            */
+            if (this.NamedCurve != null)
+            {
+                XmlElement namedCurveElement = this.NamedCurve.GetXml(xmlDocument);
+                ecKeyValueElement.AppendChild(namedCurveElement);
+            }
 
-            XmlElement publicKeyElement = xmlDocument.CreateElement(SignedXml.XmlDsig11NamespacePrefix, PublicKeyElementName, SignedXml.XmlDsig11NamespaceUrl);
-            publicKeyElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(this._key.Q.GetEncoded(false))));
-            ecKeyValueElement.AppendChild(publicKeyElement);
-
-
+            if (this.PublicKey != null)
+            {
+                /*
+                XmlElement publicKeyElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsig11NamespacePrefix, PublicKeyElementName, SignedXml.XmlDsig11NamespaceUrl);
+                publicKeyElement.AppendChild(xmlDocument.CreateTextNode(Convert.ToBase64String(this._key.Q.GetEncoded(false))));
+                */
+                XmlElement publicKey = this.PublicKey.GetXml(xmlDocument);
+                XmlElement publicKeyElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsig11NamespacePrefix, PublicKeyElementName, SignedXml.XmlDsig11NamespaceUrl);
+                foreach (XmlNode childElement in publicKey.ChildNodes)
+                {
+                    publicKeyElement.AppendChild(childElement);
+                }
+                ecKeyValueElement.AppendChild(publicKeyElement);
+            }
             keyValueElement.AppendChild(ecKeyValueElement);
 
             return keyValueElement;
-        }
-
-        private DerObjectIdentifier FindECCurveOid(ECPublicKeyParameters publicKey)
-        {
-            DerObjectIdentifier curveOid = null;
-            ECDomainParameters pubKeyDomainParams = publicKey.Parameters;
-            foreach (String curveName in ECNamedCurveTable.Names)
-            {
-                X9ECParameters curveParams = ECNamedCurveTable.GetByName(curveName);
-                if (curveParams.Curve.Equals(pubKeyDomainParams.Curve)
-                     && curveParams.G.Equals(pubKeyDomainParams.G)
-                     && curveParams.H.Equals(pubKeyDomainParams.H)
-                     && curveParams.N.Equals(pubKeyDomainParams.N))
-                {
-                    curveOid = ECNamedCurveTable.GetOid(curveName);
-                }
-            }
-
-            return curveOid;
         }
 
         /// <summary>
@@ -138,32 +167,33 @@ namespace Org.BouncyCastle.Crypto.Xml
             {
                 throw new ArgumentNullException(nameof(value));
             }
-            if (value.Name != KeyValueElementName
+            if (value.LocalName != KeyValueElementName
                 || value.NamespaceURI != SignedXml.XmlDsigNamespaceUrl)
             {
                 throw new System.Security.Cryptography.CryptographicException($"Root element must be {KeyValueElementName} element in namepsace {SignedXml.XmlDsigNamespaceUrl}");
             }
 
-            String xmlDsigNamespacePrefix = SignedXml.XmlDsigNamespacePrefix;
             XmlNamespaceManager xmlNamespaceManager = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            xmlNamespaceManager.AddNamespace(xmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
-            String xmlDsig11NamespacePrefix = SignedXml.XmlDsig11NamespacePrefix;
-            xmlNamespaceManager.AddNamespace(xmlDsig11NamespacePrefix, SignedXml.XmlDsig11NamespaceUrl);
+            xmlNamespaceManager.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            xmlNamespaceManager.AddNamespace(SignedXml.DefaultXmlDsig11NamespacePrefix, SignedXml.XmlDsig11NamespaceUrl);
 
-            XmlNode ecKeyValueElement = value.SelectSingleNode($"{xmlDsig11NamespacePrefix}:{ECKeyValueElementName}", xmlNamespaceManager);
+            XmlNode ecKeyValueElement = value.SelectSingleNode($"{SignedXml.DefaultXmlDsig11NamespacePrefix}:{ECKeyValueElementName}", xmlNamespaceManager);
             if (ecKeyValueElement == null)
             {
                 throw new System.Security.Cryptography.CryptographicException($"{KeyValueElementName} must contain child element {ECKeyValueElementName}");
             }
 
-            XmlNode publicKeyNode = ecKeyValueElement.SelectSingleNode($"{xmlDsig11NamespacePrefix}:{PublicKeyElementName}", xmlNamespaceManager);
+            XmlNode publicKeyNode = ecKeyValueElement.SelectSingleNode($"{SignedXml.DefaultXmlDsig11NamespacePrefix}:{PublicKeyElementName}", xmlNamespaceManager);
             if (publicKeyNode == null)
             {
                 throw new System.Security.Cryptography.CryptographicException($"{PublicKeyElementName} is missing");
             }
+            this.PublicKey = new ECPoint();
+            this.PublicKey.LoadXml(publicKeyNode as XmlElement);
+            //Byte[] publicKeyBytes = Convert.FromBase64String(publicKeyNode.InnerText);
 
-            XmlNode ecParametersNode = ecKeyValueElement.SelectSingleNode($"{xmlDsig11NamespacePrefix}:{ECParametersElementName}", xmlNamespaceManager);
-            XmlNode namedCurveNode = ecKeyValueElement.SelectSingleNode($"{xmlDsig11NamespacePrefix}:{NamedCurveElementName}", xmlNamespaceManager);
+            XmlNode ecParametersNode = ecKeyValueElement.SelectSingleNode($"{SignedXml.DefaultXmlDsig11NamespacePrefix}:{ECParametersElementName}", xmlNamespaceManager);
+            XmlNode namedCurveNode = ecKeyValueElement.SelectSingleNode($"{SignedXml.DefaultXmlDsig11NamespacePrefix}:{NamedCurveElementName}", xmlNamespaceManager);
 
             if (ecParametersNode == null && namedCurveNode == null)
             {
@@ -183,9 +213,9 @@ namespace Org.BouncyCastle.Crypto.Xml
                 }
                 else
                 {
-                    Byte[] publicKeyBytes = Convert.FromBase64String(publicKeyNode.InnerText);
-                    String namedCurveOid = namedCurveNode.InnerText.Replace("urn:oid:", String.Empty);
-                    this.Key = this.CreatePublicKeyParams(publicKeyBytes, namedCurveOid);
+                    this.NamedCurve = new NamedCurve();
+                    this.NamedCurve.LoadXml(namedCurveNode as XmlElement);
+                    //this.Key = this.CreatePublicKeyParams(publicKeyBytes, this.NamedCurve.Oid);
                 }
             }
             catch (Exception ex)
@@ -194,9 +224,10 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
         }
 
-        private ECPublicKeyParameters CreatePublicKeyParams(Byte[] publicKeyBytes, String namedCurveOid)
+        /*
+        private ECPublicKeyParameters CreatePublicKeyParams(Byte[] publicKeyBytes, DerObjectIdentifier namedCurveOid)
         {
-            X9ECParameters ecCurve = ECNamedCurveTable.GetByOid(new DerObjectIdentifier(namedCurveOid));
+            X9ECParameters ecCurve = ECNamedCurveTable.GetByOid(namedCurveOid);
             ECDomainParameters domainParams = new ECDomainParameters(ecCurve);
             Byte[] decodedBytes;
             using (MemoryStream ms = new MemoryStream(publicKeyBytes))
@@ -230,5 +261,6 @@ namespace Org.BouncyCastle.Crypto.Xml
             ECPoint q = domainParams.Curve.DecodePoint(decodedBytes);
             return new ECPublicKeyParameters(q, domainParams);
         }
+        */
     }
 }

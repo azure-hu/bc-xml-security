@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Text;
 using System.Xml;
 
@@ -10,15 +11,15 @@ namespace Org.BouncyCastle.Crypto.Xml
     // the class that provides node subset state and canonicalization function to XmlWhitespace
     internal class CanonicalXmlWhitespace : XmlWhitespace, ICanonicalizableNode
     {
-        private System.Boolean _isInNodeSet;
+        private Boolean _isInNodeSet;
 
-        public CanonicalXmlWhitespace(System.String strData, XmlDocument doc, System.Boolean defaultNodeSetInclusionState)
+        public CanonicalXmlWhitespace(String strData, XmlDocument doc, Boolean defaultNodeSetInclusionState)
             : base(strData, doc)
         {
             this._isInNodeSet = defaultNodeSetInclusionState;
         }
 
-        public System.Boolean IsInNodeSet
+        public Boolean IsInNodeSet
         {
             get { return this._isInNodeSet; }
             set { this._isInNodeSet = value; }
@@ -37,7 +38,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             if (this.IsInNodeSet && docPos == DocPosition.InRootElement)
             {
                 UTF8Encoding utf8 = new UTF8Encoding(false);
-                System.Byte[] rgbData = utf8.GetBytes(Utils.EscapeWhitespaceData(this.Value));
+                Byte[] rgbData = utf8.GetBytes(Utils.EscapeWhitespaceData(this.Value));
                 hash.BlockUpdate(rgbData, 0, rgbData.Length);
             }
         }

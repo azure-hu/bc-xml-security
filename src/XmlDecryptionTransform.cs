@@ -22,7 +22,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         private XmlDocument _containingDocument = null;
         private XmlNamespaceManager _nsm = null;
         private const String XmlDecryptionTransformNamespaceUrl = "http://www.w3.org/2002/07/decrypt#";
-        private const String XmlDecryptionTransformNamespacePrefix = "xdec";
+        private const String DefaultXmlDecryptionTransformNamespacePrefix = "xdec";
 
         public XmlDecryptionTransform()
         {
@@ -148,7 +148,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlDocument document = new XmlDocument();
-            XmlElement element = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Transform", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement element = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "Transform", SignedXml.XmlDsigNamespaceUrl);
             if (!String.IsNullOrEmpty(this.Algorithm))
             {
                 element.SetAttribute("Algorithm", this.Algorithm);
@@ -156,7 +156,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             foreach (String uri in this.ExceptUris)
             {
-                XmlElement exceptUriElement = document.CreateElement(XmlDecryptionTransformNamespacePrefix, "Except", XmlDecryptionTransformNamespaceUrl);
+                XmlElement exceptUriElement = document.CreateElement(DefaultXmlDecryptionTransformNamespacePrefix, "Except", XmlDecryptionTransformNamespaceUrl);
                 exceptUriElement.SetAttribute("URI", uri);
                 element.AppendChild(exceptUriElement);
             }
@@ -184,9 +184,9 @@ namespace Org.BouncyCastle.Crypto.Xml
             document.Load(xmlReader);
             this._containingDocument = document;
             this._nsm = new XmlNamespaceManager(this._containingDocument.NameTable);
-            this._nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            this._nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
             // select all EncryptedData elements
-            this._encryptedDataList = document.SelectNodes("//" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptedData", this._nsm);
+            this._encryptedDataList = document.SelectNodes("//" + EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptedData", this._nsm);
         }
 
         private void LoadXmlDocumentInput(XmlDocument document)
@@ -198,9 +198,9 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             this._containingDocument = document;
             this._nsm = new XmlNamespaceManager(document.NameTable);
-            this._nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            this._nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
             // select all EncryptedData elements
-            this._encryptedDataList = document.SelectNodes("//" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptedData", this._nsm);
+            this._encryptedDataList = document.SelectNodes("//" + EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptedData", this._nsm);
         }
 
         // Replace the encrytped XML element with the decrypted data for signature verification
@@ -283,7 +283,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
                         if (child != null)
                         {
-                            XmlNodeList nodes = child.SelectNodes("//" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptedData", this._nsm);
+                            XmlNodeList nodes = child.SelectNodes("//" + EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptedData", this._nsm);
                             if (nodes.Count > 0)
                             {
                                 foreach (XmlNode value in nodes)

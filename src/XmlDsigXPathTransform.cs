@@ -92,7 +92,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         protected override XmlNodeList GetInnerXml()
         {
             XmlDocument document = new XmlDocument();
-            XmlElement element = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "XPath", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement element = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "XPath", SignedXml.XmlDsigNamespaceUrl);
 
             if (this._nsm != null)
             {

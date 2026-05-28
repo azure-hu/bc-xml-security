@@ -7,29 +7,32 @@ using System.Xml;
 
 namespace Org.BouncyCastle.Crypto.Xml
 {
-    public class KeyInfoName : KeyInfoClause
+    // This is for generic, unknown nodes
+    public class KeyDerivationParamsNode : KeyDerivationParamsClause
     {
-        private String _keyName;
+        private XmlElement _node;
 
         //
         // public constructors
         //
 
-        public KeyInfoName() : this(null) { }
+        public KeyDerivationParamsNode() { }
 
-        public KeyInfoName(String keyName)
+        public KeyDerivationParamsNode(XmlElement node)
         {
-            this.Value = keyName;
+            this._node = node;
         }
 
         //
         // public properties
         //
 
-        public String Value
+        public override String Algorithm { get { return String.Empty; } }
+
+        public XmlElement Value
         {
-            get { return this._keyName; }
-            set { this._keyName = value; }
+            get { return this._node; }
+            set { this._node = value; }
         }
 
         //
@@ -45,20 +48,12 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
-            XmlElement nameElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "KeyName", SignedXml.XmlDsigNamespaceUrl);
-            nameElement.AppendChild(xmlDocument.CreateTextNode(this._keyName));
-            return nameElement;
+            return xmlDocument.ImportNode(this._node, true) as XmlElement;
         }
 
         public override void LoadXml(XmlElement value)
         {
-            if (value == null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
-            XmlElement nameElement = value;
-            this._keyName = nameElement.InnerText.Trim();
+            this._node = value;
         }
     }
 }

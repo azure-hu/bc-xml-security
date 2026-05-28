@@ -103,7 +103,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlDocument document = new XmlDocument();
-            XmlElement element = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Transform", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement element = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "Transform", SignedXml.XmlDsigNamespaceUrl);
             if (!String.IsNullOrEmpty(this.Algorithm))
             {
                 element.SetAttribute("Algorithm", this.Algorithm);

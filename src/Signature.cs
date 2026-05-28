@@ -103,7 +103,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the Signature
-            XmlElement signatureElement = (XmlElement)document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Signature", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signatureElement = (XmlElement)document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "Signature", SignedXml.XmlDsigNamespaceUrl);
             if (!String.IsNullOrEmpty(this._id))
             {
                 signatureElement.SetAttribute("Id", this._id);
@@ -123,7 +123,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureValueRequired);
             }
 
-            XmlElement signatureValueElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "SignatureValue", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signatureValueElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "SignatureValue", SignedXml.XmlDsigNamespaceUrl);
             signatureValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(this._signatureValue)));
             if (!String.IsNullOrEmpty(this._signatureValueId))
             {
@@ -174,11 +174,11 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
             Int32 expectedChildNodes = 0;
 
             // SignedInfo
-            XmlNodeList signedInfoNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":SignedInfo", nsm);
+            XmlNodeList signedInfoNodes = signatureElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":SignedInfo", nsm);
             if (signedInfoNodes == null || signedInfoNodes.Count == 0 || signedInfoNodes.Count > 1)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "SignedInfo");
@@ -191,7 +191,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             this.SignedInfo.LoadXml(signedInfoElement);
 
             // SignatureValue
-            XmlNodeList signatureValueNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":SignatureValue", nsm);
+            XmlNodeList signatureValueNodes = signatureElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":SignatureValue", nsm);
             if (signatureValueNodes == null || signatureValueNodes.Count == 0 || signatureValueNodes.Count > 1)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "SignatureValue");
@@ -207,7 +207,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // KeyInfo - optional single element
-            XmlNodeList keyInfoNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":KeyInfo", nsm);
+            XmlNodeList keyInfoNodes = signatureElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":KeyInfo", nsm);
             this._keyInfo = new KeyInfo();
             if (keyInfoNodes != null)
             {
@@ -227,7 +227,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // Object - zero or more elements allowed
-            XmlNodeList objectNodes = signatureElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":Object", nsm);
+            XmlNodeList objectNodes = signatureElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":Object", nsm);
             this._embeddedObjects.Clear();
             if (objectNodes != null)
             {

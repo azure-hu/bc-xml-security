@@ -179,7 +179,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the Reference
-            XmlElement referenceElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Reference", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement referenceElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "Reference", SignedXml.XmlDsigNamespaceUrl);
 
             if (!String.IsNullOrEmpty(this._id))
             {
@@ -208,7 +208,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_DigestMethodRequired);
             }
 
-            XmlElement digestMethodElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "DigestMethod", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement digestMethodElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "DigestMethod", SignedXml.XmlDsigNamespaceUrl);
             digestMethodElement.SetAttribute("Algorithm", this._digestMethod);
             referenceElement.AppendChild(digestMethodElement);
 
@@ -222,7 +222,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 this.DigestValue = this._hashval;
             }
 
-            XmlElement digestValueElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "DigestValue", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement digestValueElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "DigestValue", SignedXml.XmlDsigNamespaceUrl);
             digestValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(this._digestValue)));
             referenceElement.AppendChild(digestValueElement);
 
@@ -245,12 +245,12 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
             // Transforms
             Boolean hasTransforms = false;
             this.TransformChain = new TransformChain();
-            XmlNodeList transformsNodes = value.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":Transforms", nsm);
+            XmlNodeList transformsNodes = value.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":Transforms", nsm);
             if (transformsNodes != null && transformsNodes.Count != 0)
             {
                 if (transformsNodes.Count > 1)
@@ -263,7 +263,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 {
                     throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "Reference/Transforms");
                 }
-                XmlNodeList transformNodes = transformsElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":Transform", nsm);
+                XmlNodeList transformNodes = transformsElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":Transform", nsm);
                 if (transformNodes != null)
                 {
                     if (transformNodes.Count != transformsElement.SelectNodes("*").Count)
@@ -295,8 +295,8 @@ namespace Org.BouncyCastle.Crypto.Xml
                         {
                             // Walk back to the Signature tag. Find the nearest signature ancestor
                             // Signature-->SignedInfo-->Reference-->Transforms-->Transform
-                            XmlNode signatureTag = transformElement.SelectSingleNode("ancestor::" + SignedXml.XmlDsigNamespacePrefix + ":Signature[1]", nsm);
-                            XmlNodeList signatureList = transformElement.SelectNodes("//" + SignedXml.XmlDsigNamespacePrefix + ":Signature", nsm);
+                            XmlNode signatureTag = transformElement.SelectSingleNode("ancestor::" + SignedXml.DefaultXmlDsigNamespacePrefix + ":Signature[1]", nsm);
+                            XmlNodeList signatureList = transformElement.SelectNodes("//" + SignedXml.DefaultXmlDsigNamespacePrefix + ":Signature", nsm);
                             if (signatureList != null)
                             {
                                 Int32 position = 0;
@@ -316,7 +316,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // DigestMethod
-            XmlNodeList digestMethodNodes = value.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":DigestMethod", nsm);
+            XmlNodeList digestMethodNodes = value.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":DigestMethod", nsm);
             if (digestMethodNodes == null || digestMethodNodes.Count == 0 || digestMethodNodes.Count > 1)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "Reference/DigestMethod");
@@ -331,7 +331,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
 
             // DigestValue
-            XmlNodeList digestValueNodes = value.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":DigestValue", nsm);
+            XmlNodeList digestValueNodes = value.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":DigestValue", nsm);
             if (digestValueNodes == null || digestValueNodes.Count == 0 || digestValueNodes.Count > 1)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "Reference/DigestValue");

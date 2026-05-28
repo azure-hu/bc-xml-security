@@ -55,7 +55,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal override XmlElement GetXml(XmlDocument xmlDocument)
         {
             // Create the actual element
-            XmlElement retrievalMethodElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "RetrievalMethod", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement retrievalMethodElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "RetrievalMethod", SignedXml.XmlDsigNamespaceUrl);
 
             if (!String.IsNullOrEmpty(this._uri))
             {

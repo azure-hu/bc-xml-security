@@ -88,10 +88,10 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the CipherData element
-            XmlElement cipherDataElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "CipherData", EncryptedXml.XmlEncNamespaceUrl);
+            XmlElement cipherDataElement = (XmlElement)document.CreateElement(EncryptedXml.DefaultXmlEncNamespacePrefix, "CipherData", EncryptedXml.XmlEncNamespaceUrl);
             if (this.CipherValue != null)
             {
-                XmlElement cipherValueElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "CipherValue", EncryptedXml.XmlEncNamespaceUrl);
+                XmlElement cipherValueElement = document.CreateElement(EncryptedXml.DefaultXmlEncNamespacePrefix, "CipherValue", EncryptedXml.XmlEncNamespaceUrl);
                 cipherValueElement.AppendChild(document.CreateTextNode(Convert.ToBase64String(this.CipherValue)));
                 cipherDataElement.AppendChild(cipherValueElement);
             }
@@ -116,10 +116,10 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
 
-            XmlNode cipherValueNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CipherValue", nsm);
-            XmlNode cipherReferenceNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CipherReference", nsm);
+            XmlNode cipherValueNode = value.SelectSingleNode(EncryptedXml.DefaultXmlEncNamespacePrefix + ":CipherValue", nsm);
+            XmlNode cipherReferenceNode = value.SelectSingleNode(EncryptedXml.DefaultXmlEncNamespacePrefix + ":CipherReference", nsm);
             if (cipherValueNode != null)
             {
                 if (cipherReferenceNode != null)

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Text;
 
 namespace Org.BouncyCastle.Crypto.Xml
@@ -10,7 +11,7 @@ namespace Org.BouncyCastle.Crypto.Xml
     // that have to provide node subsetting and canonicalization features.
     internal interface ICanonicalizableNode
     {
-        System.Boolean IsInNodeSet
+        Boolean IsInNodeSet
         {
             get;
             set;

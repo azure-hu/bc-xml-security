@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Xml;
 
@@ -13,22 +14,22 @@ namespace Org.BouncyCastle.Crypto.Xml
     {
         private readonly Hashtable _inclusivePrefixSet = null;
 
-        internal ExcAncestralNamespaceContextManager(System.String inclusiveNamespacesPrefixList)
+        internal ExcAncestralNamespaceContextManager(String inclusiveNamespacesPrefixList)
         {
             this._inclusivePrefixSet = Utils.TokenizePrefixListString(inclusiveNamespacesPrefixList);
         }
 
-        private System.Boolean HasNonRedundantInclusivePrefix(XmlAttribute attr)
+        private Boolean HasNonRedundantInclusivePrefix(XmlAttribute attr)
         {
-            System.Int32 tmp;
-            System.String nsPrefix = Utils.GetNamespacePrefix(attr);
+            Int32 tmp;
+            String nsPrefix = Utils.GetNamespacePrefix(attr);
             return this._inclusivePrefixSet.ContainsKey(nsPrefix) &&
                 Utils.IsNonRedundantNamespaceDecl(attr, this.GetNearestRenderedNamespaceWithMatchingPrefix(nsPrefix, out tmp));
         }
 
-        private void GatherNamespaceToRender(System.String nsPrefix, SortedList nsListToRender, Hashtable nsLocallyDeclared)
+        private void GatherNamespaceToRender(String nsPrefix, SortedList nsListToRender, Hashtable nsLocallyDeclared)
         {
-            foreach (System.Object a in nsListToRender.GetKeyList())
+            foreach (Object a in nsListToRender.GetKeyList())
             {
                 if (Utils.HasNamespacePrefix((XmlAttribute)a, nsPrefix))
                 {
@@ -36,7 +37,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 }
             }
 
-            System.Int32 rDepth;
+            Int32 rDepth;
             XmlAttribute local = (XmlAttribute)nsLocallyDeclared[nsPrefix];
             XmlAttribute rAncestral = this.GetNearestRenderedNamespaceWithMatchingPrefix(nsPrefix, out rDepth);
 
@@ -50,7 +51,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
             else
             {
-                System.Int32 uDepth;
+                Int32 uDepth;
                 XmlAttribute uAncestral = this.GetNearestUnrenderedNamespaceWithMatchingPrefix(nsPrefix, out uDepth);
                 if (uAncestral != null && uDepth > rDepth && Utils.IsNonRedundantNamespaceDecl(uAncestral, rAncestral))
                 {
@@ -62,9 +63,9 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal override void GetNamespacesToRender(XmlElement element, SortedList attrListToRender, SortedList nsListToRender, Hashtable nsLocallyDeclared)
         {
             this.GatherNamespaceToRender(element.Prefix, nsListToRender, nsLocallyDeclared);
-            foreach (System.Object attr in attrListToRender.GetKeyList())
+            foreach (Object attr in attrListToRender.GetKeyList())
             {
-                System.String prefix = ((XmlAttribute)attr).Prefix;
+                String prefix = ((XmlAttribute)attr).Prefix;
                 if (prefix.Length > 0)
                 {
                     this.GatherNamespaceToRender(prefix, nsListToRender, nsLocallyDeclared);

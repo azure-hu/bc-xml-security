@@ -193,9 +193,9 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
-            XmlNodeList transformNodes = value.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":Transform", nsm);
+            XmlNodeList transformNodes = value.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":Transform", nsm);
             if (transformNodes.Count == 0)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "Transforms");

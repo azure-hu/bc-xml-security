@@ -50,9 +50,9 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             for (Int32 i = 0, count = encryptedGrantList.Count; i < count; i++)
             {
-                encryptionMethod = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptionMethod", this._namespaceManager) as XmlElement;
-                keyInfo = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + SignedXml.XmlDsigNamespacePrefix + ":KeyInfo", this._namespaceManager) as XmlElement;
-                cipherData = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + EncryptedXml.XmlEncNamespacePrefix + ":CipherData", this._namespaceManager) as XmlElement;
+                encryptionMethod = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptionMethod", this._namespaceManager) as XmlElement;
+                keyInfo = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + SignedXml.DefaultXmlDsigNamespacePrefix + ":KeyInfo", this._namespaceManager) as XmlElement;
+                cipherData = encryptedGrantList[i].SelectSingleNode("//r:encryptedGrant/" + EncryptedXml.DefaultXmlEncNamespacePrefix + ":CipherData", this._namespaceManager) as XmlElement;
                 if ((encryptionMethod != null) &&
                     (keyInfo != null) &&
                     (cipherData != null))
@@ -155,8 +155,8 @@ namespace Org.BouncyCastle.Crypto.Xml
             this._license = new XmlDocument();
             this._license.PreserveWhitespace = true;
             this._namespaceManager = new XmlNamespaceManager(this._license.NameTable);
-            this._namespaceManager.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
-            this._namespaceManager.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            this._namespaceManager.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            this._namespaceManager.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
             this._namespaceManager.AddNamespace("r", NamespaceUriCore);
 
             XmlElement currentIssuerContext = null;
@@ -170,7 +170,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_XrmlMissingIssuer);
             }
 
-            signatureNode = currentIssuerContext.SelectSingleNode("descendant-or-self::" + SignedXml.XmlDsigNamespacePrefix + ":Signature[1]", this._namespaceManager) as XmlElement;
+            signatureNode = currentIssuerContext.SelectSingleNode("descendant-or-self::" + SignedXml.DefaultXmlDsigNamespacePrefix + ":Signature[1]", this._namespaceManager) as XmlElement;
             if (signatureNode != null)
             {
                 signatureNode.ParentNode.RemoveChild(signatureNode);

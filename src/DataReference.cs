@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
+
 namespace Org.BouncyCastle.Crypto.Xml
 {
     public sealed class DataReference : EncryptedReference
@@ -11,12 +13,12 @@ namespace Org.BouncyCastle.Crypto.Xml
             this.ReferenceType = "DataReference";
         }
 
-        public DataReference(System.String uri) : base(uri)
+        public DataReference(String uri) : base(uri)
         {
             this.ReferenceType = "DataReference";
         }
 
-        public DataReference(System.String uri, TransformChain transformChain) : base(uri, transformChain)
+        public DataReference(String uri, TransformChain transformChain) : base(uri, transformChain)
         {
             this.ReferenceType = "DataReference";
         }

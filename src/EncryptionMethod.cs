@@ -72,7 +72,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the EncryptionMethod element
-            XmlElement encryptionMethodElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptionMethod", EncryptedXml.XmlEncNamespaceUrl);
+            XmlElement encryptionMethodElement = (XmlElement)document.CreateElement(EncryptedXml.DefaultXmlEncNamespacePrefix, "EncryptionMethod", EncryptedXml.XmlEncNamespaceUrl);
             if (!String.IsNullOrEmpty(this._algorithm))
             {
                 encryptionMethodElement.SetAttribute("Algorithm", this._algorithm);
@@ -81,7 +81,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             if (this._keySize > 0)
             {
                 // Construct a KeySize element
-                XmlElement keySizeElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "KeySize", EncryptedXml.XmlEncNamespaceUrl);
+                XmlElement keySizeElement = document.CreateElement(EncryptedXml.DefaultXmlEncNamespacePrefix, "KeySize", EncryptedXml.XmlEncNamespaceUrl);
                 keySizeElement.AppendChild(document.CreateTextNode(this._keySize.ToString(null, null)));
                 encryptionMethodElement.AppendChild(keySizeElement);
             }
@@ -96,12 +96,12 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
 
             XmlElement encryptionMethodElement = value;
             this._algorithm = Utils.GetAttribute(encryptionMethodElement, "Algorithm", EncryptedXml.XmlEncNamespaceUrl);
 
-            XmlNode keySizeNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":KeySize", nsm);
+            XmlNode keySizeNode = value.SelectSingleNode(EncryptedXml.DefaultXmlEncNamespacePrefix + ":KeySize", nsm);
             if (keySizeNode != null)
             {
                 this.KeySize = Convert.ToInt32(Utils.DiscardWhiteSpaces(keySizeNode.InnerText), null);

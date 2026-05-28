@@ -93,7 +93,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             this._nsm = new XmlNamespaceManager(this._containingDocument.NameTable);
-            this._nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            this._nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
         }
 
         private void LoadXmlNodeListInput(XmlNodeList nodeList)
@@ -111,7 +111,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             this._nsm = new XmlNamespaceManager(this._containingDocument.NameTable);
-            this._nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            this._nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
             this._inputNodeList = nodeList;
         }
 
@@ -124,7 +124,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             this._containingDocument = doc;
             this._nsm = new XmlNamespaceManager(this._containingDocument.NameTable);
-            this._nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            this._nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
         }
 
         public override Object GetOutput()
@@ -143,7 +143,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                     return this._inputNodeList;
                 }
 
-                XmlNodeList signatureList = this._containingDocument.SelectNodes("//" + SignedXml.XmlDsigNamespacePrefix + ":Signature", this._nsm);
+                XmlNodeList signatureList = this._containingDocument.SelectNodes("//" + SignedXml.DefaultXmlDsigNamespacePrefix + ":Signature", this._nsm);
                 if (signatureList == null)
                 {
                     return this._inputNodeList;
@@ -167,7 +167,7 @@ namespace Org.BouncyCastle.Crypto.Xml
                         try
                         {
                             // Find the nearest signature ancestor tag
-                            XmlNode result = node.SelectSingleNode("ancestor-or-self::" + SignedXml.XmlDsigNamespacePrefix + ":Signature[1]", this._nsm);
+                            XmlNode result = node.SelectSingleNode("ancestor-or-self::" + SignedXml.DefaultXmlDsigNamespacePrefix + ":Signature[1]", this._nsm);
                             Int32 position = 0;
                             foreach (XmlNode node1 in signatureList)
                             {
@@ -190,7 +190,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             // Else we have received either a stream or a document as input
             else
             {
-                XmlNodeList signatureList = this._containingDocument.SelectNodes("//" + SignedXml.XmlDsigNamespacePrefix + ":Signature", this._nsm);
+                XmlNodeList signatureList = this._containingDocument.SelectNodes("//" + SignedXml.DefaultXmlDsigNamespacePrefix + ":Signature", this._nsm);
                 if (signatureList == null)
                 {
                     return this._containingDocument;

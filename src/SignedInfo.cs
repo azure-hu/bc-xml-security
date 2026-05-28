@@ -177,7 +177,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the root element
-            XmlElement signedInfoElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "SignedInfo", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signedInfoElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "SignedInfo", SignedXml.XmlDsigNamespaceUrl);
             if (!String.IsNullOrEmpty(this._id))
             {
                 signedInfoElement.SetAttribute("Id", this._id);
@@ -193,13 +193,13 @@ namespace Org.BouncyCastle.Crypto.Xml
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_SignatureMethodRequired);
             }
 
-            XmlElement signatureMethodElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "SignatureMethod", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement signatureMethodElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "SignatureMethod", SignedXml.XmlDsigNamespaceUrl);
             signatureMethodElement.SetAttribute("Algorithm", this._signatureMethod);
             // Add HMACOutputLength tag if we have one
             if (this._signatureLength != null)
             {
                 //XmlElement hmacLengthElement = document.CreateElement(null, "HMACOutputLength", SignedXml.XmlDsigNamespaceUrl);
-                XmlElement hmacLengthElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "HMACOutputLength", SignedXml.XmlDsigNamespaceUrl);
+                XmlElement hmacLengthElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "HMACOutputLength", SignedXml.XmlDsigNamespaceUrl);
                 XmlText outputLength = document.CreateTextNode(this._signatureLength);
                 hmacLengthElement.AppendChild(outputLength);
                 signatureMethodElement.AppendChild(hmacLengthElement);
@@ -237,7 +237,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
             Int32 expectedChildNodes = 0;
 
             // Id attribute -- optional
@@ -248,7 +248,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // CanonicalizationMethod -- must be present
-            XmlNodeList canonicalizationMethodNodes = signedInfoElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":CanonicalizationMethod", nsm);
+            XmlNodeList canonicalizationMethodNodes = signedInfoElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":CanonicalizationMethod", nsm);
             if (canonicalizationMethodNodes == null || canonicalizationMethodNodes.Count == 0 || canonicalizationMethodNodes.Count > 1)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "SignedInfo/CanonicalizationMethod");
@@ -269,7 +269,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // SignatureMethod -- must be present
-            XmlNodeList signatureMethodNodes = signedInfoElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":SignatureMethod", nsm);
+            XmlNodeList signatureMethodNodes = signedInfoElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":SignatureMethod", nsm);
             if (signatureMethodNodes == null || signatureMethodNodes.Count == 0 || signatureMethodNodes.Count > 1)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_InvalidElement, "SignedInfo/SignatureMethod");
@@ -284,7 +284,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             // Now get the output length if we are using a MAC algorithm
-            XmlElement signatureLengthElement = signatureMethodElement.SelectSingleNode(SignedXml.XmlDsigNamespacePrefix + ":HMACOutputLength", nsm) as XmlElement;
+            XmlElement signatureLengthElement = signatureMethodElement.SelectSingleNode(SignedXml.DefaultXmlDsigNamespacePrefix + ":HMACOutputLength", nsm) as XmlElement;
             if (signatureLengthElement != null)
             {
                 this._signatureLength = signatureLengthElement.InnerXml;
@@ -294,7 +294,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             this._references.Clear();
 
             // Reference - 0 or more
-            XmlNodeList referenceNodes = signedInfoElement.SelectNodes(SignedXml.XmlDsigNamespacePrefix + ":Reference", nsm);
+            XmlNodeList referenceNodes = signedInfoElement.SelectNodes(SignedXml.DefaultXmlDsigNamespacePrefix + ":Reference", nsm);
             if (referenceNodes != null)
             {
                 if (referenceNodes.Count > Utils.MaxReferencesPerSignedInfo)

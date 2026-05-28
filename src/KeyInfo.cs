@@ -42,7 +42,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal XmlElement GetXml(XmlDocument xmlDocument)
         {
             // Create the KeyInfo element itself
-            XmlElement keyInfoElement = xmlDocument.CreateElement(SignedXml.XmlDsigNamespacePrefix, "KeyInfo", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement keyInfoElement = xmlDocument.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "KeyInfo", SignedXml.XmlDsigNamespaceUrl);
             if (!String.IsNullOrEmpty(this._id))
             {
                 keyInfoElement.SetAttribute("Id", this._id);

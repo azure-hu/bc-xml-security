@@ -44,13 +44,13 @@ namespace Org.BouncyCastle.Crypto.Xml
         private static IList<String> s_defaultSafeTransformMethods = null;
 
         // additional HMAC Url identifiers
-        private const String XmlDsigMoreHMACMD5Url       = "http://www.w3.org/2001/04/xmldsig-more#hmac-md5";
-        public  const String XmlDsigHMACSHA1Url          = "http://www.w3.org/2000/09/xmldsig#hmac-sha1";
-        private const String XmlDsigMoreHMACSHA224Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha224";
-        private const String XmlDsigMoreHMACSHA256Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha256";
-        private const String XmlDsigMoreHMACSHA384Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha384";
-        private const String XmlDsigMoreHMACSHA512Url    = "http://www.w3.org/2001/04/xmldsig-more#hmac-sha512";
-        private const String XmlDsigMoreHMACRIPEMD160Url = "http://www.w3.org/2001/04/xmldsig-more#hmac-ripemd160";
+        private const String XmlDsigMoreHMACMD5Url       = XmlDsigMoreNamespaceUrl + "hmac-md5";
+        public  const String XmlDsigHMACSHA1Url          = XmlDsigNamespaceUrl + "hmac-sha1";
+        private const String XmlDsigMoreHMACSHA224Url    = XmlDsigMoreNamespaceUrl + "hmac-sha224";
+        private const String XmlDsigMoreHMACSHA256Url    = XmlDsigMoreNamespaceUrl + "hmac-sha256";
+        private const String XmlDsigMoreHMACSHA384Url    = XmlDsigMoreNamespaceUrl + "hmac-sha384";
+        private const String XmlDsigMoreHMACSHA512Url    = XmlDsigMoreNamespaceUrl + "hmac-sha512";
+        private const String XmlDsigMoreHMACRIPEMD160Url = XmlDsigMoreNamespaceUrl + "hmac-ripemd160";
 
         // defines the XML encryption processing rules
         private EncryptedXml _exml = null;
@@ -60,47 +60,51 @@ namespace Org.BouncyCastle.Crypto.Xml
         //
 
         public const String XmlDsigNamespaceUrl = "http://www.w3.org/2000/09/xmldsig#";
-        public const String XmlDsigNamespacePrefix = "ds";
+        public const String DefaultXmlDsigNamespacePrefix = "ds";
         public const String XmlDsig11NamespaceUrl =  "http://www.w3.org/2009/xmldsig11#";
-        public const String XmlDsig11NamespacePrefix = "dsig11";
-        public const String XmlDsigMinimalCanonicalizationUrl = "http://www.w3.org/2000/09/xmldsig#minimal";
+        public const String DefaultXmlDsig11NamespacePrefix = "dsig11";
+        public const String XmlDsigMinimalCanonicalizationUrl = XmlDsigNamespaceUrl + "minimal";
         public const String XmlDsigCanonicalizationUrl = XmlDsigC14NTransformUrl;
         public const String XmlDsigCanonicalizationWithCommentsUrl = XmlDsigC14NWithCommentsTransformUrl;
 
-        public const String XmlDsigSHA1Url       = "http://www.w3.org/2000/09/xmldsig#sha1";
+        public const String XmlDsigMoreNamespaceUrl = "http://www.w3.org/2001/04/xmldsig-more#";
+        public const String XmlDsigMore200705NamespaceUrl = "http://www.w3.org/2007/05/xmldsig-more#";
+        public const String XmlDsigMore202104NamespaceUrl = "http://www.w3.org/2021/04/xmldsig-more#";
+
+        public const String XmlDsigSHA1Url       = XmlDsigNamespaceUrl + "sha1";
         public const String XmlDsigSHA256Url     = EncryptedXml.XmlEncSHA256Url;
         public const String XmlDsigSHA384Url     = SignedXml.XmlDsigMoreSHA384Url;
         public const String XmlDsigSHA512Url     = EncryptedXml.XmlEncSHA512Url;
 
-        public const String XmlDsigMoreSHA224Url = "http://www.w3.org/2001/04/xmldsig-more#sha224";
-        public const String XmlDsigMoreSHA384Url = "http://www.w3.org/2001/04/xmldsig-more#sha384";
+        public const String XmlDsigMoreSHA224Url = XmlDsigMoreNamespaceUrl + "sha224";
+        public const String XmlDsigMoreSHA384Url = XmlDsigMoreNamespaceUrl + "sha384";
 
-        public const String XmlDsigMoreSHA3_224Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-224";
-        public const String XmlDsigMoreSHA3_256Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-256";
-        public const String XmlDsigMoreSHA3_384Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-384";
-        public const String XmlDsigMoreSHA3_512Url = "http://www.w3.org/2007/05/xmldsig-more#sha3-512";
+        public const String XmlDsigMoreSHA3_224Url = XmlDsigMore200705NamespaceUrl + "sha3-224";
+        public const String XmlDsigMoreSHA3_256Url = XmlDsigMore200705NamespaceUrl + "sha3-256";
+        public const String XmlDsigMoreSHA3_384Url = XmlDsigMore200705NamespaceUrl + "sha3-384";
+        public const String XmlDsigMoreSHA3_512Url = XmlDsigMore200705NamespaceUrl + "sha3-512";
 
-        public const String XmlDsigDSAUrl         = "http://www.w3.org/2000/09/xmldsig#dsa-sha1";
-        public const String XmlDsig11DSASHA256Url = "http://www.w3.org/2009/xmldsig11#dsa-sha256";
+        public const String XmlDsigDSAUrl         = XmlDsigNamespaceUrl + "dsa-sha1";
+        public const String XmlDsig11DSASHA256Url = XmlDsigMore200705NamespaceUrl + "dsa-sha256";
 
-        public const String XmlDsigMoreRSAMD5Url       = "http://www.w3.org/2001/04/xmldsig-more#rsa-md5";
-        public const String XmlDsigRSASHA1Url      = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
-        public const String XmlDsigMoreRSASHA224Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha224";
-        public const String XmlDsigMoreRSASHA256Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
-        public const String XmlDsigMoreRSASHA384Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha384";
-        public const String XmlDsigMoreRSASHA512Url    = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
-        public const String XmlDsigMoreRSARIPEMD160Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-ripemd160";
+        public const String XmlDsigMoreRSAMD5Url       = XmlDsigMoreNamespaceUrl + "rsa-md5";
+        public const String XmlDsigRSASHA1Url      = XmlDsigNamespaceUrl + "rsa-sha1";
+        public const String XmlDsigMoreRSASHA224Url    = XmlDsigMoreNamespaceUrl + "rsa-sha224";
+        public const String XmlDsigMoreRSASHA256Url    = XmlDsigMoreNamespaceUrl + "rsa-sha256";
+        public const String XmlDsigMoreRSASHA384Url    = XmlDsigMoreNamespaceUrl + "rsa-sha384";
+        public const String XmlDsigMoreRSASHA512Url    = XmlDsigMoreNamespaceUrl + "rsa-sha512";
+        public const String XmlDsigMoreRSARIPEMD160Url = XmlDsigMoreNamespaceUrl + "rsa-ripemd160";
 
-        public const String XmlDsigMoreECDSASHA1Url      = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha1";
-        public const String XmlDsigMoreECDSASHA224Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha224";
-        public const String XmlDsigMoreECDSASHA256Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha256";
-        public const String XmlDsigMoreECDSASHA384Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha384";
-        public const String XmlDsigMoreECDSASHA512Url    = "http://www.w3.org/2001/04/xmldsig-more#ecdsa-sha512";
-        public const String XmlDsigMoreECDSASHA3_224Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-224";
-        public const String XmlDsigMoreECDSASHA3_256Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-256";
-        public const String XmlDsigMoreECDSASHA3_384Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-384";
-        public const String XmlDsigMoreECDSASHA3_512Url  = "http://www.w3.org/2021/04/xmldsig-more#ecdsa-sha3-512";
-        public const String XmlDsigMoreECDSARIPEMD160Url = "http://www.w3.org/2007/05/xmldsig-more#ecdsa-ripemd160";
+        public const String XmlDsigMoreECDSASHA1Url      = XmlDsigMoreNamespaceUrl + "ecdsa-sha1";
+        public const String XmlDsigMoreECDSASHA224Url    = XmlDsigMoreNamespaceUrl + "ecdsa-sha224";
+        public const String XmlDsigMoreECDSASHA256Url    = XmlDsigMoreNamespaceUrl + "ecdsa-sha256";
+        public const String XmlDsigMoreECDSASHA384Url    = XmlDsigMoreNamespaceUrl + "ecdsa-sha384";
+        public const String XmlDsigMoreECDSASHA512Url    = XmlDsigMoreNamespaceUrl + "ecdsa-sha512";
+        public const String XmlDsigMoreECDSASHA3_224Url  = XmlDsigMore202104NamespaceUrl + "ecdsa-sha3-224";
+        public const String XmlDsigMoreECDSASHA3_256Url  = XmlDsigMore202104NamespaceUrl + "ecdsa-sha3-256";
+        public const String XmlDsigMoreECDSASHA3_384Url  = XmlDsigMore202104NamespaceUrl + "ecdsa-sha3-384";
+        public const String XmlDsigMoreECDSASHA3_512Url  = XmlDsigMore202104NamespaceUrl + "ecdsa-sha3-512";
+        public const String XmlDsigMoreECDSARIPEMD160Url = XmlDsigMore200705NamespaceUrl + "ecdsa-ripemd160";
 
         public const String XmlDsigC14NTransformUrl = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315";
         public const String XmlDsigC14NWithCommentsTransformUrl = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments";
@@ -108,18 +112,18 @@ namespace Org.BouncyCastle.Crypto.Xml
         public const String XmlDsigExcC14NTransformUrl = "http://www.w3.org/2001/10/xml-exc-c14n#";
         public const String XmlDsigExcC14NTransformPrefix = "exc14n";
         public const String XmlDsigExcC14NWithCommentsTransformUrl = "http://www.w3.org/2001/10/xml-exc-c14n#WithComments";
-        public const String XmlDsigBase64TransformUrl = "http://www.w3.org/2000/09/xmldsig#base64";
+        public const String XmlDsigBase64TransformUrl = XmlDsigNamespaceUrl + "base64";
         public const String XmlDsigXPathTransformUrl = "http://www.w3.org/TR/1999/REC-xpath-19991116";
         public const String XmlDsigXsltTransformUrl = "http://www.w3.org/TR/1999/REC-xslt-19991116";
-        public const String XmlDsigEnvelopedSignatureTransformUrl = "http://www.w3.org/2000/09/xmldsig#enveloped-signature";
+        public const String XmlDsigEnvelopedSignatureTransformUrl = XmlDsigNamespaceUrl + "enveloped-signature";
         public const String XmlDecryptionTransformUrl = "http://www.w3.org/2002/07/decrypt#XML";
         public const String XmlLicenseTransformUrl = "urn:mpeg:mpeg21:2003:01-REL-R-NS:licenseTransform";
 
         // GOST 2001 algorithms
         public const String XmlDsigGost3410Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102001-gostr3411";
-        public const String XmlDsigGost3410ObsoleteUrl = "http://www.w3.org/2001/04/xmldsig-more#gostr34102001-gostr3411";
+        public const String XmlDsigGost3410ObsoleteUrl = XmlDsigMoreNamespaceUrl + "gostr34102001-gostr3411";
         public const String XmlDsigGost3411Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr3411";
-        public const String XmlDsigGost3411ObsoleteUrl = "http://www.w3.org/2001/04/xmldsig-more#gostr3411";
+        public const String XmlDsigGost3411ObsoleteUrl = XmlDsigMoreNamespaceUrl + "gostr3411";
         public const String XmlDsigGost3411HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr3411";
 
         // GOST 2012 algorithms
@@ -130,6 +134,23 @@ namespace Org.BouncyCastle.Crypto.Xml
         public const String XmlDsigGost3410_2012_512_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34102012-gostr34112012-512";
         public const String XmlDsigGost3411_2012_512_Url = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:gostr34112012-512";
         public const String XmlDsigGost3411_2012_512_HmacUrl = "urn:ietf:params:xml:ns:cpxmlsec:algorithms:hmac-gostr34112012-512";
+
+
+        //
+        // Symmetric Block Encryption defined under XMLDSIG-MORE URI
+        //
+
+        public const String XmlDsigMoreCamellia128Url = XmlDsigMoreNamespaceUrl + "camellia128-cbc";
+        public const String XmlDsigMoreCamellia192Url = XmlDsigMoreNamespaceUrl + "camellia192-cbc";
+        public const String XmlDsigMoreCamellia256Url = XmlDsigMoreNamespaceUrl + "camellia256-cbc";
+
+        //
+        // Symmetric Key Wrap defined under XMLDSIG-MORE URI
+        //
+
+        public const String XmlDsigMoreCamellia128KeyWrapUrl = XmlDsigMoreNamespaceUrl + "kw-camellia128";
+        public const String XmlDsigMoreCamellia192KeyWrapUrl = XmlDsigMoreNamespaceUrl + "kw-camellia192";
+        public const String XmlDsigMoreCamellia256KeyWrapUrl = XmlDsigMoreNamespaceUrl + "kw-camellia256";
 
         //
         // public constructors

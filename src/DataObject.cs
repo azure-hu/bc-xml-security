@@ -139,7 +139,7 @@ namespace Org.BouncyCastle.Crypto.Xml
 
         internal XmlElement GetXml(XmlDocument document)
         {
-            XmlElement objectElement = document.CreateElement(SignedXml.XmlDsigNamespacePrefix, "Object", SignedXml.XmlDsigNamespaceUrl);
+            XmlElement objectElement = document.CreateElement(SignedXml.DefaultXmlDsigNamespacePrefix, "Object", SignedXml.XmlDsigNamespaceUrl);
 
             if (!String.IsNullOrEmpty(this._id))
             {

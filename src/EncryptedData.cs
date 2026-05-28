@@ -17,15 +17,15 @@ namespace Org.BouncyCastle.Crypto.Xml
             }
 
             XmlNamespaceManager nsm = new XmlNamespaceManager(value.OwnerDocument.NameTable);
-            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
-            nsm.AddNamespace(SignedXml.XmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
+            nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            nsm.AddNamespace(SignedXml.DefaultXmlDsigNamespacePrefix, SignedXml.XmlDsigNamespaceUrl);
 
             this.Id = Utils.GetAttribute(value, "Id", EncryptedXml.XmlEncNamespaceUrl);
             this.Type = Utils.GetAttribute(value, "Type", EncryptedXml.XmlEncNamespaceUrl);
             this.MimeType = Utils.GetAttribute(value, "MimeType", EncryptedXml.XmlEncNamespaceUrl);
             this.Encoding = Utils.GetAttribute(value, "Encoding", EncryptedXml.XmlEncNamespaceUrl);
 
-            XmlNode encryptionMethodNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionMethod", nsm);
+            XmlNode encryptionMethodNode = value.SelectSingleNode(EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptionMethod", nsm);
 
             // EncryptionMethod
             this.EncryptionMethod = new EncryptionMethod();
@@ -36,14 +36,14 @@ namespace Org.BouncyCastle.Crypto.Xml
 
             // Key Info
             this.KeyInfo = new KeyInfo();
-            XmlNode keyInfoNode = value.SelectSingleNode(SignedXml.XmlDsigNamespacePrefix + ":KeyInfo", nsm);
+            XmlNode keyInfoNode = value.SelectSingleNode(SignedXml.DefaultXmlDsigNamespacePrefix + ":KeyInfo", nsm);
             if (keyInfoNode != null)
             {
                 this.KeyInfo.LoadXml(keyInfoNode as XmlElement);
             }
 
             // CipherData
-            XmlNode cipherDataNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":CipherData", nsm);
+            XmlNode cipherDataNode = value.SelectSingleNode(EncryptedXml.DefaultXmlEncNamespacePrefix + ":CipherData", nsm);
             if (cipherDataNode == null)
             {
                 throw new System.Security.Cryptography.CryptographicException(SR.Cryptography_Xml_MissingCipherData);
@@ -53,11 +53,11 @@ namespace Org.BouncyCastle.Crypto.Xml
             this.CipherData.LoadXml(cipherDataNode as XmlElement);
 
             // EncryptionProperties
-            XmlNode encryptionPropertiesNode = value.SelectSingleNode(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionProperties", nsm);
+            XmlNode encryptionPropertiesNode = value.SelectSingleNode(EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptionProperties", nsm);
             if (encryptionPropertiesNode != null)
             {
                 // Select the EncryptionProperty elements inside the EncryptionProperties element
-                XmlNodeList encryptionPropertyNodes = encryptionPropertiesNode.SelectNodes(EncryptedXml.XmlEncNamespacePrefix + ":EncryptionProperty", nsm);
+                XmlNodeList encryptionPropertyNodes = encryptionPropertiesNode.SelectNodes(EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptionProperty", nsm);
                 if (encryptionPropertyNodes != null)
                 {
                     foreach (XmlNode node in encryptionPropertyNodes)
@@ -88,7 +88,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         internal XmlElement GetXml(XmlDocument document)
         {
             // Create the EncryptedData element
-            XmlElement encryptedDataElement = (XmlElement)document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptedData", EncryptedXml.XmlEncNamespaceUrl);
+            XmlElement encryptedDataElement = (XmlElement)document.CreateElement(EncryptedXml.DefaultXmlEncNamespacePrefix, "EncryptedData", EncryptedXml.XmlEncNamespaceUrl);
 
             // Deal with attributes
             if (!String.IsNullOrEmpty(this.Id))
@@ -134,7 +134,7 @@ namespace Org.BouncyCastle.Crypto.Xml
             // EncryptionProperties
             if (this.EncryptionProperties.Count > 0)
             {
-                XmlElement encryptionPropertiesElement = document.CreateElement(EncryptedXml.XmlEncNamespacePrefix, "EncryptionProperties", EncryptedXml.XmlEncNamespaceUrl);
+                XmlElement encryptionPropertiesElement = document.CreateElement(EncryptedXml.DefaultXmlEncNamespacePrefix, "EncryptionProperties", EncryptedXml.XmlEncNamespaceUrl);
                 for (Int32 index = 0; index < this.EncryptionProperties.Count; index++)
                 {
                     EncryptionProperty ep = this.EncryptionProperties.Item(index);

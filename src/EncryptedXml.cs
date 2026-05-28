@@ -21,46 +21,49 @@ namespace Org.BouncyCastle.Crypto.Xml
         //
 
         public const String XmlEncNamespaceUrl = "http://www.w3.org/2001/04/xmlenc#";
-        public const String XmlEncNamespacePrefix = "xenc";
+        public const String DefaultXmlEncNamespacePrefix = "xenc";
         public const String XmlEnc11NamespaceUrl =  "http://www.w3.org/2009/xmlenc11#";
-        public const String XmlEnc11NamespacePrefix = "xenc11";
-        public const String XmlEncElementUrl = "http://www.w3.org/2001/04/xmlenc#Element";
-        public const String XmlEncElementContentUrl = "http://www.w3.org/2001/04/xmlenc#Content";
-        public const String XmlEncEncryptedKeyUrl = "http://www.w3.org/2001/04/xmlenc#EncryptedKey";
+        public const String DefaultXmlEnc11NamespacePrefix = "xenc11";
+        public const String XmlEncElementUrl = XmlEncNamespaceUrl + "Element";
+        public const String XmlEncElementContentUrl = XmlEncNamespaceUrl + "Content";
+        public const String XmlEncEncryptedKeyUrl = XmlEncNamespaceUrl + "EncryptedKey";
 
         //
         // Symmetric Block Encryption
         //
 
-        public const String XmlEncDESUrl = "http://www.w3.org/2001/04/xmlenc#des-cbc";
-        public const String XmlEncTripleDESUrl = "http://www.w3.org/2001/04/xmlenc#tripledes-cbc";
-        public const String XmlEncAES128Url = "http://www.w3.org/2001/04/xmlenc#aes128-cbc";
-        public const String XmlEncAES256Url = "http://www.w3.org/2001/04/xmlenc#aes256-cbc";
-        public const String XmlEncAES192Url = "http://www.w3.org/2001/04/xmlenc#aes192-cbc";
+        public const String XmlEncDESUrl = XmlEncNamespaceUrl + "des-cbc";
+        public const String XmlEncTripleDESUrl = XmlEncNamespaceUrl + "tripledes-cbc";
+        public const String XmlEncAES128Url = XmlEncNamespaceUrl + "aes128-cbc";
+        public const String XmlEncAES256Url = XmlEncNamespaceUrl + "aes256-cbc";
+        public const String XmlEncAES192Url = XmlEncNamespaceUrl + "aes192-cbc";
 
         //
         // Key Transport
         //
 
-        public const String XmlEncRSA15Url = "http://www.w3.org/2001/04/xmlenc#rsa-1_5";
-        public const String XmlEncRSAOAEPUrl = "http://www.w3.org/2001/04/xmlenc#rsa-oaep-mgf1p";
+        public const String XmlEncRSA15Url = XmlEncNamespaceUrl + "rsa-1_5";
+        public const String XmlEncRSAOAEPUrl = XmlEncNamespaceUrl + "rsa-oaep-mgf1p";
 
         //
         // Symmetric Key Wrap
         //
 
-        public const String XmlEncTripleDESKeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-tripledes";
-        public const String XmlEncAES128KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes128";
-        public const String XmlEncAES256KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes256";
-        public const String XmlEncAES192KeyWrapUrl = "http://www.w3.org/2001/04/xmlenc#kw-aes192";
+        public const String XmlEncTripleDESKeyWrapUrl = XmlEncNamespaceUrl + "kw-tripledes";
+        public const String XmlEncAES128KeyWrapUrl = XmlEncNamespaceUrl + "kw-aes128";
+        public const String XmlEncAES192KeyWrapUrl = XmlEncNamespaceUrl + "kw-aes192";
+        public const String XmlEncAES256KeyWrapUrl = XmlEncNamespaceUrl + "kw-aes256";
+        public const String XmlEnc11AES128KeyWrapPadUrl = XmlEnc11NamespaceUrl + "kw-aes-128-pad";
+        public const String XmlEnc11AES192KeyWrapPadUrl = XmlEnc11NamespaceUrl + "kw-aes-192-pad";
+        public const String XmlEnc11AES256KeyWrapPadUrl = XmlEnc11NamespaceUrl + "kw-aes256-pad";
 
         //
         // Message Digest
         //
 
-        public const String XmlEncRIPEMD1606Url = "http://www.w3.org/2001/04/xmlenc#ripemd160";
-        public const String XmlEncSHA256Url = "http://www.w3.org/2001/04/xmlenc#sha256";
-        public const String XmlEncSHA512Url = "http://www.w3.org/2001/04/xmlenc#sha512";
+        public const String XmlEncRIPEMD1606Url = XmlEncNamespaceUrl + "ripemd160";
+        public const String XmlEncSHA256Url = XmlEncNamespaceUrl + "sha256";
+        public const String XmlEncSHA512Url = XmlEncNamespaceUrl + "sha512";
 
         //
         // private members
@@ -103,7 +106,7 @@ namespace Org.BouncyCastle.Crypto.Xml
         /// if the counter is over the limit defined by admin or developer.
         /// </summary>
         /// <returns>returns true if the limit has reached otherwise false</returns>
-        private Boolean IsOverXmlDsigRecursionLimit()
+        protected Boolean IsOverXmlDsigRecursionLimit()
         {
             if (this._xmlDsigSearchDepthCounter > this.XmlDSigSearchDepth)
             {
@@ -174,11 +177,16 @@ namespace Org.BouncyCastle.Crypto.Xml
             set { this._recipient = value; }
         }
 
+        protected XmlDocument document { get { return this._document; } }
+        protected XmlResolver xmlResolver { get { return this._xmlResolver; } }
+        protected Int32 xmlDsigSearchDepthCounter { get { return this._xmlDsigSearchDepthCounter; } set { this._xmlDsigSearchDepthCounter = value; } }
+        protected Hashtable keyNameMapping { get { return this._keyNameMapping; } }
+
         //
         // private methods
         //
 
-        private Byte[] GetCipherValue(CipherData cipherData)
+        protected Byte[] GetCipherValue(CipherData cipherData)
         {
             if (cipherData == null)
             {
@@ -344,8 +352,8 @@ namespace Org.BouncyCastle.Crypto.Xml
                     }
                     // try to get it from a CarriedKeyName
                     XmlNamespaceManager nsm = new XmlNamespaceManager(this._document.NameTable);
-                    nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
-                    XmlNodeList encryptedKeyList = this._document.SelectNodes("//" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptedKey", nsm);
+                    nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+                    XmlNodeList encryptedKeyList = this._document.SelectNodes("//" + EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptedKey", nsm);
                     if (encryptedKeyList != null)
                     {
                         foreach (XmlNode encryptedKeyNode in encryptedKeyList)
@@ -719,8 +727,8 @@ namespace Org.BouncyCastle.Crypto.Xml
         {
             // Look for all EncryptedData elements and decrypt them
             XmlNamespaceManager nsm = new XmlNamespaceManager(this._document.NameTable);
-            nsm.AddNamespace(EncryptedXml.XmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
-            XmlNodeList encryptedDataList = this._document.SelectNodes("//" + EncryptedXml.XmlEncNamespacePrefix + ":EncryptedData", nsm);
+            nsm.AddNamespace(EncryptedXml.DefaultXmlEncNamespacePrefix, EncryptedXml.XmlEncNamespaceUrl);
+            XmlNodeList encryptedDataList = this._document.SelectNodes("//" + EncryptedXml.DefaultXmlEncNamespacePrefix + ":EncryptedData", nsm);
             if (encryptedDataList != null)
             {
                 foreach (XmlNode encryptedDataNode in encryptedDataList)
